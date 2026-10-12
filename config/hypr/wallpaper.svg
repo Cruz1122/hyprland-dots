@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <!-- Original wallpaper for hyprland-dots, 2026. GPL-3.0. -->
+  <defs>
+    <radialGradient id="glow"><stop stop-color="#343740"/><stop offset="1" stop-color="#111216"/></radialGradient>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  <path d="M0 1800 900 1100 1800 1550 2700 850 3840 1450V2160H0Z" fill="#181a20"/>
+  <path d="M0 1980 1150 1570 2000 1850 3100 1420 3840 1840V2160H0Z" fill="#101115"/>
+</svg>

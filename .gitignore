@@ -1,0 +1,56 @@
+# Local runtime state
+*.log
+*.tmp
+*.bak
+*.bak.*
+*.bak-*
+*.backup
+*.backup.*
+*.backup-*
+*.pre-settingsctl-*
+*.old
+*.swp
+*~
+
+# Secrets and machine-private credentials
+.env
+.env.*
+**/secrets/**
+**/secret/**
+**/keyring/**
+!config/quickshell/ii/scripts/keyring/
+!config/quickshell/ii/scripts/keyring/*.sh
+**/*token*
+**/*secret*
+**/*credential*
+**/*password*
+**/*api-key*
+**/*apikey*
+!config/quickshell/ii/services/gCloud/
+!config/quickshell/ii/services/gCloud/token_from_key.py
+!config/quickshell/ii/services/gCloud/token-from-key-venv.sh
+
+# Runtime/generated state that must not become source of truth
+state/
+states.json
+cache/
+backups/
+*.pid
+
+# Machine runtime markers imported from the installer state
+config/illogical-impulse/installed_listfile
+config/illogical-impulse/installed_true
+
+# Python/tooling caches
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Captured assets/state that are not redistributable source
+**/mpvpaper_thumbnails/
+.venv/
+file:/
+*.pkg.tar.*
+packaging/arch/**/src/
+packaging/arch/**/pkg/
