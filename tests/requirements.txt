@@ -1,0 +1,3 @@
+# Domain tests for migration payloads and encrypted authenticator backups.
+protobuf>=5,<8
+cryptography>=46,<47
