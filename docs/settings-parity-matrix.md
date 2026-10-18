@@ -153,8 +153,8 @@ dependencies.
 - `lock.security.unlockKeyring`
 - `lock.showLockedText`
 - `lock.useHyprlock`
-- `notifications.forceMonitor.enable`
-- `notifications.forceMonitor.name`
+- `notifications.monitor.enable`
+- `notifications.monitor.name`
 - `notifications.timeout`
 - `osd.timeout`
 - `overlay.darkenScreen`

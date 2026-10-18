@@ -36,6 +36,14 @@ class AuthenticatorDomainTest(unittest.TestCase):
         self.assertEqual(accounts[0]["account"], "alice@example.com")
         self.assertEqual(accounts[1]["digits"], 8)
 
+    def test_rejects_corrupt_google_migration_protobuf(self) -> None:
+        with self.assertRaises(ValueError):
+            AUTH.parse_migration_uri("otpauth-migration://offline?data=%%%")
+
+    def test_wraps_corrupt_google_protobuf_as_value_error(self) -> None:
+        with self.assertRaisesRegex(ValueError, "Invalid migration payload"):
+            AUTH._migration_message(b"\xff")
+
     def test_rejects_malformed_parameters_and_empty_account(self) -> None:
         for uri in (
             "otpauth://totp/Example:alice?secret=JBSWY3DPEHPK3PXP&digits=no",
@@ -51,6 +59,19 @@ class AuthenticatorDomainTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             AUTH.totp("JBSWY3DPEHPK3PXP", 0, period=0)
 
+    def test_encrypted_backup_round_trip_and_wrong_password(self) -> None:
+        account = {"issuer": "Fixture", "account": "demo", "secret": "JBSWY3DPEHPK3PXP",
+                   "algorithm": "SHA1", "digits": 6, "period": 30}
+        try:
+            package = AUTH.export_encrypted([account], "synthetic-test-password")
+        except ValueError as error:
+            if "cryptography" in str(error):
+                self.skipTest(str(error))
+            raise
+        self.assertNotIn(account["secret"], package)
+        self.assertEqual(AUTH.import_encrypted(package, "synthetic-test-password"), [account])
+        with self.assertRaisesRegex(ValueError, "Invalid password"):
+            AUTH.import_encrypted(package, "wrong-password")
 
 if __name__ == "__main__":
     unittest.main()

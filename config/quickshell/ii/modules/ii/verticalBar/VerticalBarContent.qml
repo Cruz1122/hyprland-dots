@@ -190,6 +190,11 @@ Item { // Bar content region
                 invertSide: Config?.options.bar.bottom
             }
 
+            Bar.GrokUnreadPreview {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: false
+            }
+
             RippleButton { // Right sidebar button
                 id: rightSidebarButton
 

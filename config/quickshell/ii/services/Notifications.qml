@@ -2,6 +2,7 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import qs.modules.common
+import qs.services
 import qs
 import QtQuick
 import Quickshell
@@ -79,7 +80,7 @@ Singleton {
     property list<Notif> list: []
     property var popupList: list.filter((notif) => notif.popup);
     property bool popupInhibited: (GlobalStates?.sidebarRightOpen ?? false) || silent
-    property var latestTimeForApp: ({})
+
     Component {
         id: notifComponent
         Notif {}
@@ -90,22 +91,18 @@ Singleton {
     }
 
     function stringifyList(list) {
-        return JSON.stringify(list.map((notif) => notifToJSON(notif)), null, 2);
+        return JSON.stringify(list.map((notif) => notifToJSON(notif)));
     }
-    
-    onListChanged: {
-        // Update latest time for each app
-        root.list.forEach((notif) => {
-            if (!root.latestTimeForApp[notif.appName] || notif.time > root.latestTimeForApp[notif.appName]) {
-                root.latestTimeForApp[notif.appName] = Math.max(root.latestTimeForApp[notif.appName] || 0, notif.time);
-            }
-        });
-        // Remove apps that no longer have notifications
-        Object.keys(root.latestTimeForApp).forEach((appName) => {
-            if (!root.list.some((notif) => notif.appName === appName)) {
-                delete root.latestTimeForApp[appName];
-            }
-        });
+
+    function schedulePersistence() {
+        persistenceTimer.restart();
+    }
+
+    Timer {
+        id: persistenceTimer
+        interval: 250
+        repeat: false
+        onTriggered: notifFileView.setText(root.stringifyList(root.list));
     }
 
     function appNameListForGroups(groups) {
@@ -115,26 +112,62 @@ Singleton {
         });
     }
 
+    function groupForNotification(notif) {
+        const bot = GrokBots.botForNotification(notif);
+        if (bot) {
+            return {
+                groupKey: `grok:${bot.id}`,
+                displayName: bot.name,
+                appName: bot.name, // Compatibility alias used by existing views
+                appIcon: "grok-bot",
+                isGrokBot: true,
+                bot: bot,
+            };
+        }
+        return {
+            groupKey: `app:${notif.appName}`,
+            displayName: notif.appName,
+            appName: notif.appName,
+            appIcon: notif.appIcon,
+            isGrokBot: false,
+            bot: null,
+        };
+    }
+
     function groupsForList(list) {
         const groups = {};
         list.forEach((notif) => {
-            if (!groups[notif.appName]) {
-                groups[notif.appName] = {
-                    appName: notif.appName,
-                    appIcon: notif.appIcon,
+            const metadata = groupForNotification(notif);
+            if (!groups[metadata.groupKey]) {
+                groups[metadata.groupKey] = {
+                    groupKey: metadata.groupKey,
+                    displayName: metadata.displayName,
+                    appName: metadata.appName,
+                    appIcon: metadata.appIcon,
+                    isGrokBot: metadata.isGrokBot,
+                    bot: metadata.bot,
                     notifications: [],
                     time: 0
                 };
             }
-            groups[notif.appName].notifications.push(notif);
-            // Always set to the latest time in the group
-            groups[notif.appName].time = latestTimeForApp[notif.appName] || notif.time;
+            groups[metadata.groupKey].notifications.push(notif);
+            // Always set to the latest time in the group.
+            groups[metadata.groupKey].time = Math.max(groups[metadata.groupKey].time || 0, notif.time || 0);
         });
         return groups;
     }
 
-    property var groupsByAppName: groupsForList(root.list)
-    property var popupGroupsByAppName: groupsForList(root.popupList)
+    // Keep persisted Grok notifications re-associated when the roster arrives
+    // after the notification history has loaded.
+    property var grokBotsSnapshot: GrokBots.bots
+    property var groupsByAppName: {
+        const roster = root.grokBotsSnapshot;
+        return groupsForList(root.list);
+    }
+    property var popupGroupsByAppName: {
+        const roster = root.grokBotsSnapshot;
+        return groupsForList(root.popupList);
+    }
     property list<string> appNameList: appNameListForGroups(root.groupsByAppName)
     property list<string> popupAppNameList: appNameListForGroups(root.popupGroupsByAppName)
 
@@ -181,7 +214,7 @@ Singleton {
             }
             root.notify(newNotifObject);
             // console.log(notifToString(newNotifObject));
-            notifFileView.setText(stringifyList(root.list));
+            root.schedulePersistence();
         }
     }
 
@@ -195,8 +228,8 @@ Singleton {
         const notifServerIndex = notifServer.trackedNotifications.values.findIndex((notif) => notif.id + root.idOffset === id);
         if (index !== -1) {
             root.list.splice(index, 1);
-            notifFileView.setText(stringifyList(root.list));
-            triggerListChange()
+            triggerListChange();
+            root.schedulePersistence();
         }
         if (notifServerIndex !== -1) {
             notifServer.trackedNotifications.values[notifServerIndex].dismiss()
@@ -205,9 +238,8 @@ Singleton {
     }
 
     function discardAllNotifications() {
-        root.list = []
-        triggerListChange()
-        notifFileView.setText(stringifyList(root.list));
+        root.list = [];
+        root.schedulePersistence();
         notifServer.trackedNotifications.values.forEach((notif) => {
             notif.dismiss()
         })

@@ -18,6 +18,8 @@ MouseArea { // Notification group area
     property bool multipleNotifications: notificationCount > 1
     property bool expanded: false
     property bool popup: false
+    readonly property bool isGrokBot: notificationGroup?.isGrokBot ?? false
+    readonly property var bot: notificationGroup?.bot ?? null
     property real padding: 10
     implicitHeight: background.implicitHeight
 
@@ -91,8 +93,10 @@ MouseArea { // Notification group area
         }
 
         onClicked: (mouse) => {
-            if (mouse.button === Qt.MiddleButton) 
+            if (mouse.button === Qt.MiddleButton)
                 root.destroyWithAnimation();
+            else if (mouse.button === Qt.LeftButton && root.isGrokBot && !root.expanded)
+                GrokBots.openBot(root.bot?.id);
         }
 
         onDraggingChanged: () => {
@@ -124,6 +128,9 @@ MouseArea { // Notification group area
         color: popup ? Appearance.colors.colBackgroundSurfaceContainer : Appearance.colors.colLayer2
         radius: Appearance.rounding.normal
         anchors.leftMargin: root.xOffset
+        border.width: root.expanded ? 0 : 1
+        border.color: root.notifications.some(n => n.urgency === NotificationUrgency.Critical.toString()) ?
+            Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
 
         Behavior on anchors.leftMargin {
             enabled: !dragManager.dragging
@@ -137,7 +144,7 @@ MouseArea { // Notification group area
         clip: true
         implicitHeight: root.expanded ? 
             row.implicitHeight + padding * 2 :
-            Math.min(80, row.implicitHeight + padding * 2)
+            Math.min(160, row.implicitHeight + padding * 2)
 
         Behavior on implicitHeight {
             id: implicitHeightAnim
@@ -152,14 +159,34 @@ MouseArea { // Notification group area
             anchors.margins: root.padding
             spacing: 10
 
-            NotificationAppIcon { // Icons
+            Loader { // Icons / Grok agent avatars
+                id: groupIcon
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: false
-                image: root?.multipleNotifications ? "" : notificationGroup?.notifications[0]?.image ?? ""
-                appIcon: root.notificationGroup?.appIcon
-                summary: root.notificationGroup?.notifications[root.notificationCount - 1]?.summary
-                urgency: root.notifications.some(n => n.urgency === NotificationUrgency.Critical.toString()) ? 
-                    NotificationUrgency.Critical : NotificationUrgency.Normal
+                Layout.preferredWidth: 38 * root.scale
+                Layout.preferredHeight: 38 * root.scale
+                sourceComponent: root.isGrokBot ? grokAvatarComponent : notificationIconComponent
+                Component {
+                    id: grokAvatarComponent
+                    GrokAvatar {
+                        bot: root.bot
+                        nativeAnimationState: (
+                            (root.bot?.avatarShape === "teardrop" && root.bot?.avatarColor === "black")
+                            || (root.bot?.avatarShape === "tablet" && root.bot?.avatarColor === "violet")
+                        ) ? "curious" : "neutral"
+                        size: 38 * scale
+                    }
+                }
+                Component {
+                    id: notificationIconComponent
+                    NotificationAppIcon {
+                        image: root?.multipleNotifications ? "" : notificationGroup?.notifications[0]?.image ?? ""
+                        appIcon: root.notificationGroup?.appIcon
+                        summary: root.notificationGroup?.notifications[root.notificationCount - 1]?.summary
+                        urgency: root.notifications.some(n => n.urgency === NotificationUrgency.Critical.toString()) ?
+                            NotificationUrgency.Critical : NotificationUrgency.Normal
+                    }
+                }
             }
 
             ColumnLayout { // Content
@@ -190,13 +217,13 @@ MouseArea { // Notification group area
                             id: appName
                             elide: Text.ElideRight
                             Layout.fillWidth: true
-                            text: (topRow.showAppName ?
-                                notificationGroup?.appName :
+                            text: (root.isGrokBot || topRow.showAppName ?
+                                (notificationGroup?.displayName || notificationGroup?.appName) :
                                 notificationGroup?.notifications[0]?.summary) || ""
-                            font.pixelSize: topRow.showAppName ?
+                            font.pixelSize: (root.isGrokBot || topRow.showAppName) ?
                                 topRow.fontSize :
                                 Appearance.font.pixelSize.small
-                            color: topRow.showAppName ?
+                            color: (root.isGrokBot || topRow.showAppName) ?
                                 Appearance.colors.colSubtext :
                                 Appearance.colors.colOnLayer2
                         }
@@ -254,6 +281,19 @@ MouseArea { // Notification group area
                 }
 
             }
+        }
+
+        // Keep expansion and drag gestures separate from the Grok affordance.
+        MouseArea {
+            z: 3
+            visible: root.isGrokBot
+            acceptedButtons: Qt.LeftButton
+            x: root.padding
+            y: root.padding
+            width: groupIcon.width + 10 + topTextRow.width
+            height: topRow.height
+            onClicked: GrokBots.openBot(root.bot?.id)
+            cursorShape: Qt.PointingHandCursor
         }
     }
 }

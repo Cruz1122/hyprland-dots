@@ -1,5 +1,6 @@
 import qs.modules.ii.bar.weather
 import QtQuick
+import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
@@ -175,14 +176,35 @@ Item { // Bar content region
                         Layout.alignment: Qt.AlignVCenter
                     }
 
-                    MaterialSymbol {
+                    Item {
                         Layout.alignment: Qt.AlignVCenter
                         Layout.leftMargin: 2
                         Layout.rightMargin: 2
-                        text: "heart_smile"
-                        iconSize: Appearance.font.pixelSize.huge
-                        fill: 0
-                        color: Appearance.colors.colOnLayer1
+                        implicitWidth: heartButton.implicitWidth
+                        implicitHeight: heartButton.implicitHeight
+
+                        Button {
+                            id: heartButton
+                            anchors.fill: parent
+                            implicitWidth: Appearance.font.pixelSize.huge
+                            implicitHeight: implicitWidth
+                            padding: 0
+                            visible: !GlobalStates.authenticatorOpen && !GlobalStates.authenticatorPresented
+                            Accessible.name: "Autenticador"
+                            onClicked: GlobalStates.openAuthenticator(root.screen?.name ?? "")
+                            background: Rectangle {
+                                radius: Appearance.rounding.small
+                                color: parent.hovered ? Appearance.colors.colLayer1Hover : "transparent"
+                            }
+                            contentItem: MaterialSymbol {
+                                text: "heart_smile"
+                                iconSize: Appearance.font.pixelSize.huge
+                                fill: 0
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                                color: Appearance.colors.colOnLayer1
+                            }
+                        }
                     }
 
                     BatteryIndicator {
@@ -348,6 +370,10 @@ Item { // Bar content region
                         color: rightSidebarButton.colText
                     }
                 }
+            }
+
+            GrokUnreadPreview {
+                // The row is right-to-left, so this sits immediately left of the bell.
             }
 
             SysTray {

@@ -9,15 +9,26 @@ import Quickshell.Hyprland
 Scope {
     id: root
 
-    function dismiss() {
+    function dismiss(): void {
+        if (root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr) {
+            if (GlobalStates.authenticatorQrStatus === "selecting" || GlobalStates.authenticatorQrStatus === "processing") {
+                GlobalStates.authenticatorQrPayload = "";
+                GlobalStates.authenticatorQrStatus = "cancelled";
+                GlobalStates.authenticatorQrCaptureRevision += 1;
+            }
+            Quickshell.screens.forEach(screen => Quickshell.execDetached(["rm", "-f", "--", `${Directories.screenshotTemp}/image-${screen.name}`]));
+        }
         GlobalStates.regionSelectorOpen = false
+        GlobalStates.authenticatorQrScreenName = ""
     }
 
     property var action: RegionSelection.SnipAction.Copy
     property var selectionMode: RegionSelection.SelectionMode.RectCorners
     
     Variants {
-        model: Quickshell.screens
+        model: root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr
+            ? Quickshell.screens.filter(screen => screen.name === GlobalStates.authenticatorQrScreenName)
+            : Quickshell.screens
         delegate: Loader {
             id: regionSelectorLoader
             required property var modelData
@@ -60,6 +71,14 @@ Scope {
         GlobalStates.regionSelectorOpen = true
     }
 
+    function authenticatorQr() {
+        root.action = RegionSelection.SnipAction.AuthenticatorCaptureQr
+        root.selectionMode = RegionSelection.SelectionMode.RectCorners
+        GlobalStates.authenticatorQrPayload = ""
+        GlobalStates.authenticatorQrStatus = "selecting"
+        GlobalStates.regionSelectorOpen = true
+    }
+
     function record() {
         root.action = RegionSelection.SnipAction.Record
         root.selectionMode = RegionSelection.SelectionMode.RectCorners
@@ -90,6 +109,9 @@ Scope {
         }
         function qr() {
             root.qr()
+        }
+        function authenticatorQr() {
+            root.authenticatorQr()
         }
         function record() {
             root.record()

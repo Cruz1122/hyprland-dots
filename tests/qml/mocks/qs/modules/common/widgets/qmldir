@@ -1,0 +1,6 @@
+module qs.modules.common.widgets
+StyledText 1.0 StyledText.qml
+MaterialSymbol 1.0 MaterialSymbol.qml
+MaterialTextField 1.0 MaterialTextField.qml
+StyledComboBox 1.0 StyledComboBox.qml
+StyledSpinBox 1.0 StyledSpinBox.qml

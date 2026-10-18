@@ -51,6 +51,7 @@ def parse_otpauth(uri: str) -> dict:
 def _migration_message(raw: bytes):
     """Build the de-facto Google migration protobuf without a generated file."""
     from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
+    from google.protobuf.message import DecodeError
     file = descriptor_pb2.FileDescriptorProto(name="migration.proto", package="ii")
     enum_specs = [("Algorithm", [("ALGORITHM_UNSPECIFIED", 0), ("ALGORITHM_SHA1", 1), ("ALGORITHM_SHA256", 2), ("ALGORITHM_SHA512", 3), ("ALGORITHM_MD5", 4)]),
                   ("Digits", [("DIGITS_UNSPECIFIED", 0), ("DIGITS_SIX", 1), ("DIGITS_EIGHT", 2)]),
@@ -70,7 +71,12 @@ def _migration_message(raw: bytes):
         payload.field.add(name=name, number=number, label=1, type=5)
     pool = descriptor_pool.DescriptorPool(); pool.Add(file)
     cls = message_factory.GetMessageClass(pool.FindMessageTypeByName("ii.MigrationPayload"))
-    result = cls(); result.ParseFromString(raw); return result
+    result = cls()
+    try:
+        result.ParseFromString(raw)
+    except DecodeError as exc:
+        raise ValueError("Invalid migration payload") from exc
+    return result
 
 
 def parse_migration_uri(uri: str) -> list[dict]:

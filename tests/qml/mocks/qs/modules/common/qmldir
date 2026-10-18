@@ -1,0 +1,7 @@
+module qs.modules.common
+singleton Appearance 1.0 Appearance.qml
+WindowDialog 1.0 WindowDialog.qml
+WindowDialogTitle 1.0 WindowDialogTitle.qml
+WindowDialogParagraph 1.0 WindowDialogParagraph.qml
+WindowDialogButtonRow 1.0 WindowDialogButtonRow.qml
+DialogButton 1.0 DialogButton.qml

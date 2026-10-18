@@ -1,9 +1,11 @@
 pragma ComponentBehavior: Bound
+import qs
 import qs.modules.common
 import qs.modules.common.utils
 import qs.modules.common.functions
 import qs.modules.common.widgets
 import qs.services
+import qs.modules.common.authenticator
 import QtQuick
 import QtQuick.Controls
 import Qt.labs.synchronizer
@@ -29,7 +31,7 @@ PanelWindow {
 
     // Modes
     // TODO: Ask: sidebar AI
-    enum SnipAction { Copy, Edit, Search, CharRecognition, QrRecognition, Record, RecordWithSound }
+    enum SnipAction { Copy, Edit, Search, CharRecognition, QrRecognition, Record, RecordWithSound, AuthenticatorCaptureQr }
     enum SelectionMode { RectCorners, Circle }
     enum Phase { Select, Post }
     property var action: RegionSelection.SnipAction.Copy
@@ -191,7 +193,12 @@ PanelWindow {
         screen: root.screen
         screenshotDir: root.screenshotDir
         screenshotPath: root.screenshotPath
+        privateCapture: root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr
         onExited: (exitCode, exitStatus) => {
+            if (root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr && exitCode !== 0) {
+                root.finishAuthenticatorQr("error", "");
+                return;
+            }
             if (root.enableContentRegions) imageDetectionProcess.running = true;
             root.preparationDone = !checkRecordingProc.running;
         }
@@ -208,6 +215,35 @@ PanelWindow {
         }
     }
     property bool preparationDone: false
+    property bool qrCaptureFinished: false
+
+    function finishAuthenticatorQr(status: string, payload: string): void {
+        if (root.qrCaptureFinished) return;
+        root.qrCaptureFinished = true;
+        GlobalStates.authenticatorQrStatus = status;
+        GlobalStates.authenticatorQrPayload = payload;
+        GlobalStates.authenticatorQrCaptureRevision += 1;
+        root.dismiss();
+    }
+
+    Process {
+        id: authenticatorQrProcess
+        stdout: StdioCollector { id: authenticatorQrOutput }
+        stderr: StdioCollector {}
+        onRunningChanged: {
+            if (running) return;
+            Qt.callLater(() => {
+                if (!root.qrCaptureFinished && GlobalStates.authenticatorQrStatus === "processing")
+                    root.finishAuthenticatorQr("error", "");
+            });
+        }
+        onExited: (exitCode, exitStatus) => {
+            const payload = String(authenticatorQrOutput.text || "").trim();
+            if (exitCode === 0 && payload.length > 0) root.finishAuthenticatorQr("decoded", payload);
+            else if (exitCode === 1) root.finishAuthenticatorQr("not-found", "");
+            else root.finishAuthenticatorQr("error", "");
+        }
+    }
     onPreparationDoneChanged: {
         if (!preparationDone) return;
         if (root.isRecording && root.recordingShouldStop) {
@@ -218,10 +254,13 @@ PanelWindow {
         root.visible = true;
     }
 
-    // Auto-dismiss region selector when recording stops (Post phase)
+    // Auto-dismiss region selector when recording stops (Post phase).
+    // Only recording actions use the Post phase as a live-recording state;
+    // other Post-phase actions (e.g. authenticator QR capture) must keep
+    // the selector open until their own process finishes.
     Process {
         id: recordingMonitor
-        running: root.phase === RegionSelection.Phase.Post && root.visible
+        running: root.isRecording && root.phase === RegionSelection.Phase.Post && root.visible
         command: ["pidof", "wf-recorder"]
         onExited: (exitCode, exitStatus) => {
             if (exitCode !== 0) {
@@ -279,8 +318,13 @@ PanelWindow {
     function snip() {
         // Validity check
         if (root.regionWidth <= 0 || root.regionHeight <= 0) {
-            console.warn("[Region Selector] Invalid region size, skipping snip.");
-            root.dismiss();
+            if (root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr) {
+                root.finishAuthenticatorQr("cancelled", "");
+            } else {
+                console.warn("[Region Selector] Invalid region size, skipping snip.");
+                root.dismiss();
+            }
+            return;
         }
 
         // Clamp region to screen bounds
@@ -288,6 +332,21 @@ PanelWindow {
         root.regionY = Math.max(0, Math.min(root.regionY, root.screen.height - root.regionHeight));
         root.regionWidth = Math.max(0, Math.min(root.regionWidth, root.screen.width - root.regionX));
         root.regionHeight = Math.max(0, Math.min(root.regionHeight, root.screen.height - root.regionY));
+
+        if (root.action === RegionSelection.SnipAction.AuthenticatorCaptureQr) {
+            GlobalStates.authenticatorQrStatus = "processing";
+            const x = Math.round(root.regionX * root.monitorScale);
+            const y = Math.round(root.regionY * root.monitorScale);
+            const width = Math.round(root.regionWidth * root.monitorScale);
+            const height = Math.round(root.regionHeight * root.monitorScale);
+            authenticatorQrProcess.command = ["/usr/bin/bash",
+                Quickshell.shellPath("scripts/authenticator-capture-qr.sh"),
+                root.screenshotPath, AuthenticatorStore.python, AuthenticatorStore.script,
+                String(x), String(y), String(width), String(height)];
+            authenticatorQrProcess.running = true;
+            root.phase = RegionSelection.Phase.Post;
+            return;
+        }
 
         // Adjust action
         if (root.action === RegionSelection.SnipAction.Copy || root.action === RegionSelection.SnipAction.Edit) {

@@ -16,7 +16,10 @@ Item { // Notification item area
     property bool onlyNotification: false
     property real fontSize: Appearance.font.pixelSize.small
     property real padding: onlyNotification ? 0 : 8
-    property real summaryElideRatio: 0.85
+    readonly property string processedBody: NotificationUtils.processNotificationBody(
+        root.notificationObject?.body ?? "",
+        root.notificationObject?.appName || root.notificationObject?.summary || ""
+    )
 
     property real dragConfirmThreshold: 70 // Drag further to discard notification
     property real dismissOvershoot: notificationIcon.implicitWidth + 20 // Account for gaps and bouncy animations
@@ -38,11 +41,6 @@ Item { // Notification item area
         destroyAnimation.running = true;
     }
 
-    TextMetrics {
-        id: summaryTextMetrics
-        font.pixelSize: root.fontSize
-        text: root.notificationObject.summary || ""
-    }
 
     SequentialAnimation { // Drag finish animation
         id: destroyAnimation
@@ -113,7 +111,7 @@ Item { // Notification item area
         id: background
         width: parent.width
         anchors.left: parent.left
-        radius: Appearance.rounding.small
+        radius: Appearance.rounding.normal
         anchors.leftMargin: root.xOffset
 
         Behavior on anchors.leftMargin {
@@ -130,6 +128,9 @@ Item { // Notification item area
                 ColorUtils.mix(Appearance.colors.colSecondaryContainer, Appearance.colors.colLayer2, 0.35) :
                 (Appearance.colors.colLayer3) :
             ColorUtils.transparentize(Appearance.colors.colLayer3)
+        border.width: expanded && !onlyNotification ? 1 : 0
+        border.color: notificationObject.urgency == NotificationUrgency.Critical ?
+            Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
 
         implicitHeight: expanded ? (contentColumn.implicitHeight + padding * 2) : summaryRow.implicitHeight
         Behavior on implicitHeight {
@@ -146,14 +147,14 @@ Item { // Notification item area
                 animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
             }
 
-            RowLayout { // Summary row
+            ColumnLayout { // Summary and preview
                 id: summaryRow
                 visible: !root.onlyNotification || !root.expanded
                 Layout.fillWidth: true
-                implicitHeight: summaryText.implicitHeight
+                spacing: 2
                 StyledText {
                     id: summaryText
-                    Layout.fillWidth: summaryTextMetrics.width >= root.width * root.summaryElideRatio
+                    Layout.fillWidth: true
                     visible: !root.onlyNotification
                     font.pixelSize: root.fontSize
                     color: Appearance.colors.colOnLayer3
@@ -161,6 +162,7 @@ Item { // Notification item area
                     text: root.notificationObject.summary || ""
                 }
                 StyledText {
+                    id: collapsedBody
                     opacity: !root.expanded ? 1 : 0
                     visible: opacity > 0
                     Layout.fillWidth: true
@@ -170,11 +172,14 @@ Item { // Notification item area
                     font.pixelSize: root.fontSize
                     color: Appearance.colors.colSubtext
                     elide: Text.ElideRight
-                    wrapMode: Text.Wrap // Needed for proper eliding????
-                    maximumLineCount: 1
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    clip: true
                     textFormat: Text.StyledText
                     text: {
-                        return NotificationUtils.processNotificationBody(notificationObject.body, notificationObject.appName || notificationObject.summary).replace(/\n/g, "<br/>")
+                        return root.processedBody
+                            .replace(/<img\b[^>]*>/gi, "")
+                            .replace(/\n/g, "<br/>");
                     }
                 }
             }
@@ -197,8 +202,8 @@ Item { // Notification item area
                     elide: Text.ElideRight
                     textFormat: Text.RichText
                     text: {
-                        return `<style>img{max-width:${expandedContentColumn.width}px;}</style>` + 
-                            `${NotificationUtils.processNotificationBody(notificationObject.body, notificationObject.appName || notificationObject.summary).replace(/\n/g, "<br/>")}`
+                        return `<style>img{max-width:${expandedContentColumn.width}px;}</style>` +
+                            `${root.processedBody.replace(/\n/g, "<br/>")}`
                     }
 
                     onLinkActivated: (link) => {

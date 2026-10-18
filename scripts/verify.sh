@@ -12,6 +12,9 @@ bash -n scripts/rebuild-quickshell.sh
 bash -n config/quickshell/ii/scripts/colors/applycolor.sh
 bash -n config/quickshell/ii/scripts/colors/switchwall.sh
 bash -n config/quickshell/ii/scripts/videos/record.sh
+bash -n config/quickshell/ii/scripts/grok-open-bot.sh
+bash -n config/quickshell/ii/scripts/grok-start-hidden.sh
+python -m py_compile config/quickshell/ii/scripts/grok-roster.py tests/test_grok_roster.py tests/test_grok_open_bot.py
 python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_settings_foundation_contract.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
 python -m unittest discover -s tests -p 'test_*.py'
 # Deployment/capture/dry-run are tested with isolated temporary homes, not live state.
