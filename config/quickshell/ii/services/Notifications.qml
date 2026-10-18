@@ -2,6 +2,7 @@ pragma Singleton
 pragma ComponentBehavior: Bound
 
 import qs.modules.common
+import qs.modules.common.functions
 import qs.services
 import qs
 import QtQuick
@@ -77,6 +78,9 @@ Singleton {
     property bool silent: false
     property int unread: 0
     property var filePath: Directories.notificationsPath
+    readonly property string openCodeMascotIcon: Qt.resolvedUrl(
+        `${Directories.assetsPath}/opencode-delta-mascot-${Appearance.m3colors.darkmode ? "dark" : "light"}.svg`
+    )
     property list<Notif> list: []
     property var popupList: list.filter((notif) => notif.popup);
     property bool popupInhibited: (GlobalStates?.sidebarRightOpen ?? false) || silent
@@ -121,7 +125,19 @@ Singleton {
                 appName: bot.name, // Compatibility alias used by existing views
                 appIcon: "grok-bot",
                 isGrokBot: true,
+                isOpenCode: false,
                 bot: bot,
+            };
+        }
+        if (NotificationUtils.isOpenCodeNotification(notif)) {
+            return {
+                groupKey: "app:opencode",
+                displayName: "OpenCode",
+                appName: "OpenCode",
+                appIcon: root.openCodeMascotIcon,
+                isGrokBot: false,
+                isOpenCode: true,
+                bot: null,
             };
         }
         return {
@@ -130,6 +146,7 @@ Singleton {
             appName: notif.appName,
             appIcon: notif.appIcon,
             isGrokBot: false,
+            isOpenCode: false,
             bot: null,
         };
     }
@@ -145,6 +162,7 @@ Singleton {
                     appName: metadata.appName,
                     appIcon: metadata.appIcon,
                     isGrokBot: metadata.isGrokBot,
+                    isOpenCode: metadata.isOpenCode,
                     bot: metadata.bot,
                     notifications: [],
                     time: 0

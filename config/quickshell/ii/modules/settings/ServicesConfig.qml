@@ -8,6 +8,8 @@ import qs.modules.settings.components
 SettingsPage {
     forceWidth: true
 
+    AiQuotaSettings { }
+
     SettingsSection {
         icon: "neurology"
         title: Translation.tr("AI")

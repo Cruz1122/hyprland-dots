@@ -11,6 +11,7 @@ import "services"
 import "panelFamilies"
 import "modules/common/displayControl"
 import "modules/common/authenticator"
+import "modules/common/aiQuotaPanel"
 
 import QtQuick
 import QtQuick.Window
@@ -25,6 +26,7 @@ ShellRoot {
     ReloadPopup {}
     DisplayControl {}
     Authenticator {}
+    AiQuotaPanel {}
 
     Component.onCompleted: {
         MaterialThemeLoader.reapplyTheme()

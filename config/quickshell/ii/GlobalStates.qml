@@ -18,6 +18,10 @@ Singleton {
     property string authenticatorQrStatus: ""
     property string authenticatorQrScreenName: ""
     property int authenticatorQrCaptureRevision: 0
+    // AI quota overview panel, mirroring the authenticator's reveal behavior.
+    property bool aiQuotaPanelOpen: false
+    property bool aiQuotaPanelPresented: false
+    property string aiQuotaPanelScreenName: ""
 
     // Keep one monitor for the entire presentation, including a reversed exit.
     function openAuthenticator(screenName: string): void {
@@ -33,6 +37,22 @@ Singleton {
     function toggleAuthenticator(): void {
         if (root.authenticatorOpen) root.authenticatorOpen = false;
         else root.openAuthenticator("");
+    }
+
+    // Keep one monitor for the entire presentation, including a reversed exit.
+    function openAiQuotaPanel(screenName: string): void {
+        if (root.screenLocked) return;
+        if (!root.aiQuotaPanelPresented) {
+            const name = screenName || Hyprland.focusedMonitor?.name || Quickshell.screens[0]?.name;
+            if (!name) return;
+            root.aiQuotaPanelScreenName = name;
+        }
+        root.aiQuotaPanelOpen = true;
+    }
+
+    function toggleAiQuotaPanel(): void {
+        if (root.aiQuotaPanelOpen) root.aiQuotaPanelOpen = false;
+        else root.openAiQuotaPanel("");
     }
 
     property bool crosshairOpen: false

@@ -17,6 +17,9 @@ bash -n config/quickshell/ii/scripts/grok-start-hidden.sh
 python -m py_compile config/quickshell/ii/scripts/grok-roster.py tests/test_grok_roster.py tests/test_grok_open_bot.py
 python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_settings_foundation_contract.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
 python -m unittest discover -s tests -p 'test_*.py'
+if command -v node >/dev/null 2>&1 && test -f tests/browser-extension.test.mjs; then
+    node --test tests/browser-extension.test.mjs
+fi
 # Deployment/capture/dry-run are tested with isolated temporary homes, not live state.
 scripts/settingsctl.py validate config/illogical-impulse/config.json >/dev/null
 scripts/settingsctl.py migrate config/illogical-impulse/config.json --dry-run >/dev/null

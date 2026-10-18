@@ -10,17 +10,5 @@ fill. This preserves the original paths while avoiding Qt's unsupported CSS
 custom properties.
 
 The templates contain no agent names, IDs, conversations, account data, or
-private cache paths. When the roster omits a bot's shape or color, the bridge
-replicates Grok Bot 0.71.2's ID-derived defaults: its eight-shape subset and
-FNV-1a/seeded-PRNG color selection (which excludes automatic `black`). Explicit
-valid roster metadata remains authoritative. If there is no valid photo or
-renderer template, the UI uses Grok's neutral fallback: a white circle, not
-the application icon.
-
-The active 0.71.2 app also contains a separate native motion renderer
-(`GrokBotMark`) with expression/reaction states such as `happy`, `excited`,
-`laughing`, `curious`, `surprised`, `sad`, and `scared`. The extracted native
-state SVG sequences live in the neighboring `grok-avatar-animations` directory;
-this directory remains the exact still fallback for photos, unsupported
-shape/color pairs, and missing animation assets. No animation state is written
-back to Grok.
+private cache paths. If there is no valid photo or renderer template, the UI
+uses Grok's neutral default: a white circle, not the application icon.

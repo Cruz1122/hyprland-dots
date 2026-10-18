@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "Desktop AI quota link",
+  "description": "Send only subscription usage to your local desktop panel. No cookie access.",
+  "version": "1.0.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh26yOYZyAadzsv3+KhfJ0JEHz1WGhgj/DYoGyYHgu2ORiLhpGN5ZlFPlw2M3thJk3838psidVzwLqWqWJBODGSqW0gbv4CQG5qU6wR9FpcTRueNjjQK72QPBy3EIR9DifvmaDbuVBunFcv5X5++pN/apAFaOO5ZrljwAQHkUVomA3yYog8flR8N7JH0yKvMSy6+BJAuNrjd4Iq3hETVpwNHFAZCAjHsYXYtgTgfa7B19qkNxUsOkJIZyH+9V+beV7loGwEu10Vr9BINzlW0UhA7pQMymy9tVJj+hCnoPzePhcJqAM+Hkc/4VRzocwk0iAkFR9XVeqrzVSSzom/eLYQIDAQAB",
+  "permissions": ["nativeMessaging", "scripting", "alarms", "storage"],
+  "host_permissions": ["https://cursor.com/*", "https://zed.dev/*", "https://dashboard.zed.dev/*", "https://cloud.zed.dev/*"],
+  "background": {"service_worker": "background.mjs", "type": "module"},
+  "action": {"default_title": "Refresh desktop AI quotas"}
+}

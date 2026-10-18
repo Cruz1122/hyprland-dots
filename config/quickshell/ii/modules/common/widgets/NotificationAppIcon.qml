@@ -19,6 +19,12 @@ MaterialShape { // App icon
     property real materialIconSize: implicitSize * materialIconScale
     property real appIconSize: implicitSize * appIconScale
     property real smallAppIconSize: implicitSize * smallAppIconScale
+    readonly property string appIconSource: {
+        const source = String(root.appIcon ?? "");
+        return source.startsWith("/") || source.startsWith("file:")
+            ? source
+            : Quickshell.iconPath(source, "image-missing");
+    }
 
     implicitSize: 38 * scale
     property list<var> urgentShapes: [
@@ -54,7 +60,7 @@ MaterialShape { // App icon
             id: appIconImage
             implicitSize: root.appIconSize
             asynchronous: true
-            source: Quickshell.iconPath(root.appIcon, "image-missing")
+            source: root.appIconSource
         }
     }
     Loader {
@@ -91,7 +97,7 @@ MaterialShape { // App icon
                 sourceComponent: IconImage {
                     implicitSize: root.smallAppIconSize
                     asynchronous: true
-                    source: Quickshell.iconPath(root.appIcon, "image-missing")
+                    source: root.appIconSource
                 }
             }
         }
