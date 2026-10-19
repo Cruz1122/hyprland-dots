@@ -20,8 +20,11 @@ Zed card also reads the built-in `grokbot` cache described below.
   existing ChatGPT login, or **Iniciar sesión** for its browser PKCE flow. The
   quota bridge reads fresh `/wham/usage` data independently of model execution.
   No Codex CLI or Secret Service dependency is needed for this source.
-  Expired access tokens fail closed: reauthorize in the dialog, or let OpenCode
-  renew its own session. The quota reader never rotates a shared refresh token.
+  Expired access tokens are renewed automatically with OpenCode's refresh token;
+  a usage rejection also triggers one refresh and retry. OpenCode and the quota
+  reader share one cross-process lock and re-read the credential before writing,
+  so a concurrent rotation is reused instead of overwritten. Reauthorize only when
+  the provider rejects the refresh itself.
 - **OpenCode Go through OpenCode (default):** reads the configured `opencode-go`
   API key, or `opencode` only when the former is absent. It supports both known
   usage envelopes, including rolling, weekly and monthly windows. No raw key is
@@ -153,7 +156,11 @@ not register a connected account.
 Files live under `$XDG_DATA_HOME/illogical-impulse/ai-quotas/browser-link` and
 `$XDG_STATE_HOME/illogical-impulse/ai-quotas/browser-link`. Host manifests are scoped
 to the extension ID in the user-level NativeMessagingHosts directories for Brave,
-Chromium and Chrome. No browser Preferences, personal profiles or existing browser
+Chromium and Chrome. The generated native launcher falls back to the deployed panel
+tree, so moving or renaming the source checkout does not break the link. Cursor
+identity is best-effort: a failing `/api/auth/me` leaves the reading as
+**identity unverified** instead of forcing a reconnect while `/api/usage-summary`
+still answers. No browser Preferences, personal profiles or existing browser
 credentials are read or rewritten. Background refresh is normally every 180 seconds;
 the extension checks for work with a 30-second alarm. It removes only its own
 inactive temporary tabs, not user-owned or activated tabs.
@@ -208,9 +215,11 @@ URL is sent to the desktop browser. Login is asynchronous, cancellable, and boun
 to 180 seconds; normal queries are bounded to 25 seconds. No unauthenticated local
 HTTP quota service is exposed. The OAuth callback binds only to `127.0.0.1:1455`.
 
-The bridge uses the fork's Auth service. Usage reads do not write credentials and
-ignore inherited `OPENCODE_AUTH_CONTENT`. Each query compares the auth entry before
-and after the request and discards a changed session. ChatGPT account IDs are
+The bridge uses the fork's Auth service and ignores inherited `OPENCODE_AUTH_CONTENT`.
+Near-expiry access tokens are refreshed under the same cross-process lock as the
+OpenCode plugin, re-reading the shared credential first. Each query compares the
+stable account identity before and after the request and discards a logout or
+account switch; a same-account token rotation is accepted. ChatGPT account IDs are
 hashed; the bridge never exports access/refresh tokens. HTTPS redirects and
 unrecognized quota schemas are rejected; response bodies are capped at 1 MiB.
 Browser login updates the fork's existing active ChatGPT login, not a separate

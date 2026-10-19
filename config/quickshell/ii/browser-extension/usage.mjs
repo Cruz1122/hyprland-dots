@@ -8,8 +8,11 @@ export async function readUsage(provider, origin = location.origin, request = fe
       for (const key of ["id", "userId", "sub"]) {
         const principal = candidate[key];
         if ((typeof principal === "string" && principal.length > 0) ||
-            (typeof principal === "number" && Number.isSafeInteger(principal)))
-          result.set(path + key, String(principal));
+            (typeof principal === "number" && Number.isSafeInteger(principal))) {
+          const text = String(principal);
+          // WorkOS `sub` is "<connection>|<durable id>"; only the durable part is stable.
+          result.set(path + key, key === "sub" ? text.split("|").pop() : text);
+        }
       }
     }
     return result;
@@ -21,7 +24,8 @@ export async function readUsage(provider, origin = location.origin, request = fe
     const response = await request(url, { credentials: "include", redirect: "error", signal: AbortSignal.timeout(10000) });
     if (response.status === 401 || response.status === 403) return null;
     if (!response.ok) throw Error("unavailable");
-    const reader = response.body.getReader();
+    const reader = response.body?.getReader();
+    if (!reader) return null;
     const chunks = []; let size = 0;
     try {
       while (true) {
@@ -32,14 +36,16 @@ export async function readUsage(provider, origin = location.origin, request = fe
     } finally { await reader.cancel(); }
     const bytes = new Uint8Array(size); let offset = 0;
     for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
-    return JSON.parse(new TextDecoder().decode(bytes));
+    const text = new TextDecoder().decode(bytes);
+    return text.trim() ? JSON.parse(text) : null;
   };
   try {
     if (provider === "cursor") {
-      const before = await get("/api/auth/me"); if (!before) return { status: "login-required" };
+      // `/api/auth/me` is best-effort identity: usage-summary is the session authority.
+      const readIdentity = async () => { try { return await get("/api/auth/me"); } catch { return null; } };
+      const before = await readIdentity();
       const data = await get("/api/usage-summary"); if (!data) return { status: "login-required" };
-      const after = await get("/api/auth/me");
-      if (!after) return { status: "login-required" };
+      const after = await readIdentity();
       const beforeIdentities = cursorIdentities(before);
       const afterIdentities = cursorIdentities(after);
       const sharedPaths = [...beforeIdentities.keys()].filter(path => afterIdentities.has(path));

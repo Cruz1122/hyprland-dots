@@ -72,14 +72,35 @@ test("Cursor rejects a changed identity at the same explicit field path", async 
   assert.deepEqual(result, { status: "account-changed" });
 });
 
-test("Cursor session expiry during the usage read is not accepted as an unverified success", async () => {
+test("Cursor keeps the usage when only the identity endpoint is unavailable", async () => {
   let authReads = 0;
   const result = await readUsage("cursor", "https://cursor.com", async url => {
     if (url.endsWith("auth/me") && ++authReads === 2) return new Response("", { status: 401 });
     return Response.json(url.endsWith("auth/me") ? { user: { id: "A" } }
       : { individualUsage: { plan: { totalPercentUsed: 28 } } });
   });
+  assert.equal(result.status, "ready");
+  assert.equal(result.identity, null);
+  assert.equal(result.usage.individualUsage.plan.totalPercentUsed, 28);
+});
+
+test("Cursor login-required comes from the usage endpoint, not the identity endpoint", async () => {
+  const result = await readUsage("cursor", "https://cursor.com", async url =>
+    url.endsWith("usage-summary") ? new Response("", { status: 401 })
+      : Response.json({ user: { id: "A" } }));
   assert.deepEqual(result, { status: "login-required" });
+});
+
+test("Cursor normalizes the WorkOS sub connection prefix before comparing sessions", async () => {
+  let authReads = 0;
+  const result = await readUsage("cursor", "https://cursor.com", async url => {
+    if (url.endsWith("auth/me"))
+      return Response.json({ user: { sub: ++authReads === 1 ? "auth0|user_123" : "github|user_123" } });
+    return Response.json({ individualUsage: { plan: { totalPercentUsed: 33 } } });
+  });
+  assert.equal(result.status, "ready");
+  assert.match(result.identity, /^[a-f0-9]{64}$/);
+  assert.equal(result.usage.individualUsage.plan.totalPercentUsed, 33);
 });
 
 test("a value moving between unrelated identity fields does not mask a shared-field account switch", async () => {

@@ -53,6 +53,18 @@ class BrowserLinkTests(unittest.TestCase):
         self.assertEqual(Path(registered["path"]).stat().st_mode & 0o777, 0o700)
         self.assertEqual(list(self.root.rglob("Cookies")), [])
 
+    def test_native_launcher_falls_back_when_the_registered_checkout_moved(self):
+        live = Path(os.environ["XDG_CONFIG_HOME"]) / "quickshell/ii/scripts"
+        live.mkdir(parents=True)
+        (live / "browser-quota-host.py").write_text("print('LIVE_HOST_OK')\n")
+        launcher = self.root / "data/native-host"
+        launcher.parent.mkdir(parents=True)
+        launcher.write_text(link.launcher_text(self.root / "moved-checkout/scripts"))
+        launcher.chmod(0o700)
+        result = subprocess.run([str(launcher)], capture_output=True, text=True, timeout=5)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("LIVE_HOST_OK", result.stdout)
+
     def test_native_manager_launch_reuses_browser_without_profile_or_debug_flags(self):
         with patch.object(link.shutil, "which", return_value="/usr/bin/brave"), patch.object(link.subprocess, "Popen") as start:
             link.open_extension_manager()

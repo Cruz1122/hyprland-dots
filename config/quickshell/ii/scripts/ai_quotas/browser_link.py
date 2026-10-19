@@ -29,6 +29,20 @@ def root_path() -> Path:
                              / "illogical-impulse/ai-quotas/browser-link")
 
 
+def launcher_text(scripts: Path) -> str:
+    # A moved checkout must not break the link; fall back to the deployed panel tree.
+    live = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))) / "quickshell/ii/scripts"
+    return ("#!/usr/bin/python3\nimport runpy,sys\nfrom pathlib import Path\n"
+        f"for scripts in ({str(scripts)!r}, Path({str(live)!r})):\n"
+        "    script = Path(scripts) / 'browser-quota-host.py'\n"
+        "    if script.is_file():\n"
+        "        sys.path.insert(0, str(scripts))\n"
+        "        runpy.run_path(str(script), run_name='__main__')\n"
+        "        break\n"
+        "else:\n"
+        "    raise SystemExit(1)\n")
+
+
 def prepare(*, open_browser: bool = True) -> str:
     data = private_directory(Path(os.environ.get("XDG_DATA_HOME", str(Path.home() / ".local/share")))
                              / "illogical-impulse/ai-quotas/browser-link")
@@ -44,9 +58,7 @@ def prepare(*, open_browser: bool = True) -> str:
     launcher = data / "native-host"
     if launcher.is_symlink():
         raise QuotaError("unsafe-storage")
-    launcher.write_text("#!/usr/bin/python3\nimport runpy,sys\n"
-        f"sys.path.insert(0, {str(scripts)!r})\n"
-        f"runpy.run_path({str(scripts / 'browser-quota-host.py')!r}, run_name='__main__')\n")
+    launcher.write_text(launcher_text(scripts))
     launcher.chmod(0o700)
     config = Path(os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config")))
     manifest = {"name": HOST, "description": "Private subscription quota data for the desktop panel",
