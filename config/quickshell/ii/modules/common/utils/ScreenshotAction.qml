@@ -72,18 +72,20 @@ Singleton {
                 return ["bash", "-c", `${cropInPlace} && '${Directories.scriptPath}/images/scan-qr.sh' '${StringUtils.shellSingleQuoteEscape(screenshotPath)}'; ${cleanup}`]
                 break;
             case ScreenshotAction.Action.Record:
+                // No audio flag: record.sh applies recordAudioByDefault and audioSource.
+                return [Directories.recordScriptPath, "--region", slurpRegion];
             case ScreenshotAction.Action.RecordWithSound: {
+                // Audio is forced; audioSource only picks which device(s).
                 const audioSrc = Config.options.screenRecord.audioSource ?? "system";
-                const recordWithAudio = Config.options.screenRecord.recordAudioByDefault ?? true;
-                let audioFlag = "";
-                if (recordWithAudio) {
-                    if (audioSrc === "system") audioFlag = " --sound";
-                    else if (audioSrc === "mic") audioFlag = " --mic";
-                    else if (audioSrc === "both") audioFlag = " --sound --mic";
-                }
-                return ["bash", "-c", `${Directories.recordScriptPath} --region '${slurpRegion}'${audioFlag}`]
+                const command = [Directories.recordScriptPath, "--region", slurpRegion];
+                if (audioSrc === "mic")
+                    command.push("--mic");
+                else if (audioSrc === "both")
+                    command.push("--sound", "--mic");
+                else
+                    command.push("--sound");
+                return command;
             }
-                break;
             default:
                 console.warn("[Region Selector] Unknown snip action, skipping snip.");
                 return;
