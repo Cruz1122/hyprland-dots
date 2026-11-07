@@ -42,6 +42,7 @@ ShellRoot {
             writer.setText(step.text);
         if (step.reload)
             reloadTimer.restart();
+        checkTimer.waited = 0;
         checkTimer.restart();
     }
 
@@ -67,11 +68,22 @@ ShellRoot {
         onTriggered: HyprlandConfig.reloaded()
     }
 
+    // Polls instead of sleeping a fixed time: under load the file watch and
+    // the reload can take well over a second.
     Timer {
         id: checkTimer
-        interval: 700
+        property int waited: 0
+        interval: 100
+        repeat: true
         onTriggered: {
             const step = root.steps[root.index];
+            waited += interval;
+            // Wait a moment even when the value already matches, so a late
+            // wrong update would still be caught by the next step's check.
+            if ((toggle.toggled !== step.expected || waited < 300) && waited < 5000)
+                return;
+            stop();
+            waited = 0;
             root.report({ type: "gamemode", step: step.name, expected: step.expected, actual: toggle.toggled });
             root.next();
         }
