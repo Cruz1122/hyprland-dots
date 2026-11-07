@@ -61,6 +61,13 @@ class WeatherGpsRetryContractTest(unittest.TestCase):
         self.assertRegex(self.source, r"readonly property bool gpsEnabled: Config\.options\.bar\.weather\.enableGPS")
         self.assertTrue(re.search(r"onGpsEnabledChanged:", self.source))
 
+    def test_fetch_uses_argv_and_encodes_the_city(self) -> None:
+        self.assertNotRegex(self.source, r'"(?:ba)?sh"\s*,\s*"-c"')
+        self.assertNotIn("jq ", self.source)
+        self.assertIn('fetcher.command = ["curl", "-s", "--max-time", "20", `https://wttr.in/${place}?format=j1`]', self.source)
+        self.assertIn(".map(encodeURIComponent)", self.source)
+        self.assertIn("root.pickData(JSON.parse(text))", self.source)
+
 
 if __name__ == "__main__":
     unittest.main()

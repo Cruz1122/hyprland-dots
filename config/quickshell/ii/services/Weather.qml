@@ -108,25 +108,29 @@ Singleton {
     }
 
     function getData() {
-        let command = "curl -s wttr.in";
-
-        if (root.gpsActive && root.location.valid) {
-            command += `/${root.location.lat},${root.location.long}`;
-        } else {
-            command += `/${formatCityName(root.city)}`;
-        }
-
-        // format as json
-        command += "?format=j1";
-        command += " | ";
-        // only take the current weather, location, asytronmy data
-        command += "jq '{current: .current_condition[0], location: .nearest_area[0], astronomy: .weather[0].astronomy[0]}'";
-        fetcher.command[2] = command;
+        let place;
+        if (root.gpsActive && root.location.valid)
+            place = `${Number(root.location.lat)},${Number(root.location.long)}`;
+        else
+            place = formatCityName(root.city);
+        // argv only: the city is user input and must never reach a shell.
+        fetcher.command = ["curl", "-s", "--max-time", "20", `https://wttr.in/${place}?format=j1`];
         fetcher.running = true;
     }
 
+    // wttr.in reads "+" as a space; every word is percent-encoded so quotes,
+    // "?", "#" or "/" in the city cannot change the URL.
     function formatCityName(cityName) {
-        return cityName.trim().split(/\s+/).join('+');
+        return cityName.trim().split(/\s+/).filter(word => word.length > 0).map(encodeURIComponent).join('+');
+    }
+
+    // Only the current weather, location and astronomy data are used.
+    function pickData(raw) {
+        return {
+            current: raw?.current_condition?.[0],
+            location: raw?.nearest_area?.[0],
+            astronomy: raw?.weather?.[0]?.astronomy?.[0]
+        };
     }
 
     Component.onCompleted: {
@@ -137,13 +141,13 @@ Singleton {
 
     Process {
         id: fetcher
-        command: ["bash", "-c", ""]
+        command: []
         stdout: StdioCollector {
             onStreamFinished: {
                 if (text.length === 0)
                     return;
                 try {
-                    const parsedData = JSON.parse(text);
+                    const parsedData = root.pickData(JSON.parse(text));
                     root.refineData(parsedData);
                     // console.info(`[ data: ${JSON.stringify(parsedData)}`);
                 } catch (e) {
