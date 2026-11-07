@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+import re
+import shlex
 import shutil
 import stat
 import subprocess
@@ -149,6 +151,47 @@ class OpenSettingsTest(unittest.TestCase):
                 self.assertIn("Usage:", result.stderr)
         self.assertEqual(self.calls("qs"), [])
         self.assertEqual(self.calls("hyprctl"), [])
+
+
+class LaunchSitesTest(unittest.TestCase):
+    """SUPER+I and the sidebar button open settings through the launcher."""
+
+    def test_keybind_command_runs_the_launcher(self) -> None:
+        variables = (REPO_ROOT / "config/hypr/hyprland/variables.lua").read_text(encoding="utf-8")
+        match = re.search(r'^settingsApp = "([^"\\]*)"$', variables, re.MULTILINE)
+        self.assertIsNotNone(match, "settingsApp must stay a plain Lua string")
+        with tempfile.TemporaryDirectory() as tmp:
+            home = Path(tmp)
+            launcher = home / ".config/quickshell/ii/scripts/settings/open-settings.sh"
+            launcher.parent.mkdir(parents=True)
+            log = home / "launcher.log"
+            launcher.write_text(
+                f'#!/usr/bin/env bash\nprintf "%s|%s\\n" "$XDG_CURRENT_DESKTOP" "$#" > {shlex.quote(str(log))}\n',
+                encoding="utf-8",
+            )
+            launcher.chmod(0o755)
+            # hl.dsp.exec_cmd runs the string through sh with Hyprland's env (qsConfig from hl.env).
+            result = subprocess.run(
+                ["sh", "-c", match.group(1)],
+                env={"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin"), "qsConfig": "ii"},
+                capture_output=True, text=True, timeout=10,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(log.read_text(encoding="utf-8"), "gnome|0\n")
+
+    def test_sidebar_button_runs_the_launcher_for_its_own_shell(self) -> None:
+        sidebar = (REPO_ROOT / "config/quickshell/ii/modules/ii/sidebarRight/SidebarRightContent.qml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            'Quickshell.execDetached(["env", `II_SETTINGS_QML=${root.settingsQmlPath}`, '
+            'Quickshell.shellPath("scripts/settings/open-settings.sh")]);',
+            sidebar,
+        )
+        self.assertNotIn('"qs", "-p", root.settingsQmlPath', sidebar)
+
+    def test_launcher_is_executable(self) -> None:
+        self.assertTrue(os.access(SCRIPT, os.X_OK), f"{SCRIPT} must be executable")
 
 
 if __name__ == "__main__":

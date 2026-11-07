@@ -280,7 +280,8 @@ Item {
                 buttonIcon: "settings"
                 onClicked: {
                     GlobalStates.sidebarRightOpen = false;
-                    Quickshell.execDetached(["qs", "-p", root.settingsQmlPath]);
+                    // The launcher focuses an open settings window instead of starting a second one.
+                    Quickshell.execDetached(["env", `II_SETTINGS_QML=${root.settingsQmlPath}`, Quickshell.shellPath("scripts/settings/open-settings.sh")]);
                 }
                 StyledToolTip {
                     text: Translation.tr("Settings")
