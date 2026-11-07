@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / 'scripts/settings/idlegen.py'
+SCRIPT = ROOT / 'config/quickshell/ii/scripts/settings/idlegen.py'
 spec = importlib.util.spec_from_file_location('idlegen', SCRIPT)
 idlegen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(idlegen)

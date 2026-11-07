@@ -12,7 +12,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / 'scripts/settings/monitorsgen.py'
+SCRIPT = ROOT / 'config/quickshell/ii/scripts/settings/monitorsgen.py'
 spec = importlib.util.spec_from_file_location('monitorsgen', SCRIPT)
 monitorsgen = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(monitorsgen)

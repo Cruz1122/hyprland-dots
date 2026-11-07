@@ -11,7 +11,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "scripts/settings/default-apps.py"
+SCRIPT = ROOT / "config/quickshell/ii/scripts/settings/default-apps.py"
 FIXTURES = ROOT / "tests/fixtures/default-apps"
 
 
