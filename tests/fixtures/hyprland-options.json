@@ -1,0 +1,3672 @@
+{
+ "_comment": "Generated from read-only `hyprctl -j descriptions` (Hyprland 0.57.0). Regenerate with the snippet in tests/test_hyprconfigurator.py (FIXTURE_GENERATOR). `current` is dropped because it is machine state.",
+ "options": [
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "animations:enabled",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "animations:workspace_wraparound",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:allow_pin_fullscreen",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:allow_workspace_cycles",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:client_requested_fs_uses_layout_handler",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:disable_keybind_grabbing",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:drag_center_window",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 2147483647,
+   "min": 0,
+   "name": "binds:drag_threshold",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "binds:focus_preferred_method",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:hide_special_on_workspace_change",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:ignore_group_lock",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:movefocus_cycles_fullscreen",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:movefocus_cycles_groupfirst",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:pass_mouse_when_bound",
+   "type": "bool"
+  },
+  {
+   "default": 300,
+   "map": null,
+   "max": 2000,
+   "min": 0,
+   "name": "binds:scroll_event_delay",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "binds:window_direction_monitor_fallback",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "per_monitor": 2
+    },
+    {
+     "all_monitors": 1
+    },
+    {
+     "disabled": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "binds:workspace_back_and_forth",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "binds:workspace_center_on",
+   "type": "int"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:default_monitor",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:enable_hyprcursor",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:hide_on_key_press",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:hide_on_tablet",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:hide_on_touch",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "cursor:hotspot_padding",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "cursor:inactive_timeout",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:invisible",
+   "type": "bool"
+  },
+  {
+   "default": 24,
+   "map": null,
+   "max": 500,
+   "min": 10,
+   "name": "cursor:min_refresh_rate",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "cursor:no_break_fs_vrr",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "Enabled": 1
+    },
+    {
+     "Auto": 2
+    },
+    {
+     "Disabled": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "cursor:no_hardware_cursors",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:no_warps",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:persistent_warps",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:sync_gsettings_theme",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "cursor:use_cpu_buffer",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:warp_back_after_non_mouse_input",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "force": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "cursor:warp_on_change_workspace",
+   "type": "int"
+  },
+  {
+   "default": -1,
+   "map": [
+    {
+     "force": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    },
+    {
+     "same_as_warp_on_change_workspace": -1
+    }
+   ],
+   "max": 2,
+   "min": -1,
+   "name": "cursor:warp_on_monitor_change",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "force": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "cursor:warp_on_toggle_special",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:zoom_detached_camera",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:zoom_disable_aa",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 10,
+   "min": 1,
+   "name": "cursor:zoom_factor",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "cursor:zoom_rigid",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:colored_stdout_logs",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:damage_blink",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "full": 2
+    },
+    {
+     "monitor": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "debug:damage_tracking",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:disable_logs",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:disable_scale_checks",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:disable_time",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:ds_handle_same_buffer",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:ds_handle_same_buffer_fifo",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:enable_stdout_logs",
+   "type": "bool"
+  },
+  {
+   "default": 5,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "debug:error_limit",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "bottom": 1
+    },
+    {
+     "top": 0
+    }
+   ],
+   "max": 1,
+   "min": 0,
+   "name": "debug:error_position",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:full_cm_proto",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:gl_debugging",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 1,
+   "min": 0,
+   "name": "debug:invalidate_buffers",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "debug:invalidate_fp16",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:log_damage",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "debug:manual_crash",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:overlay",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:pass",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:render_solitary_wo_damage",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:suppress_errors",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "debug:vfr",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:active_opacity",
+   "type": "int"
+  },
+  {
+   "default": 0.025,
+   "map": null,
+   "max": 0.25,
+   "min": 0,
+   "name": "decoration:blur:acrylic:aberration",
+   "type": "float"
+  },
+  {
+   "default": 48,
+   "map": null,
+   "max": 256,
+   "min": 4,
+   "name": "decoration:blur:acrylic:bulb",
+   "type": "int"
+  },
+  {
+   "default": 0.82,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:acrylic:clarity",
+   "type": "float"
+  },
+  {
+   "default": 24,
+   "map": null,
+   "max": 48,
+   "min": 0,
+   "name": "decoration:blur:acrylic:refraction",
+   "type": "int"
+  },
+  {
+   "default": "14eef5ff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:acrylic:tint",
+   "type": "string"
+  },
+  {
+   "default": "29f0a0ff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:aurora:color1",
+   "type": "string"
+  },
+  {
+   "default": "7a4dffff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:aurora:color2",
+   "type": "string"
+  },
+  {
+   "default": 0.35,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:aurora:intensity",
+   "type": "float"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:aurora:speed",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "decoration:blur:brightness",
+   "type": "int"
+  },
+  {
+   "default": 0.8916,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "decoration:blur:contrast",
+   "type": "float"
+  },
+  {
+   "default": 3,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:drops:speed",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:enabled",
+   "type": "bool"
+  },
+  {
+   "default": "cc3399ff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:fluid_jar:color",
+   "type": "string"
+  },
+  {
+   "default": 8,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:fluid_jar:distortion",
+   "type": "int"
+  },
+  {
+   "default": 0.5,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:fluid_jar:fill_amount",
+   "type": "float"
+  },
+  {
+   "default": 1.4,
+   "map": null,
+   "max": 10,
+   "min": 0.1,
+   "name": "decoration:blur:fluid_jar:mass",
+   "type": "float"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 8,
+   "min": 0.5,
+   "name": "decoration:blur:fluid_jar:precision",
+   "type": "int"
+  },
+  {
+   "default": 3.7,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:fluid_jar:speed",
+   "type": "float"
+  },
+  {
+   "default": 1.2,
+   "map": null,
+   "max": 5,
+   "min": 0,
+   "name": "decoration:blur:fluid_jar:turbulence",
+   "type": "float"
+  },
+  {
+   "default": 20,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "decoration:blur:glass:refraction",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:glass:roughness",
+   "type": "int"
+  },
+  {
+   "default": 40,
+   "map": null,
+   "max": 512,
+   "min": 4,
+   "name": "decoration:blur:glass:size",
+   "type": "int"
+  },
+  {
+   "default": 0.35,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:haze:intensity",
+   "type": "float"
+  },
+  {
+   "default": 0.7,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:haze:iridescence",
+   "type": "float"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:heat_shimmer:speed",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:ignore_opacity",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:input_methods",
+   "type": "bool"
+  },
+  {
+   "default": 0.2,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:input_methods_ignorealpha",
+   "type": "float"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:new_optimizations",
+   "type": "bool"
+  },
+  {
+   "default": 0.0117,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:noise",
+   "type": "float"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:passes",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:popups",
+   "type": "bool"
+  },
+  {
+   "default": 0.2,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:popups_ignorealpha",
+   "type": "float"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:proportional",
+   "type": "bool"
+  },
+  {
+   "default": 0.45,
+   "map": null,
+   "max": 5,
+   "min": 0.05,
+   "name": "decoration:blur:ripple:duration",
+   "type": "float"
+  },
+  {
+   "default": 400,
+   "map": null,
+   "max": 1000,
+   "min": 1,
+   "name": "decoration:blur:ripple:radius",
+   "type": "int"
+  },
+  {
+   "default": 30,
+   "map": null,
+   "max": 32,
+   "min": 0,
+   "name": "decoration:blur:ripple:strength",
+   "type": "int"
+  },
+  {
+   "default": 32,
+   "map": null,
+   "max": 200,
+   "min": 1,
+   "name": "decoration:blur:ripple:width",
+   "type": "int"
+  },
+  {
+   "default": 8,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "decoration:blur:size",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:special",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "haze": 10
+    },
+    {
+     "acrylic": 8
+    },
+    {
+     "prism": 6
+    },
+    {
+     "water": 4
+    },
+    {
+     "aurora": 9
+    },
+    {
+     "drops": 3
+    },
+    {
+     "heat_shimmer": 7
+    },
+    {
+     "fluid_jar": 5
+    },
+    {
+     "ripple": 2
+    },
+    {
+     "frost": 1
+    },
+    {
+     "kawase": 0
+    }
+   ],
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:variant",
+   "type": "int"
+  },
+  {
+   "default": 0.1696,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:vibrancy",
+   "type": "float"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:vibrancy_darkness",
+   "type": "int"
+  },
+  {
+   "default": 0.95,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:blur:water:damping",
+   "type": "float"
+  },
+  {
+   "default": 12,
+   "map": null,
+   "max": 60,
+   "min": 0.5,
+   "name": "decoration:blur:water:duration",
+   "type": "int"
+  },
+  {
+   "default": 20,
+   "map": null,
+   "max": 1000,
+   "min": 1,
+   "name": "decoration:blur:water:radius",
+   "type": "int"
+  },
+  {
+   "default": 0.76,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "decoration:blur:water:speed",
+   "type": "float"
+  },
+  {
+   "default": 32,
+   "map": null,
+   "max": 32,
+   "min": 0,
+   "name": "decoration:blur:water:strength",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:blur:xray",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:border_part_of_window",
+   "type": "bool"
+  },
+  {
+   "default": 0.4,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:dim_around",
+   "type": "float"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:dim_inactive",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:dim_modal",
+   "type": "bool"
+  },
+  {
+   "default": 0.2,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:dim_special",
+   "type": "float"
+  },
+  {
+   "default": 0.5,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:dim_strength",
+   "type": "float"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:fullscreen_opacity",
+   "type": "int"
+  },
+  {
+   "default": "ee33ccff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:glow:color",
+   "type": "string"
+  },
+  {
+   "default": "ffffffff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:glow:color_inactive",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:glow:enabled",
+   "type": "bool"
+  },
+  {
+   "default": 10,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "decoration:glow:range",
+   "type": "int"
+  },
+  {
+   "default": 3,
+   "map": null,
+   "max": 4,
+   "min": 1,
+   "name": "decoration:glow:render_power",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "decoration:inactive_opacity",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:motion_blur:enabled",
+   "type": "bool"
+  },
+  {
+   "default": 7,
+   "map": null,
+   "max": 64,
+   "min": 1,
+   "name": "decoration:motion_blur:samples",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "decoration:rounding",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 10,
+   "min": 1,
+   "name": "decoration:rounding_power",
+   "type": "int"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:screen_shader",
+   "type": "string"
+  },
+  {
+   "default": "ee1a1a1a 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:shadow:color",
+   "type": "string"
+  },
+  {
+   "default": "ffffffff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:shadow:color_inactive",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:shadow:enabled",
+   "type": "bool"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:shadow:offset",
+   "type": "list"
+  },
+  {
+   "default": 4,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "decoration:shadow:range",
+   "type": "int"
+  },
+  {
+   "default": 3,
+   "map": null,
+   "max": 4,
+   "min": 1,
+   "name": "decoration:shadow:render_power",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 2,
+   "min": 0.05,
+   "name": "decoration:shadow:scale",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:shadow:sharp",
+   "type": "bool"
+  },
+  {
+   "default": 12,
+   "map": null,
+   "max": 1000,
+   "min": 0,
+   "name": "decoration:wobble:damping",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "decoration:wobble:enabled",
+   "type": "bool"
+  },
+  {
+   "default": 0.2,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "decoration:wobble:intensity",
+   "type": "float"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1000,
+   "min": 0.0001,
+   "name": "decoration:wobble:mass",
+   "type": "int"
+  },
+  {
+   "default": 12,
+   "map": null,
+   "max": 32,
+   "min": 2,
+   "name": "decoration:wobble:mesh",
+   "type": "int"
+  },
+  {
+   "default": 200,
+   "map": null,
+   "max": 1000,
+   "min": 0.0001,
+   "name": "decoration:wobble:stiffness",
+   "type": "int"
+  },
+  {
+   "default": 0.25,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "decoration:wobble:value_epsilon",
+   "type": "float"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 1000,
+   "min": 0,
+   "name": "decoration:wobble:velocity_epsilon",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1.9,
+   "min": 0.1,
+   "name": "dwindle:default_split_ratio",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "right": 2
+    },
+    {
+     "left": 1
+    },
+    {
+     "follow_mouse": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "dwindle:force_split",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:permanent_direction_override",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:precise_mouse_move",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:preserve_split",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:smart_resizing",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:smart_split",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "dwindle:special_scale_factor",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "current": 1
+    },
+    {
+     "directional": 0
+    }
+   ],
+   "max": 1,
+   "min": 0,
+   "name": "dwindle:split_bias",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 3,
+   "min": 0.1,
+   "name": "dwindle:split_width_multiplier",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "dwindle:use_active_for_splits",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "ecosystem:enforce_permissions",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "ecosystem:no_donation_nag",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "ecosystem:no_update_news",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "experimental:wp_cm_1_2",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:allow_tearing",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "general:border_size",
+   "type": "int"
+  },
+  {
+   "default": "ffffffff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:col.active_border",
+   "type": "string"
+  },
+  {
+   "default": "ff444444 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:col.inactive_border",
+   "type": "string"
+  },
+  {
+   "default": "ffffaaff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:col.nogroup_border",
+   "type": "string"
+  },
+  {
+   "default": "ffff00ff 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:col.nogroup_border_active",
+   "type": "string"
+  },
+  {
+   "default": 15,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "general:extend_border_grab_area",
+   "type": "int"
+  },
+  {
+   "default": "0 0 0 0",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:float_gaps",
+   "type": "string"
+  },
+  {
+   "default": "5 5 5 5",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:gaps_in",
+   "type": "string"
+  },
+  {
+   "default": "20 20 20 20",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:gaps_out",
+   "type": "string"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "general:gaps_workspaces",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:hover_icon_on_border",
+   "type": "bool"
+  },
+  {
+   "default": "dwindle",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:layout",
+   "type": "string"
+  },
+  {
+   "default": "",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:locale",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:modal_parent_blocking",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:no_focus_fallback",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "bottom_left": 4
+    },
+    {
+     "bottom_right": 3
+    },
+    {
+     "top_right": 2
+    },
+    {
+     "top_left": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 4,
+   "min": 0,
+   "name": "general:resize_corner",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:resize_on_border",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:snap:border_overlap",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:snap:enabled",
+   "type": "bool"
+  },
+  {
+   "default": 10,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "general:snap:monitor_gap",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "general:snap:respect_gaps",
+   "type": "bool"
+  },
+  {
+   "default": 10,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "general:snap:window_gap",
+   "type": "int"
+  },
+  {
+   "default": 1000,
+   "map": null,
+   "max": 2000,
+   "min": 10,
+   "name": "gestures:close_max_timeout",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:scrolling:move_snap_cursor",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:scrolling:move_snap_to_grid",
+   "type": "bool"
+  },
+  {
+   "default": 0.5,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "gestures:workspace_swipe_cancel_ratio",
+   "type": "float"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_create_new",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_direction_lock",
+   "type": "bool"
+  },
+  {
+   "default": 10,
+   "map": null,
+   "max": 200,
+   "min": 0,
+   "name": "gestures:workspace_swipe_direction_lock_threshold",
+   "type": "int"
+  },
+  {
+   "default": 300,
+   "map": null,
+   "max": 2000,
+   "min": 0,
+   "name": "gestures:workspace_swipe_distance",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_forever",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_invert",
+   "type": "bool"
+  },
+  {
+   "default": 30,
+   "map": null,
+   "max": 200,
+   "min": 0,
+   "name": "gestures:workspace_swipe_min_speed_to_force",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_touch",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_touch_invert",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "gestures:workspace_swipe_use_r",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:auto_group",
+   "type": "bool"
+  },
+  {
+   "default": "66ffff00 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:col.border_active",
+   "type": "string"
+  },
+  {
+   "default": "66777700 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:col.border_inactive",
+   "type": "string"
+  },
+  {
+   "default": "66775500 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:col.border_locked_active",
+   "type": "string"
+  },
+  {
+   "default": "66ff5500 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:col.border_locked_inactive",
+   "type": "string"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "enabled": 1
+    },
+    {
+     "only_into_groupbar": 2
+    },
+    {
+     "disabled": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "group:drag_into_group",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:focus_removed_window",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:group_on_movetoworkspace",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:blur",
+   "type": "bool"
+  },
+  {
+   "default": "66ffff00 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:col.active",
+   "type": "string"
+  },
+  {
+   "default": "66777700 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:col.inactive",
+   "type": "string"
+  },
+  {
+   "default": "66ff5500 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:col.locked_active",
+   "type": "string"
+  },
+  {
+   "default": "66775500 0deg",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:col.locked_inactive",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:disable_when_only",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:enabled",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:font_family",
+   "type": "string"
+  },
+  {
+   "default": 8,
+   "map": null,
+   "max": 64,
+   "min": 2,
+   "name": "group:groupbar:font_size",
+   "type": "int"
+  },
+  {
+   "default": "400",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:font_weight_active",
+   "type": "string"
+  },
+  {
+   "default": "400",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:font_weight_inactive",
+   "type": "string"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "group:groupbar:gaps_in",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 20,
+   "min": 0,
+   "name": "group:groupbar:gaps_out",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:gradient_round_only_edges",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 40,
+   "min": 0,
+   "name": "group:groupbar:gradient_rounding",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 10,
+   "min": 1,
+   "name": "group:groupbar:gradient_rounding_power",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:gradients",
+   "type": "bool"
+  },
+  {
+   "default": 14,
+   "map": null,
+   "max": 64,
+   "min": 1,
+   "name": "group:groupbar:height",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 64,
+   "min": 0,
+   "name": "group:groupbar:indicator_gap",
+   "type": "int"
+  },
+  {
+   "default": 3,
+   "map": null,
+   "max": 64,
+   "min": 0,
+   "name": "group:groupbar:indicator_height",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:keep_upper_gap",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:middle_click_close",
+   "type": "bool"
+  },
+  {
+   "default": 3,
+   "map": null,
+   "max": 6,
+   "min": 0,
+   "name": "group:groupbar:priority",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:render_titles",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:round_only_edges",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 40,
+   "min": 0,
+   "name": "group:groupbar:rounding",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 10,
+   "min": 1,
+   "name": "group:groupbar:rounding_power",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:scrolling",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:stacked",
+   "type": "bool"
+  },
+  {
+   "default": "ffffffff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:text_color",
+   "type": "string"
+  },
+  {
+   "default": "-1",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:text_color_inactive",
+   "type": "string"
+  },
+  {
+   "default": "-1",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:text_color_locked_active",
+   "type": "string"
+  },
+  {
+   "default": "-1",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:groupbar:text_color_locked_inactive",
+   "type": "string"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 20,
+   "min": -20,
+   "name": "group:groupbar:text_offset",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 22,
+   "min": 0,
+   "name": "group:groupbar:text_padding",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:insert_after_current",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:merge_floated_into_tiled_on_groupbar",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:merge_groups_on_drag",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "group:merge_groups_on_groupbar",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input-capture:capture_modifiers",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input-capture:enforce_barriers",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:accel_profile",
+   "type": "string"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "force_all": 2
+    },
+    {
+     "non_standard": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "input:emulate_discrete_scroll",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "input:float_switch_override_focus",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "mru": 2
+    },
+    {
+     "cursor": 1
+    },
+    {
+     "next": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "input:focus_on_close",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "separate": 3
+    },
+    {
+     "detached": 2
+    },
+    {
+     "follow": 1
+    },
+    {
+     "disabled": 0
+    }
+   ],
+   "max": 3,
+   "min": 0,
+   "name": "input:follow_mouse",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 300,
+   "min": 0,
+   "name": "input:follow_mouse_shrink",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:follow_mouse_threshold",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:force_no_accel",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_file",
+   "type": "string"
+  },
+  {
+   "default": "us",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_layout",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_model",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_options",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_rules",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:kb_variant",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:left_handed",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:mouse_refocus",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:natural_scroll",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:numlock_by_default",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "warp": 3
+    },
+    {
+     "clamp": 2
+    },
+    {
+     "send": 1
+    },
+    {
+     "ignore": 0
+    }
+   ],
+   "max": 3,
+   "min": 0,
+   "name": "input:off_window_axis_events",
+   "type": "int"
+  },
+  {
+   "default": 600,
+   "map": null,
+   "max": 2000,
+   "min": 0,
+   "name": "input:repeat_delay",
+   "type": "int"
+  },
+  {
+   "default": 25,
+   "map": null,
+   "max": 200,
+   "min": 0,
+   "name": "input:repeat_rate",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:resolve_binds_by_sym",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 359,
+   "min": 0,
+   "name": "input:rotation",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 300,
+   "min": 0,
+   "name": "input:scroll_button",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:scroll_button_lock",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "input:scroll_factor",
+   "type": "int"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:scroll_method",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:scroll_points",
+   "type": "string"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 1,
+   "min": -1,
+   "name": "input:sensitivity",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:special_fallthrough",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:swallow_focus_click",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:absolute_region_position",
+   "type": "bool"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:active_area_position",
+   "type": "list"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:active_area_size",
+   "type": "list"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:enabled",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:left_handed",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:output",
+   "type": "string"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:region_position",
+   "type": "list"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:region_size",
+   "type": "list"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:tablet:relative_input",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 6,
+   "min": 0,
+   "name": "input:tablet:transform",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 6,
+   "min": 0,
+   "name": "input:tablettool:eraser_button_mode",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": null,
+   "min": 0,
+   "name": "input:tablettool:eraser_button_override",
+   "type": "int"
+  },
+  {
+   "default": -1,
+   "map": null,
+   "max": 1,
+   "min": -1,
+   "name": "input:tablettool:pressure_range_max",
+   "type": "int"
+  },
+  {
+   "default": -1,
+   "map": null,
+   "max": 1,
+   "min": -1,
+   "name": "input:tablettool:pressure_range_min",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchdevice:enabled",
+   "type": "bool"
+  },
+  {
+   "default": "[[Auto]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchdevice:output",
+   "type": "string"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 6,
+   "min": 0,
+   "name": "input:touchdevice:transform",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:clickfinger_behavior",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:disable_while_typing",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "3_finger": 1
+    },
+    {
+     "4_finger": 2
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "input:touchpad:drag_3fg",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "input:touchpad:drag_lock",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:flip_x",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:flip_y",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:middle_button_emulation",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:natural_scroll",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 100,
+   "min": 0,
+   "name": "input:touchpad:scroll_factor",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:tap-and-drag",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:tap-to-click",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:touchpad:tap_button_map",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "input:virtualkeyboard:release_pressed_on_close",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "only_non_ime": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "input:virtualkeyboard:share_states",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "layers:allow_new_top_layers_over_existing_fullscreen",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "layers:layers_hog_keyboard_focus",
+   "type": "bool"
+  },
+  {
+   "default": [
+    0,
+    0
+   ],
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "layout:single_window_aspect_ratio",
+   "type": "list"
+  },
+  {
+   "default": 0.1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "layout:single_window_aspect_ratio_tolerance",
+   "type": "float"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:allow_small_split",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:always_keep_position",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:center_ignores_reserved",
+   "type": "bool"
+  },
+  {
+   "default": "left",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:center_master_fallback",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:drop_at_cursor",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:focus_master_on_close",
+   "type": "bool"
+  },
+  {
+   "default": 0.55,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "master:mfact",
+   "type": "float"
+  },
+  {
+   "default": "none",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:new_on_active",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:new_on_top",
+   "type": "bool"
+  },
+  {
+   "default": "slave",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:new_status",
+   "type": "string"
+  },
+  {
+   "default": "left",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:orientation",
+   "type": "string"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": 10,
+   "min": 0,
+   "name": "master:slave_count_for_center_master",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "master:smart_resizing",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "master:special_scale_factor",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:allow_session_lock_restore",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:always_follow_on_dnd",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:animate_manual_resizes",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:animate_mouse_windowdragging",
+   "type": "bool"
+  },
+  {
+   "default": 5,
+   "map": null,
+   "max": 20,
+   "min": 1,
+   "name": "misc:anr_missed_pings",
+   "type": "int"
+  },
+  {
+   "default": "ff111111",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:background_color",
+   "type": "string"
+  },
+  {
+   "default": "default",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:bell_sound",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:close_special_on_empty",
+   "type": "bool"
+  },
+  {
+   "default": "55ffffff",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:col.splash",
+   "type": "string"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_autoreload",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_hyprland_guiutils_check",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_hyprland_logo",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_scale_notification",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_splash_rendering",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_watchdog_warning",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:disable_xdg_env_checks",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:enable_anr_dialog",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:enable_swallow",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "only_when_nongrouped": 3
+    },
+    {
+     "only_when_grouped": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 3,
+   "min": 0,
+   "name": "misc:exit_window_retains_fullscreen",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:float_force_onscreen",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:focus_on_activate",
+   "type": "bool"
+  },
+  {
+   "default": "Sans",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:font_family",
+   "type": "string"
+  },
+  {
+   "default": -1,
+   "map": null,
+   "max": 2,
+   "min": -1,
+   "name": "misc:force_default_wallpaper",
+   "type": "int"
+  },
+  {
+   "default": 10,
+   "map": null,
+   "max": 3600,
+   "min": 1,
+   "name": "misc:initial_workspace_token_timeout",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": 2,
+   "min": 0,
+   "name": "misc:initial_workspace_tracking",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:key_press_enables_dpms",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:layers_hog_keyboard_focus",
+   "type": "bool"
+  },
+  {
+   "default": 1000,
+   "map": null,
+   "max": 5000,
+   "min": 0,
+   "name": "misc:lockdead_screen_delay",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:middle_click_paste",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:mouse_move_enables_dpms",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:mouse_move_focuses_monitor",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:name_vk_after_proc",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:new_float_force_onscreen",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "exit_fullscreen": 2
+    },
+    {
+     "take_over": 1
+    },
+    {
+     "ignore": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "misc:on_focus_under_fullscreen",
+   "type": "int"
+  },
+  {
+   "default": 15,
+   "map": null,
+   "max": 120,
+   "min": 1,
+   "name": "misc:render_unfocused_fps",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:screencopy_force_8b",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:session_lock_blur",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:session_lock_xray",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:size_limits_tiled",
+   "type": "bool"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:splash_font_family",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:swallow_exception_regex",
+   "type": "string"
+  },
+  {
+   "default": "[[EMPTY]]",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "misc:swallow_regex",
+   "type": "string"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "fullscreen_game": 3
+    },
+    {
+     "fullscreen": 2
+    },
+    {
+     "on": 1
+    },
+    {
+     "off": 0
+    }
+   ],
+   "max": 3,
+   "min": 0,
+   "name": "misc:vrr",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "opengl:nvidia_anti_flicker",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "gamescope_only": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "quirks:prefer_hdr",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "quirks:skip_non_kms_dmabuf_formats",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:async_commit",
+   "type": "bool"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "hdredid": 2
+    },
+    {
+     "hdr": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:cm_auto_hdr",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:cm_enabled",
+   "type": "bool"
+  },
+  {
+   "default": "default",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:cm_sdr_eotf",
+   "type": "string"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:commit_timing_enabled",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:ctm_animation",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:direct_scanout",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:expand_undersized_textures",
+   "type": "bool"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "linear": 1
+    },
+    {
+     "monitor": 0
+    }
+   ],
+   "max": 1,
+   "min": 0,
+   "name": "render:fp16_sdr_tf",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:icc_vcgt_enabled",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:keep_unmodified_copy",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:new_render_scheduling",
+   "type": "bool"
+  },
+  {
+   "default": 3,
+   "map": [
+    {
+     "ignore": 3
+    },
+    {
+     "ondemand": 2
+    },
+    {
+     "always": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 3,
+   "min": 0,
+   "name": "render:non_shader_cm",
+   "type": "int"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:non_shader_cm_interop",
+   "type": "int"
+  },
+  {
+   "default": 0,
+   "map": [
+    {
+     "ignore_unfocused": 1
+    },
+    {
+     "never": 2
+    },
+    {
+     "always": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:not_shown_fifo_lock",
+   "type": "int"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:send_content_type",
+   "type": "bool"
+  },
+  {
+   "default": 2,
+   "map": [
+    {
+     "auto": 2
+    },
+    {
+     "enable": 1
+    },
+    {
+     "disable": 0
+    }
+   ],
+   "max": 2,
+   "min": 0,
+   "name": "render:use_fp16",
+   "type": "int"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:use_shader_blur_blend",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "render:xp_mode",
+   "type": "bool"
+  },
+  {
+   "default": 0.5,
+   "map": null,
+   "max": 1,
+   "min": 0.1,
+   "name": "scrolling:column_width",
+   "type": "float"
+  },
+  {
+   "default": "right",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:direction",
+   "type": "string"
+  },
+  {
+   "default": "0.333, 0.5, 0.667, 1.0",
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:explicit_column_widths",
+   "type": "string"
+  },
+  {
+   "default": 1,
+   "map": [
+    {
+     "fit": 1
+    },
+    {
+     "center": 0
+    }
+   ],
+   "max": 1,
+   "min": 0,
+   "name": "scrolling:focus_fit_method",
+   "type": "int"
+  },
+  {
+   "default": 1,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:follow_focus",
+   "type": "int"
+  },
+  {
+   "default": 0.4,
+   "map": null,
+   "max": 1,
+   "min": 0,
+   "name": "scrolling:follow_min_visible",
+   "type": "float"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:fullscreen_on_one_column",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:wrap_focus",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "scrolling:wrap_swapcol",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "xwayland:create_abstract_socket",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "xwayland:enabled",
+   "type": "bool"
+  },
+  {
+   "default": false,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "xwayland:force_zero_scaling",
+   "type": "bool"
+  },
+  {
+   "default": true,
+   "map": null,
+   "max": null,
+   "min": null,
+   "name": "xwayland:use_nearest_neighbor",
+   "type": "bool"
+  }
+ ]
+}
