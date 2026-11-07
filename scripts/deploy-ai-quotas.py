@@ -35,14 +35,14 @@ FILES = (
     "modules/ii/bar/AiQuotaPresentation.js",
     "modules/ii/bar/AiEmblemState.qml",
     "modules/ii/bar/AiQuotaPopup.qml",
-    "modules/settings/components/AiQuotaSettings.qml",
     # Publish new dependencies before the existing entry points change.
     "modules/ii/bar/AiEmblem.qml",
     "modules/ii/bar/Resources.qml",
-    "modules/settings/ServicesConfig.qml",
     "assets/icons/swap-symbolic.svg",
     "assets/icons/ai/grokbot.png",
 )
+# The quota settings UI (modules/settings/) depends on the settings core, so it
+# ships with the settings app instead of this partial deployment.
 SOURCE = Path(__file__).resolve().parents[1] / "config/quickshell/ii"
 
 
