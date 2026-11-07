@@ -172,5 +172,22 @@ class MonitorsgenOutputTests(unittest.TestCase):
         self.assertTrue(self.target.is_symlink())
 
 
+class MonitorsgenSpecJsonTests(unittest.TestCase):
+    """The settings app passes the spec as an argv item instead of stdin."""
+
+    def test_spec_json_argument_equals_stdin(self) -> None:
+        value = {'monitors': [{'name': 'eDP-1'}, {'name': 'HDMI-A-1', 'mirror': 'eDP-1'}]}
+        from_arg = subprocess.run([sys.executable, str(SCRIPT), '--print', '--spec-json', json.dumps(value)],
+                                  capture_output=True, text=True, timeout=30)
+        from_stdin = run(value, '--print')
+        self.assertEqual(from_arg.returncode, 0, from_arg.stderr)
+        self.assertEqual(from_arg.stdout, from_stdin.stdout)
+
+    def test_invalid_spec_json_is_rejected(self) -> None:
+        bad = subprocess.run([sys.executable, str(SCRIPT), '--print', '--spec-json', '{'],
+                             capture_output=True, text=True, timeout=30)
+        self.assertEqual(bad.returncode, 2)
+
+
 if __name__ == '__main__':
     unittest.main()

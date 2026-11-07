@@ -2,9 +2,10 @@
 """Render Hyprland monitor rules (Lua) for the settings app.
 
 Usage:
-    monitorsgen.py [--output PATH] [--force] [--print | --lua-expr [--name OUTPUT]] < spec.json
+    monitorsgen.py [--output PATH] [--force] [--print | --lua-expr [--name OUTPUT]] [--spec-json TEXT] < spec.json
 
-stdin is a JSON object {"monitors": [MONITOR, ...]} where MONITOR is:
+The spec is read from --spec-json when given (the settings app passes it as an
+argv item), otherwise from stdin. It is a JSON object {"monitors": [MONITOR, ...]} where MONITOR is:
     name       string, required (e.g. "eDP-1", "desc:...")
     enabled    bool, default true
     mode       "preferred" (default) or "WxH@Hz" (optional "Hz" suffix)
@@ -230,6 +231,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     mode.add_argument('--print', action='store_true', help='write the file content to stdout')
     mode.add_argument('--lua-expr', action='store_true', help='write one-line hl.monitor() calls to stdout')
     parser.add_argument('--name', help='with --lua-expr, only this output')
+    parser.add_argument('--spec-json', help='JSON spec as text instead of stdin')
     args = parser.parse_args(argv)
     if args.name is not None and not args.lua_expr:
         parser.error('--name requires --lua-expr')
@@ -239,7 +241,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(sys.argv[1:] if argv is None else argv)
     try:
-        monitors = parse_spec(json.load(sys.stdin))
+        raw = json.loads(args.spec_json) if args.spec_json is not None else json.load(sys.stdin)
+        monitors = parse_spec(raw)
         if args.lua_expr:
             sys.stdout.write(render_expr(monitors, args.name) + '\n')
             return 0
