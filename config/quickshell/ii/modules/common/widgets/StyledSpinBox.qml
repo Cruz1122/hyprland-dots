@@ -21,6 +21,22 @@ SpinBox {
         radius: root.radius
     }
 
+    // Typed text is applied once, on Enter or focus loss: clamped to the range,
+    // emitting valueModified only when the value changes. Text that is not a
+    // number restores the current value, so value never becomes NaN.
+    function commitTypedText() {
+        const text = labelText.text.trim();
+        const typed = Number(text);
+        if (text.length > 0 && isFinite(typed)) {
+            const next = Math.max(Math.min(root.from, root.to), Math.min(Math.max(root.from, root.to), Math.round(typed)));
+            if (next !== root.value) {
+                root.value = next;
+                root.valueModified();
+            }
+        }
+        labelText.text = Qt.binding(() => String(root.value));
+    }
+
     contentItem: Item {
         implicitHeight: root.baseHeight
         implicitWidth: Math.max(labelText.implicitWidth, 40)
@@ -28,15 +44,16 @@ SpinBox {
         StyledTextInput {
             id: labelText
             anchors.centerIn: parent
-            text: root.value // displayText would make the numbers weird like 1,000 instead of 1000
+            text: String(root.value) // displayText would make the numbers weird like 1,000 instead of 1000
             color: Appearance.colors.colOnLayer2
             font.family: Appearance.font.family.numbers
             font.variableAxes: Appearance.font.variableAxes.numbers
             font.pixelSize: Appearance.font.pixelSize.small
-            validator: root.validator
-            onTextChanged: {
-                root.value = parseFloat(text);
-            }
+            readOnly: !root.editable
+            validator: RegularExpressionValidator { regularExpression: /-?[0-9]*/ }
+            inputMethodHints: Qt.ImhFormattedNumbersOnly
+            onEditingFinished: root.commitTypedText()
+            Keys.onEscapePressed: labelText.text = Qt.binding(() => String(root.value))
         }
     }
 
