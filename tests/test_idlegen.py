@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -118,6 +119,63 @@ class IdlegenTests(unittest.TestCase):
         os.symlink(real, self.target)
         self.assertEqual(run('--output', str(self.target), '--force').returncode, 3)
         self.assertTrue(self.target.is_symlink())
+
+    def fake_tools(self, systemd_active: bool) -> tuple[dict, Path]:
+        bin_dir = Path(self.temp.name) / 'bin'
+        bin_dir.mkdir()
+        log = Path(self.temp.name) / 'calls.log'
+        tools = {
+            'systemctl': f'echo "systemctl $*" >> {log}; [[ "$*" == *is-active* ]] && exit {0 if systemd_active else 3}; exit 0',
+            'pkill': f'echo "pkill $*" >> {log}; exit 0',
+            'pgrep': f'echo "pgrep $*" >> {log}; exit 1',
+            'hypridle': f'echo "hypridle $*" >> {log}; exit 0',
+        }
+        for name, body in tools.items():
+            path = bin_dir / name
+            path.write_text(f'#!/bin/bash\n{body}\n')
+            path.chmod(0o755)
+        # Only the fakes are on PATH: the real session is never touched.
+        return {**os.environ, 'PATH': str(bin_dir)}, log
+
+    def wait_for(self, log: Path, text: str) -> str:
+        for _ in range(50):
+            if log.exists() and text in log.read_text():
+                break
+            time.sleep(0.05)
+        return log.read_text()
+
+    def test_restart_stops_and_starts_a_detached_hypridle(self) -> None:
+        env, log = self.fake_tools(systemd_active=False)
+        result = subprocess.run([sys.executable, str(SCRIPT), '--lock', '300', '--output', str(self.target),
+                                 '--restart'], capture_output=True, text=True, timeout=30, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        lines = self.wait_for(log, 'hypridle \n').splitlines()
+        self.assertEqual(lines[0], 'systemctl --user is-active --quiet hypridle.service')
+        self.assertEqual(lines[1], 'pkill -x hypridle')
+        self.assertEqual(lines[-1].strip(), 'hypridle', 'the new instance starts last')
+
+    def test_restart_uses_active_systemd_unit(self) -> None:
+        env, log = self.fake_tools(systemd_active=True)
+        result = subprocess.run([sys.executable, str(SCRIPT), '--output', str(self.target), '--restart'],
+                                capture_output=True, text=True, timeout=30, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        calls = log.read_text()
+        self.assertIn('systemctl --user restart hypridle.service', calls)
+        self.assertNotIn('pkill', calls)
+
+    def test_restart_failure_and_no_restart_on_refusal(self) -> None:
+        env, log = self.fake_tools(systemd_active=False)
+        (Path(env['PATH']) / 'pkill').write_text('#!/bin/bash\nexit 2\n')
+        failed = subprocess.run([sys.executable, str(SCRIPT), '--output', str(self.target), '--restart'],
+                                capture_output=True, text=True, timeout=30, env=env)
+        self.assertEqual(failed.returncode, 4)
+        self.assertIn('cannot restart hypridle', failed.stderr)
+        self.target.write_text('hand written\n')
+        log.unlink(missing_ok=True)
+        refused = subprocess.run([sys.executable, str(SCRIPT), '--output', str(self.target), '--restart'],
+                                 capture_output=True, text=True, timeout=30, env=env)
+        self.assertEqual(refused.returncode, 3)
+        self.assertFalse(log.exists(), 'nothing restarts when the write is refused')
 
     def test_hypridle_sources_generated_file_and_keeps_examples(self) -> None:
         conf = (ROOT / 'config/hypr/hypridle.conf').read_text()

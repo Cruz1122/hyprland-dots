@@ -2,21 +2,28 @@
 """Render hypridle listeners for the settings app.
 
 Usage:
-    idlegen.py [--lock S] [--dpms S] [--suspend S] [--output PATH] [--force] [--print]
+    idlegen.py [--lock S] [--dpms S] [--suspend S] [--output PATH] [--force] [--print] [--restart]
 
 Timeouts are seconds; 0 means never (no listener). Non-zero values must be in
 30..86400 and ordered lock <= dpms <= suspend. The file is written atomically to
 ~/.config/hypr/custom/shell-idle.conf (sourced by hypridle.conf) unless --print.
 
+--restart restarts hypridle after a successful write, because hypridle reads
+its config only at start: `systemctl --user restart hypridle.service` when that
+unit is active, otherwise the running instance (started by Hyprland) is
+stopped with `pkill -x hypridle` and a new one is started in its own session.
+
 Exit codes: 0 written/printed, 1 I/O error, 2 invalid arguments,
-3 target exists without the managed marker (use --force).
+3 target exists without the managed marker (use --force), 4 hypridle restart failed.
 """
 from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 MARKER = '# managed by the settings app (scripts/settings/idlegen.py); manual edits are overwritten'
@@ -31,7 +38,7 @@ DPMS_ON_CMD = """hyprctl dispatch 'hl.dsp.dpms({ action = "enable" })'"""
 # defined by whichever file sources it.
 SUSPEND_CMD = 'systemctl suspend || loginctl suspend'
 
-EXIT_IO, EXIT_INVALID, EXIT_UNMANAGED = 1, 2, 3
+EXIT_IO, EXIT_INVALID, EXIT_UNMANAGED, EXIT_RESTART = 1, 2, 3, 4
 
 
 class IdleError(ValueError):
@@ -84,6 +91,30 @@ def atomic_write(path: Path, content: str) -> None:
         raise
 
 
+def _quiet(argv: list[str]) -> int:
+    try:
+        return subprocess.run(argv, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                              stderr=subprocess.DEVNULL, timeout=10).returncode
+    except FileNotFoundError:
+        return 127
+
+
+def restart_hypridle() -> None:
+    if _quiet(['systemctl', '--user', 'is-active', '--quiet', 'hypridle.service']) == 0:
+        if _quiet(['systemctl', '--user', 'restart', 'hypridle.service']) != 0:
+            raise OSError('systemctl --user restart hypridle.service failed')
+        return
+    if _quiet(['pkill', '-x', 'hypridle']) not in (0, 1):
+        raise OSError('pkill -x hypridle failed')
+    # Two instances would both fire the listeners; wait for the old one.
+    for _ in range(20):
+        if _quiet(['pgrep', '-x', 'hypridle']) != 0:
+            break
+        time.sleep(0.1)
+    subprocess.Popen(['hypridle'], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                     stderr=subprocess.DEVNULL, start_new_session=True)
+
+
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='Render hypridle listeners for the settings app.')
     parser.add_argument('--lock', type=int, default=0, help='seconds before locking; 0 = never')
@@ -92,6 +123,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument('--output', type=Path, default=DEFAULT_OUTPUT, help='target file')
     parser.add_argument('--force', action='store_true', help='overwrite a target without the managed marker')
     parser.add_argument('--print', action='store_true', help='write to stdout instead of the target')
+    parser.add_argument('--restart', action='store_true', help='restart hypridle after writing')
     return parser.parse_args(argv)
 
 
@@ -118,6 +150,12 @@ def main(argv: list[str] | None = None) -> int:
     except OSError as error:
         print(f'idlegen: cannot write {target}: {error}', file=sys.stderr)
         return EXIT_IO
+    if args.restart:
+        try:
+            restart_hypridle()
+        except (OSError, subprocess.SubprocessError) as error:
+            print(f'idlegen: cannot restart hypridle: {error}', file=sys.stderr)
+            return EXIT_RESTART
     return 0
 
 
