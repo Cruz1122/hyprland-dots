@@ -14,7 +14,34 @@ Singleton {
     readonly property int fetchInterval: Config.options.bar.weather.fetchInterval * 60 * 1000
     readonly property string city: Config.options.bar.weather.city
     readonly property bool useUSCS: Config.options.bar.weather.useUSCS
-    property bool gpsActive: Config.options.bar.weather.enableGPS
+    readonly property bool gpsEnabled: Config.options.bar.weather.enableGPS
+    property bool gpsActive: gpsEnabled
+    // Consecutive GPS failures; drives the retry backoff and limits
+    // notifications to one per failure streak.
+    property int gpsFailureStreak: 0
+    readonly property int gpsRetryBaseMs: 60 * 1000
+    readonly property int gpsRetryMaxMs: 30 * 60 * 1000
+
+    onGpsEnabledChanged: {
+        gpsRetryTimer.stop();
+        root.gpsFailureStreak = 0;
+        root.gpsActive = root.gpsEnabled && positionSource.valid;
+        if (root.gpsActive)
+            positionSource.start();
+        else
+            positionSource.stop();
+        root.getData();
+    }
+
+    function scheduleGpsRetry() {
+        if (!root.gpsEnabled)
+            return;
+        if (root.gpsFailureStreak === 0)
+            Quickshell.execDetached(["notify-send", Translation.tr("Weather Service"), Translation.tr("Could not get the GPS location. Using the city instead and retrying later."), "-a", "Shell"]);
+        root.gpsFailureStreak += 1;
+        gpsRetryTimer.interval = Math.min(root.gpsRetryBaseMs * Math.pow(2, root.gpsFailureStreak - 1), root.gpsRetryMaxMs);
+        gpsRetryTimer.restart();
+    }
 
     onUseUSCSChanged: {
         root.getData();
@@ -137,12 +164,19 @@ Singleton {
                 root.location.lat = position.coordinate.latitude;
                 root.location.long = position.coordinate.longitude;
                 root.location.valid = true;
+                root.gpsFailureStreak = 0;
+                gpsRetryTimer.stop();
                 // console.info(`📍 Location: ${position.coordinate.latitude}, ${position.coordinate.longitude}`);
                 root.getData();
-                // if can't get initialized with valid location deactivate the GPS
             } else {
-                root.gpsActive = root.location.valid ? true : false;
                 console.error("[WeatherService] Failed to get the GPS location.");
+                // Keep the last valid fix; without one, use the city fallback
+                // until a backoff retry gets a fix.
+                if (root.location.valid || !root.gpsActive)
+                    return;
+                positionSource.stop();
+                root.gpsActive = false;
+                root.scheduleGpsRetry();
             }
         }
 
@@ -154,6 +188,18 @@ Singleton {
                 Quickshell.execDetached(["notify-send", Translation.tr("Weather Service"), Translation.tr("Cannot find a GPS service. Using the fallback method instead."), "-a", "Shell"]);
                 console.error("[WeatherService] Could not aquire a valid backend plugin.");
             }
+        }
+    }
+
+    Timer {
+        id: gpsRetryTimer
+        repeat: false
+        onTriggered: {
+            if (!root.gpsEnabled || !positionSource.valid)
+                return;
+            console.info("[WeatherService] Retrying the GPS service.");
+            root.gpsActive = true;
+            positionSource.start();
         }
     }
 
