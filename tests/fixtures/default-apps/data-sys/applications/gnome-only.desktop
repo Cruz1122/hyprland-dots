@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=GNOME Only
+OnlyShowIn=GNOME;
+Exec=go
+MimeType=text/plain;

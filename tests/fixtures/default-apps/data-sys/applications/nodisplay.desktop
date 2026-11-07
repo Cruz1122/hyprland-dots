@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=No Display
+NoDisplay=true
+Exec=nd
+MimeType=text/plain;

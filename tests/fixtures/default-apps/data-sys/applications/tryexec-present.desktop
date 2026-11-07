@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Present Binary
+TryExec=fakeapp
+Exec=fakeapp
+MimeType=text/plain;

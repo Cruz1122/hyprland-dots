@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Missing Binary
+TryExec=definitely-missing-binary-s4
+Exec=x
+MimeType=text/plain;

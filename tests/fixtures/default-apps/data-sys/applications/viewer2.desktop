@@ -1,0 +1,5 @@
+[Desktop Entry]
+Type=Application
+Name=Second Viewer
+Exec=viewer2
+MimeType=image/jpeg;

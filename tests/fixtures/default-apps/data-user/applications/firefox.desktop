@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Firefox (user)
+Icon=firefox-user
+Exec=firefox %u
+MimeType=x-scheme-handler/http;x-scheme-handler/https;text/html;

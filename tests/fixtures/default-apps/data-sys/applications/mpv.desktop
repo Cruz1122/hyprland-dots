@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=mpv
+Name[es]=mpv
+Exec=mpv
+MimeType=video/mp4;video/x-matroska;audio/mpeg;audio/flac;

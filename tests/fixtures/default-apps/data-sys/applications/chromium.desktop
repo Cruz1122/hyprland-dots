@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Chromium
+Icon=chromium
+Exec=chromium %U
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
