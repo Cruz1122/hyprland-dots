@@ -352,4 +352,22 @@ Singleton {
             }
         }
     }
+
+    // Do Not Disturb is session state (not persisted); the settings app,
+    // which runs as a separate process, toggles it through this target.
+    IpcHandler {
+        target: "notifications"
+
+        function isSilent(): bool {
+            return root.silent;
+        }
+
+        function setSilent(enabled: bool): void {
+            root.silent = enabled;
+        }
+
+        function toggleSilent(): void {
+            root.silent = !root.silent;
+        }
+    }
 }

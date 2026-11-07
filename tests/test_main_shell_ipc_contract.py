@@ -19,6 +19,20 @@ def read(name: str) -> str:
     return (SERVICES / name).read_text(encoding="utf-8")
 
 
+class NotificationsIpcContractTest(unittest.TestCase):
+    def test_exposes_do_not_disturb_target(self) -> None:
+        source = read("Notifications.qml")
+        handler = source[source.index('target: "notifications"'):]
+        for signature in (
+            "function isSilent(): bool",
+            "function setSilent(enabled: bool): void",
+            "function toggleSilent(): void",
+        ):
+            self.assertIn(signature, handler)
+        self.assertIn("root.silent = enabled", handler)
+        self.assertIn("root.silent = !root.silent", handler)
+
+
 class WeatherGpsRetryContractTest(unittest.TestCase):
     def setUp(self) -> None:
         self.source = read("Weather.qml")
