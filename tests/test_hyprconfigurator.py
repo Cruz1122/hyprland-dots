@@ -7,10 +7,10 @@ read-only `hyprctl -j descriptions` of a running Hyprland session:
     import json, sys
     d = json.load(sys.stdin)
     t = lambda v: {bool: "bool", int: "int", float: "float", str: "string", list: "list"}[type(v)]
-    out = {"_comment": "...", "options": [
-        {"name": x["name"], "type": t(x["default"]), "default": x["default"],
-         "min": x.get("min"), "max": x.get("max"), "map": x.get("map")}
-        for x in sorted(d, key=lambda x: x["name"])]}
+    out = {"_comment": "..."}
+    out.update({x["name"]: {"type": t(x["default"]), "default": x["default"],
+                            "min": x.get("min"), "max": x.get("max"), "map": x.get("map")}
+                for x in d})
     json.dump(out, open("tests/fixtures/hyprland-options.json", "w"), indent=1, sort_keys=True)'
 
 `current` is dropped because it is machine state.
@@ -267,18 +267,15 @@ class HyprconfiguratorTests(unittest.TestCase):
 
 class FixtureTests(unittest.TestCase):
     def test_fixture_shape(self):
+        # Keyed by getoption name: tests/test_settings_contract.py matches entry["option"] against the keys.
         data = json.loads(FIXTURE.read_text())
         self.assertIn("_comment", data)
-        options = data["options"]
+        options = {name: o for name, o in data.items() if name != "_comment"}
         self.assertGreater(len(options), 300)
-        names = [o["name"] for o in options]
-        self.assertEqual(len(names), len(set(names)))
-        for option in options:
-            self.assertEqual(set(option), {"name", "type", "default", "min", "max", "map"})
-            self.assertNotIn("current", option)
+        for option in options.values():
+            self.assertEqual(set(option), {"type", "default", "min", "max", "map"})
             self.assertIn(option["type"], {"bool", "int", "float", "string", "list"})
-        by_name = {o["name"]: o for o in options}
-        self.assertEqual(by_name["input:touchpad:tap-to-click"]["type"], "bool")
+        self.assertEqual(options["input:touchpad:tap-to-click"]["type"], "bool")
 
 
 if __name__ == "__main__":
