@@ -19,7 +19,7 @@ class ScreenRecordingContractTest(unittest.TestCase):
         self.assertIn("Translation.tr(\"Screen Recording\")", settings_qml)
 
     def test_config_declares_screen_recording_defaults(self) -> None:
-        config_qml = read("config/quickshell/ii/modules/common/Config.qml")
+        config_qml = read("config/quickshell/ii/modules/common/ConfigOptions.qml")
         for expected in [
             "property string fileFormat: \"mp4\"",
             "property int fps: 60",
