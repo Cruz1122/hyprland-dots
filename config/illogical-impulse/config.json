@@ -259,6 +259,11 @@
     "hacks": {
         "arbitraryRaceConditionDelay": 20
     },
+    "idle": {
+        "dpmsTimeout": 0,
+        "lockTimeout": 0,
+        "suspendTimeout": 0
+    },
     "interactions": {
         "deadPixelWorkaround": {
             "enable": false

@@ -265,6 +265,14 @@ JsonAdapter {
         property list<string> ignoredAppRegexes: []
     }
 
+    property JsonObject idle: JsonObject {
+        // Seconds of inactivity before each action; 0 disables it. The settings
+        // app turns these into hypr/custom/shell-idle.conf for hypridle.
+        property int lockTimeout: 0
+        property int dpmsTimeout: 0
+        property int suspendTimeout: 0
+    }
+
     property JsonObject interactions: JsonObject {
         property JsonObject scrolling: JsonObject {
             property bool fasterTouchpadScroll: false // Enable faster scrolling with touchpad
