@@ -14,6 +14,8 @@ bash -n config/quickshell/ii/scripts/colors/switchwall.sh
 bash -n config/quickshell/ii/scripts/videos/record.sh
 bash -n config/quickshell/ii/scripts/grok-open-bot.sh
 bash -n config/quickshell/ii/scripts/grok-start-hidden.sh
+bash -n scripts/settings-harness/run.sh
+python -m py_compile scripts/settings-harness/summarize.py tests/test_settings_harness.py
 python -m py_compile config/quickshell/ii/scripts/grok-roster.py tests/test_grok_roster.py tests/test_grok_open_bot.py
 python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_settings_foundation_contract.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
 python -m unittest discover -s tests -p 'test_*.py'
