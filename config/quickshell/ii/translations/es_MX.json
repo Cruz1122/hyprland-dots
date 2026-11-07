@@ -745,5 +745,6 @@
   "Font size": "Tamaño de fuente",
   "System": "Sistema",
   "More Internet settings": "Más ajustes de Internet",
-  "Utility buttons": "Botones de utilidad"
+  "Utility buttons": "Botones de utilidad",
+  "Could not get the GPS location. Using the city instead and retrying later.": "No se pudo obtener la ubicación GPS. Se usará la ciudad y se reintentará más tarde."
 }
