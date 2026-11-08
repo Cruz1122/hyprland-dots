@@ -52,7 +52,7 @@ class WorkSafetyTextsTest(unittest.TestCase):
                 self.assertNotIn("entradas del portapapeles", ES_MX[text])
         joined = " ".join(texts(item))
         self.assertIn("blur", joined.lower())
-        self.assertIn("difumin", " ".join(ES_MX[t] for t in texts(item)))
+        self.assertIn("desenfoc", " ".join(ES_MX[t] for t in texts(item)))
 
     def test_clipboard_switch_says_what_the_launcher_does(self) -> None:
         clipboard = entry(self.page, "workSafety.enable.clipboard")

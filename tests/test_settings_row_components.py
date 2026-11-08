@@ -36,6 +36,7 @@ EXPECTED_CHECKS = (
     "decimals: no group separator",
     "preview-a11y: two previews with different accessible names",
     "preview-a11y: the effects preview describes blur, shadow, opacity and dimming",
+    "preview-a11y: a single blur pass is not written as a plural",
     "preview-a11y: the layout preview still describes gaps, border and radius",
 )
 

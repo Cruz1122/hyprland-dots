@@ -290,13 +290,15 @@ ShellRoot {
         const description = effectsCanvas?.Accessible.description ?? "";
         const v = effects?.model?.values ?? {};
         const parts = [
-            v.blur ? Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(v.blurPasses) : Translation.tr("No blur behind the bar and panels"),
+            v.blur ? (v.blurPasses === 1 ? Translation.tr("Blur behind the bar and panels: %1 px, 1 pass").arg(Math.round(v.blurSize)) : Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(v.blurPasses)) : Translation.tr("No blur behind the bar and panels"),
             v.shadow ? Translation.tr("Shadow of floating windows: %1 px").arg(Math.round(v.shadowRange)) : Translation.tr("No shadow on floating windows"),
             Translation.tr("Opacity: %1 % for the active window, %2 % for the others").arg(Math.round(v.activeOpacity * 100)).arg(Math.round(v.inactiveOpacity * 100)),
             v.dim ? Translation.tr("Inactive windows dimmed by %1 %").arg(Math.round(v.dimStrength * 100)) : Translation.tr("Inactive windows are not dimmed")
         ];
         root.check("preview-a11y: the effects preview describes blur, shadow, opacity and dimming", !!effectsCanvas && parts.every(p => description.indexOf(p) >= 0)
             && description !== layoutCanvas?.Accessible.description, { description: description, layout: layoutCanvas?.Accessible.description ?? null });
+        root.check("preview-a11y: a single blur pass is not written as a plural", v.blurPasses !== 1
+            || description.indexOf(Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(1)) < 0, { description: description, passes: v.blurPasses ?? null });
         root.check("preview-a11y: the layout preview still describes gaps, border and radius", (layoutCanvas?.Accessible.description ?? "").indexOf(String(v.gapsIn)) >= 0
             && layoutCanvas?.Accessible.description === effects?.layoutSummary, { description: layoutCanvas?.Accessible.description ?? null });
         root.next();

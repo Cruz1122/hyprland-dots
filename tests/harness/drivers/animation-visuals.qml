@@ -39,8 +39,8 @@ ShellRoot {
         { name: "menu_decel", type: "bezier", points: [0.1, 1, 0, 1], label: "Menu entrance", group: "dotfiles", builtin: true },
         { name: "menu_accel", type: "bezier", points: [0.52, 0.03, 0.72, 0.08], label: "Menu exit", group: "dotfiles", builtin: true },
         { name: "stall", type: "bezier", points: [1, -0.1, 0.7, 0.85], label: "Pause, then go", group: "dotfiles", builtin: true },
-        { name: "expressiveSlowSpatial", type: "bezier", points: [0.39, 1.29, 0.35, 0.98], label: "Light bounce", group: "dotfiles", builtin: true },
-        { name: "expressiveDefaultSpatial", type: "bezier", points: [0.38, 1.21, 0.22, 1], label: "Medium bounce", group: "dotfiles", builtin: true },
+        { name: "expressiveSlowSpatial", type: "bezier", points: [0.39, 1.29, 0.35, 0.98], label: "Medium bounce", group: "dotfiles", builtin: true },
+        { name: "expressiveDefaultSpatial", type: "bezier", points: [0.38, 1.21, 0.22, 1], label: "Light bounce", group: "dotfiles", builtin: true },
         { name: "expressiveFastSpatial", type: "bezier", points: [0.42, 1.67, 0.21, 0.9], label: "Strong bounce", group: "dotfiles", builtin: true },
         { name: "ii_spring_soft", type: "spring", mass: 1, stiffness: 238.1191, damping: 24.21279333, label: "Soft spring", group: "app", builtin: true },
         { name: "ii_spring_bouncy", type: "spring", mass: 1, stiffness: 260, damping: 18, label: "Bouncy spring", group: "app", builtin: true }

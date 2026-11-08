@@ -41,7 +41,7 @@ ColumnLayout {
     readonly property string effectsSummary: {
         const v = preview.model.values;
         return [
-            v.blur ? Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(v.blurPasses)
+            v.blur ? (v.blurPasses === 1 ? Translation.tr("Blur behind the bar and panels: %1 px, 1 pass").arg(Math.round(v.blurSize)) : Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(v.blurPasses))
                 : Translation.tr("No blur behind the bar and panels"),
             v.shadow ? Translation.tr("Shadow of floating windows: %1 px").arg(Math.round(v.shadowRange))
                 : Translation.tr("No shadow on floating windows"),
