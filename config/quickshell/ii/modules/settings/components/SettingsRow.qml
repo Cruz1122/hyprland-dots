@@ -113,9 +113,11 @@ Item {
     Accessible.name: row.label
     Accessible.description: row.accessibleDescription()
 
-    // Description, help, chips and status as one translated text.
+    // Description, help, chips and status as one translated text. A row
+    // disabled by another setting has the same "Requires …" sentence as its
+    // chip and its disabled reason: it is said once, by the chip.
     function accessibleDescription() {
-        const parts = [row.description, row.help, row.optionNote, ...row.chips.map(c => c.text), row.statusNote, row.disabledReason, row.errorText];
+        const parts = [row.description, row.help, row.optionNote, ...row.chips.map(c => c.text), row.statusNote, row.requires ? "" : row.disabledReason, row.errorText];
         return parts.filter(p => p.length > 0).map(p => p.replace(/[.\s]+$/, "")).join(". ");
     }
 
@@ -464,6 +466,7 @@ Item {
 
             RowLayout {
                 id: controlBox
+                objectName: "rowControl"
                 visible: !row.showPlaceholder
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignVCenter
@@ -519,6 +522,7 @@ Item {
         }
 
         StyledText {
+            objectName: statusLine.objectName.length > 0 ? statusLine.objectName + "Text" : ""
             Layout.fillWidth: true
             text: statusLine.text
             wrapMode: Text.Wrap

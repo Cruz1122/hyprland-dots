@@ -20,15 +20,29 @@
 //                and Space/Enter open and close the help;
 //   requires     a "Requires …" chip (a row disabled by another setting) is a
 //                link: Enter on it reveals and highlights the target row,
-//                no lock line repeats it, and Space on a chip whose target
+//                no lock line and no second sentence of the accessible
+//                description repeats it, and Space on a chip whose target
 //                is on another page (a test enabledWhen) opens that page;
-//   chips        no row of the visited pages shows more than 2 chips.
+//   chips        no row of the visited pages shows more than 2 chips;
+//   status-note  with Game Mode on (its overrides file in the sandbox), a
+//                row it pauses shows the backend's status note as an italic,
+//                translated line, gone again when Game Mode ends;
+//   navigation   the modified count of a page is hidden at 0 with its width
+//                reserved (same width on every item), shows the count above
+//                0 and says «Ajustes modificados: N» to screen readers; no
+//                page title is elided at 1100 and 1600 px wide (nor at
+//                760 px with the list expanded), and the list keeps its
+//                width when a count appears or another page is selected.
 // Without Hyprland:
-//   backend-down every section of the Windows page with Hyprland rows shows
-//                one banner, and those rows show "—" instead of a control.
+//   backend-down on the Windows, Input and Animations pages every writable
+//                row whose backend is down shows "—" and no live control
+//                (Input covers list and text rows); a section where all of
+//                them share the reason shows it once in a banner (on Windows
+//                every Hyprland section does).
 // Results are "[harness:report]" lines; any failure is a "fatal" event.
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import qs.modules.common
 // @harness-imports
 
@@ -277,6 +291,7 @@ ShellRoot {
             const lockLine = root.findItem(row, "lockReason");
             root.check("requires: no lock line repeats the chip", row.disabledReason === row.requires.text && !!lockLine && !lockLine.visible, {
                 reason: row.disabledReason, lockLine: lockLine ? lockLine.visible : null });
+            root.checkSaidOnce(row);
             const dependent = row.parent?.parent;
             root.check("requires: a row that depends on its section is indented", targetKey && SettingsRegistry.entry(targetKey).section === row.entry.section ? (dependent?.dependent === true && row.parent.anchors.leftMargin > 0) : true, { key: row.settingKey });
             root.saveShot(row, "requires-row", () => {
@@ -290,6 +305,15 @@ ShellRoot {
                 });
             });
         });
+    }
+
+    // Screen readers hear the "Requires …" sentence once: the chip says it,
+    // the disabled reason (the same sentence) is left out.
+    function checkSaidOnce(row) {
+        const said = row.requires.text.replace(/[.\s]+$/, "");
+        const description = row.Accessible.description;
+        root.check("requires: the accessible description says it once", description.split(said).length - 1 === 1, {
+            key: row.settingKey, description: description });
     }
 
     // A "Requires …" chip whose target lives on another page reveals it there
@@ -329,6 +353,7 @@ ShellRoot {
                     finish();
                     return;
                 }
+                root.checkSaidOnce(row);
                 root.pressCrossPageChip(chip, finish);
             });
         });
@@ -366,28 +391,220 @@ ShellRoot {
 
     // ---------------------------------------------------------- backend-down
 
+    // Pages whose writable rows depend on Hyprland: Windows (switches and
+    // sliders, every section shares the reason), Input (also list and text
+    // rows: layouts, variants, XKB options) and Animations.
+    readonly property var downPages: [
+        { id: "windows", minSections: 3, bannerEverywhere: true, types: [] },
+        { id: "input", minSections: 1, bannerEverywhere: false, types: ["list", "string"] },
+        { id: "animations", minSections: 1, bannerEverywhere: false, types: [] }
+    ]
+
     function backendDownStep() {
-        root.openPage("windows", ready => {
-            const page = root.rowFor("hyprland.general.gaps_in")?.page ?? null;
-            const sections = root.findAll(page, "section:", []).filter(s => s.visible);
-            let checked = 0;
-            for (const section of sections) {
-                const rows = root.findAll(section, "row:", []).filter(r => r.visible && r.writable !== undefined);
-                const down = rows.filter(r => r.writable && !SettingsStore.isAvailable(r.settingKey));
-                if (down.length === 0)
-                    continue;
-                checked++;
-                const banner = root.findItem(section, "sectionBanner:" + section.sectionId);
-                const banners = root.findAll(section, "sectionBanner:", []).filter(b => b.visible).length;
-                root.check("backend-down: one banner per section", banner?.visible && banners === 1 && banner.text === Translation.tr(SettingsStore.unavailableReason(down[0].settingKey)), {
-                    section: section.sectionId, banner: banner?.text ?? null });
-                const fake = down.filter(r => !root.findItem(r, "valuePlaceholder")?.visible);
-                root.check("backend-down: rows show — instead of a value", fake.length === 0, { section: section.sectionId, fake: fake.map(r => r.settingKey) });
-                const repeated = down.filter(r => r.reasonInBanner !== true);
-                root.check("backend-down: rows do not repeat the banner's reason", repeated.length === 0, { section: section.sectionId, repeated: repeated.map(r => r.settingKey) });
+        const run = index => {
+            if (index >= root.downPages.length) {
+                root.next();
+                return;
             }
-            root.check("backend-down: Hyprland sections checked", ready && checked >= 3, { sections: checked });
-            root.saveShot(page, "backend-down-windows", () => root.next());
+            const spec = root.downPages[index];
+            root.openPage(spec.id, ready => {
+                const page = root.findAll(root.win.contentItem, "row:", []).find(r => r.visible && r.page?.pageId === spec.id)?.page ?? null;
+                root.checkDownPage(spec, ready, page);
+                root.saveShot(page, `backend-down-${spec.id}`, () => run(index + 1));
+            });
+        };
+        run(0);
+    }
+
+    function checkDownPage(spec, ready, page) {
+        const sections = root.findAll(page, "section:", []).filter(s => s.visible);
+        let checked = 0;
+        let allDown = [];
+        for (const section of sections) {
+            const rows = root.findAll(section, "row:", []).filter(r => r.visible && r.writable !== undefined);
+            const down = rows.filter(r => r.writable && !SettingsStore.isAvailable(r.settingKey));
+            if (down.length === 0)
+                continue;
+            checked++;
+            allDown = allDown.concat(down);
+            const where = { page: spec.id, section: section.sectionId };
+            const reason = page.sectionBannerReason(section.sectionId);
+            const banner = root.findItem(section, "sectionBanner:" + section.sectionId);
+            const banners = root.findAll(section, "sectionBanner:", []).filter(b => b.visible).length;
+            if (spec.bannerEverywhere || reason.length > 0) {
+                root.check("backend-down: one banner per section", banner?.visible && banners === 1 && banner.text === Translation.tr(SettingsStore.unavailableReason(down[0].settingKey)), Object.assign({
+                    banner: banner?.text ?? null }, where));
+                const repeated = down.filter(r => r.reasonInBanner !== true);
+                root.check("backend-down: rows do not repeat the banner's reason", repeated.length === 0, Object.assign({ repeated: repeated.map(r => r.settingKey) }, where));
+            } else {
+                root.check("backend-down: no banner without a shared reason", banners === 0, Object.assign({ banners: banners }, where));
+            }
+            const fake = down.filter(r => !root.findItem(r, "valuePlaceholder")?.visible || root.findItem(r, "rowControl")?.visible !== false);
+            root.check("backend-down: rows show — instead of a value", fake.length === 0, Object.assign({ fake: fake.map(r => r.settingKey) }, where));
+        }
+        const types = allDown.map(r => r.entry.type);
+        root.check("backend-down: Hyprland sections checked", ready && checked >= spec.minSections && spec.types.every(t => types.includes(t)), {
+            page: spec.id, sections: checked, rows: allDown.map(r => `${r.settingKey}:${r.entry.type}`) });
+    }
+
+    // ----------------------------------------------------------- status-note
+
+    // Game Mode is on while its overrides file sets animations off; the
+    // Hyprland backend then pauses the options it overrides and says so with
+    // statusNote(entry) (contracts phase A §3).
+    readonly property string overridesFile: `${Quickshell.env("XDG_CONFIG_HOME")}/hypr/hyprland/shellOverrides/main.lua`
+    readonly property string configurator: Quickshell.shellPath("scripts/hyprland/hyprconfigurator.py")
+    readonly property string pausedKey: "hyprland.general.gaps_in"
+
+    function run(argv, done) {
+        const proc = procComponent.createObject(root, { command: argv });
+        proc.exited.connect(code => {
+            proc.destroy();
+            done(code);
+        });
+        proc.running = true;
+    }
+
+    // Game Mode's toggle makes Hyprland reload, and the backend re-reads the
+    // overrides file on "configreloaded" (its watch cannot see the file being
+    // created). The stub has no event socket, so the driver delivers the
+    // event to the store's Hyprland backend itself.
+    function hyprlandBackend() {
+        return SettingsStore.backends?.hyprland ?? null;
+    }
+
+    function configReloaded() {
+        root.hyprlandBackend()?.hyprlandEvents.onRawEvent({ name: "configreloaded" });
+    }
+
+    function statusNoteStep() {
+        root.check("status-note: the Hyprland backend is reachable", root.hyprlandBackend() !== null, {});
+        const expected = "Pausado por el Modo Juego";
+        root.check("status-note: the note is translated", Translation.tr("Paused by Game Mode") === expected, { tr: Translation.tr("Paused by Game Mode") });
+        root.openPage("windows", () => {
+            const before = root.rowOn("windows", root.pausedKey);
+            const line = before ? root.findItem(before, "statusNote") : null;
+            root.check("status-note: no line without a note", !!line && !line.visible && before.statusNote === "", { key: root.pausedKey });
+            const args = ["--set", "animations:enabled", "0", "--set", "general:gaps_in", "0"];
+            root.run(["mkdir", "-p", root.overridesFile.replace(/\/[^/]*$/, "")], () => root.run(["python3", root.configurator, "--file", root.overridesFile].concat(args), code => {
+                root.configReloaded();
+                root.waitFor(() => root.rowOn("windows", root.pausedKey)?.statusNote.length > 0, 8000, ok => {
+                    const row = root.rowOn("windows", root.pausedKey);
+                    const note = row ? root.findItem(row, "statusNote") : null;
+                    const text = note ? root.findItem(note, "statusNoteText") : null;
+                    root.check("status-note: a paused row shows the translated note in italics", code === 0 && ok && note?.visible && text?.visible
+                        && text.text === expected && text.font.italic === true, {
+                        code: code, note: row?.statusNote ?? null, visible: note ? note.visible : null, italic: text ? text.font.italic : null });
+                    root.check("status-note: the accessible description includes it", !!row && row.Accessible.description.indexOf(expected) >= 0, {
+                        description: row?.Accessible.description ?? null });
+                    root.saveShot(row, "status-note-row", () => {
+                        const reset = ["--reset", "animations:enabled", "--reset", "general:gaps_in"];
+                        root.run(["python3", root.configurator, "--file", root.overridesFile].concat(reset), () => {
+                            root.configReloaded();
+                            root.waitFor(() => root.rowOn("windows", root.pausedKey)?.statusNote === "", 8000, gone => {
+                                root.check("status-note: the line goes away with Game Mode", gone && !root.findItem(root.rowOn("windows", root.pausedKey), "statusNote").visible, {});
+                                root.next();
+                            });
+                        });
+                    });
+                });
+            }));
+        });
+    }
+
+    // ------------------------------------------------------------ navigation
+
+    function navItems() {
+        const nav = root.findItem(root.win.contentItem, "settingsNavigation");
+        return root.findAll(nav, "nav:", []).filter(i => i.visible);
+    }
+
+    function titleStates() {
+        return root.navItems().map(i => ({ page: i.page.id, title: i.title, elided: root.findItem(i, "navTitle")?.truncated ?? null }));
+    }
+
+    function checkTitles(size) {
+        const states = root.titleStates();
+        const nav = root.findItem(root.win.contentItem, "settingsNavigation");
+        root.report({ type: "nav-titles", size: size, navWidth: nav.width, titles: states });
+        root.check("navigation: no page title is elided", states.length > 0 && states.every(t => t.elided === false), {
+            size: size, elided: states.filter(t => t.elided !== false).map(t => t.title) });
+    }
+
+    function navigationStep() {
+        const nav = root.findItem(root.win.contentItem, "settingsNavigation");
+        const items = root.navItems();
+        const slot = item => root.findItem(item, "modifiedCount");
+        const widths = items.map(i => slot(i)?.width ?? -1);
+        root.check("navigation: the count keeps the same width on every item", items.length > 0 && widths.every(w => w > 0 && w === widths[0]), {
+            widths: widths });
+        const zero = items.filter(i => i.modifiedCount === 0);
+        const some = items.filter(i => i.modifiedCount > 0);
+        root.check("navigation: pages with and without changes", zero.length > 0 && some.length > 0, {
+            zero: zero.map(i => i.page.id), some: some.map(i => i.page.id) });
+        root.check("navigation: hidden at 0", zero.every(i => slot(i).opacity === 0 && slot(i).text === "" && i.Accessible.description === ""), {
+            pages: zero.filter(i => slot(i).opacity !== 0 || i.Accessible.description !== "").map(i => i.page.id) });
+        const described = i => Translation.tr("Changed settings: %1").arg(i.modifiedCount);
+        root.check("navigation: the count shows above 0 and is described", some.every(i => slot(i).opacity === 1 && slot(i).visible
+            && slot(i).text === String(i.modifiedCount) && i.Accessible.description === described(i))
+            && Translation.tr("Changed settings: %1") === "Ajustes modificados: %1", {
+            pages: some.map(i => ({ page: i.page.id, count: i.modifiedCount, text: slot(i).text, description: i.Accessible.description })) });
+        root.checkTitles(`${root.win.width}x${root.win.height}`);
+        root.saveShot(nav, "navigation-1100", () => root.countProbeStep(nav));
+    }
+
+    // A count appearing must not move the list: the list is sized from the
+    // items' implicit widths, so an item for the longest title has the same
+    // implicit width with a count of 0 and above 0, selected or not. Two
+    // invisible probe items stand in for one page whose count changes (the
+    // strict harness forbids the writes a real change would need).
+    function countProbeStep(nav) {
+        const items = root.navItems();
+        const zero = items.find(i => i.modifiedCount === 0);
+        const some = items.find(i => i.modifiedCount > 0);
+        const longest = items.reduce((a, b) => b.implicitWidth > a.implicitWidth ? b : a, items[0]);
+        const component = Qt.createComponent(Quickshell.shellPath("modules/settings/components/SettingsNavigationItem.qml"));
+        const probe = (page, selected) => component.createObject(root.win.contentItem, {
+            opacity: 0, z: -1, expanded: true, selected: selected,
+            page: { id: page.id, title: longest.page.title, icon: longest.page.icon }
+        });
+        const probes = zero && some && component.status === Component.Ready ? [probe(zero.page, false), probe(some.page, false), probe(some.page, true)] : [];
+        const widths = probes.map(p => p.implicitWidth);
+        root.check("navigation: a count appearing or a selection keeps the item's width", probes.length === 3
+            && probes[0].modifiedCount === 0 && probes[1].modifiedCount > 0 && widths.every(w => w > 0 && w === widths[0]), {
+            title: longest?.title ?? null, widths: widths, error: component.errorString() });
+        root.check("navigation: the list is as wide as its longest title needs", nav.expandedWidth === Math.min(SettingsMetrics.navMaxExpandedWidth,
+            Math.max(SettingsMetrics.navExpandedWidth, ...items.map(i => i.implicitWidth))) && nav.width === nav.expandedWidth, {
+            width: nav.width, expandedWidth: nav.expandedWidth, longest: longest?.implicitWidth ?? null });
+        for (const p of probes)
+            p.destroy();
+        root.otherSizesStep(nav);
+    }
+
+    // The window is resized in place; the list follows its width once the
+    // layout has run (nav.windowWidth), then settles after its width
+    // animation.
+    function otherSizesStep(nav) {
+        root.win.width = 1600;
+        root.win.height = 900;
+        root.waitFor(() => nav.windowWidth === 1600 && nav.width === nav.expandedWidth, 3000, wide => {
+            root.check("navigation: the window grew to 1600 px", wide, { windowWidth: nav.windowWidth });
+            root.checkTitles("1600x900");
+            root.win.width = 760;
+            root.win.height = 720;
+            root.waitFor(() => nav.windowWidth === 760 && !nav.expanded, 3000, narrow => {
+                root.check("navigation: the list collapses at 760 px", narrow, { windowWidth: nav.windowWidth });
+                nav.userExpanded = true;
+                root.waitFor(() => nav.expanded && nav.width === nav.expandedWidth, 3000, () => {
+                    root.checkTitles("760x720 expanded");
+                    root.saveShot(nav.parent, "navigation-760-expanded", () => {
+                        nav.userExpanded = null;
+                        root.win.width = 1100;
+                        root.win.height = 760;
+                        root.waitFor(() => nav.windowWidth === 1100 && nav.width === nav.expandedWidth, 3000, () => root.next());
+                    });
+                });
+            });
         });
     }
 
@@ -411,6 +628,10 @@ ShellRoot {
             root.requiresStep();
         else if (step === "chips")
             root.chipsStep();
+        else if (step === "status-note")
+            root.statusNoteStep();
+        else if (step === "navigation")
+            root.navigationStep();
         else
             root.backendDownStep();
     }
@@ -418,7 +639,7 @@ ShellRoot {
     function start() {
         root.keys = Qt.createQmlObject("import QtQuick; import QtTest; TestCase { when: false }", root.win.contentItem, "harnessKeys");
         const hyprland = SettingsStore.isAvailable("hyprland.general.gaps_in");
-        root.steps = hyprland ? ["option-texts", "help-search", "help-keys", "requires", "chips"] : ["backend-down"];
+        root.steps = hyprland ? ["option-texts", "help-search", "help-keys", "requires", "chips", "status-note", "navigation"] : ["backend-down"];
         root.report({ type: "start", mode: hyprland ? "hyprland" : "backend-down", steps: root.steps });
         root.next();
     }
@@ -431,6 +652,11 @@ ShellRoot {
             return;
         }
         root.win = component.createObject(root, { width: 1100, height: 760 });
+    }
+
+    Component {
+        id: procComponent
+        Process {}
     }
 
     Component {

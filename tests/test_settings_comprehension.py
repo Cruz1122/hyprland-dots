@@ -2,9 +2,14 @@
 
 tests/harness/drivers/comprehension.qml checks "Now: …" option notes and
 slider captions, help search and the help toggle by keyboard, the
-"Requires …" link, the 2-chip limit (with the fake hyprctl) and, without
-Hyprland, one banner per section and "—" instead of made-up values. See
-docs/settings.md "Rows and pages".
+"Requires …" link (said once to screen readers), the 2-chip limit, the
+italic status note of a row paused by Game Mode and the navigation (modified
+count reserved at 0 and described, no elided page title, a list width that
+counts and selection do not change), all with the fake hyprctl; without
+Hyprland, on the Windows, Input and Animations pages, one banner per section
+that shares the reason and "—" with no live control instead of made-up
+values (Input covers list and text rows). See docs/settings.md "Rows and
+pages".
 """
 from __future__ import annotations
 
@@ -75,8 +80,30 @@ class SettingsComprehensionTest(unittest.TestCase):
             "requires: cross-page fixture applies",
             "requires: a chip can point to another page",
             "requires: a link to another page opens it and highlights the row",
+            "requires: the accessible description says it once",
             "chips: at most 2 per row",
+            "status-note: the Hyprland backend is reachable",
+            "status-note: the note is translated",
+            "status-note: no line without a note",
+            "status-note: a paused row shows the translated note in italics",
+            "status-note: the accessible description includes it",
+            "status-note: the line goes away with Game Mode",
+            "navigation: the count keeps the same width on every item",
+            "navigation: pages with and without changes",
+            "navigation: hidden at 0",
+            "navigation: the count shows above 0 and is described",
+            "navigation: no page title is elided",
+            "navigation: a count appearing or a selection keeps the item's width",
+            "navigation: the list is as wide as its longest title needs",
+            "navigation: the window grew to 1600 px",
+            "navigation: the list collapses at 760 px",
         ])
+        titles = [e for e in events if e.get("type") == "nav-titles"]
+        self.assertEqual([t["size"] for t in titles], ["1100x760", "1600x900", "760x720 expanded"])
+        for report in titles:
+            with self.subTest(size=report["size"]):
+                self.assertTrue(report["titles"])
+                self.assertEqual([t["title"] for t in report["titles"] if t["elided"] is not False], [])
 
     def test_unavailable_backend_shows_one_banner_and_no_fake_values(self) -> None:
         result, events, log = run_driver()
@@ -86,6 +113,8 @@ class SettingsComprehensionTest(unittest.TestCase):
             "backend-down: rows do not repeat the banner's reason",
             "backend-down: Hyprland sections checked",
         ])
+        checked = [c.get("page") for c in events if c.get("step") == "backend-down: Hyprland sections checked"]
+        self.assertEqual(checked, ["windows", "input", "animations"])
 
 
 if __name__ == "__main__":

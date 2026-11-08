@@ -12,6 +12,9 @@ Singleton {
 
     readonly property var pendingConfirmation: impl.pendingConfirmation
     readonly property int revision: impl.revision
+    // Backend instances by name. Not for the app: harness drivers use it to
+    // deliver events the sandbox cannot produce (Hyprland's configreloaded).
+    readonly property var backends: impl.backends
 
     signal committed(string key)
     signal failed(string key, string message)

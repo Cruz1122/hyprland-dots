@@ -25,7 +25,8 @@ TestCase {
                     { key: "idle.lock", section: "s", label: "Lock", backend: "idle", type: "int", risky: true, min: 0, max: 60 },
                     { key: "hidden", section: "s", label: "Hidden", backend: "config", type: "bool", visibleWhen: { capability: "touchpad" } },
                     { key: "gone", section: "s", label: "Gone", backend: "display", type: "bool" },
-                    { key: "info", section: "s", label: "Info", backend: "readonly", type: "info" }
+                    { key: "info", section: "s", label: "Info", backend: "readonly", type: "info" },
+                    { key: "cfginfo", section: "s", label: "Config info", backend: "config", type: "info" }
                 ]
             },
             q: { id: "q", title: "Q", sections: [{ id: "x", title: "X" }], entries: [{ ref: "count", section: "x" }] }
@@ -147,6 +148,12 @@ TestCase {
         compare(store.statusNote("gone"), "", "unavailable backend");
         off.statusNoteFor = null;
         compare(store.statusNote("info"), "", "read-only entries");
+        // backendFor skips entries that are not writable, so a read-only entry
+        // gets "" even when its backend has the hook.
+        config.statusNoteFor = () => "Paused by Game Mode";
+        compare(store.statusNote("flag"), "Paused by Game Mode");
+        compare(store.statusNote("cfginfo"), "", "read-only entry on a backend with the hook");
+        config.statusNoteFor = null;
         compare(store.statusNote("unknown.key"), "");
     }
 

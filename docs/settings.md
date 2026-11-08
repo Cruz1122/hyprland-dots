@@ -132,7 +132,7 @@ Entry fields:
 | `label`, `description` | English source strings, translated with `Translation.tr`. Description is one sentence. |
 | `note` | Optional English hint shown in italics under the description. Do not use it for what a chip already says. |
 | `help` | Optional English longer explanation (1–3 sentences: what it does, when to use it, what to watch out for); never repeats the description. Rendered as a "?" toggle after the label (keyboard focusable, accessible name "Help: <label>") that opens the text inline in the row, collapsed by default; it stays open for the session (per key) and opens by itself when a search result matched only through the help. |
-| `applies` | Optional: when a change takes effect, shown as a chip on the label line. One of `newWindows` ("New windows only"), `nextStart` ("When the shell restarts"), `nextLogin` ("At next login"), `confirm` ("Asks for confirmation"), `onSave` ("When saved"). Instant changes have none. `risky` entries without `applies` show `confirm`. |
+| `applies` | Optional: when a change takes effect, shown as a chip on the label line. One of `newWindows` ("New windows only"), `nextStart` ("When the shell restarts"), `nextLogin` ("At next login"), `confirm` ("Asks for confirmation"), `onSave` ("When saved"). Instant changes have none. `risky` entries always show `confirm` too, since they always ask (`risky` with `applies: "nextStart"` shows both, `confirm` first). |
 | `cost` | Optional resource the setting costs while on, shown as a chip: `gpu` ("Uses more GPU") or `battery` ("Uses battery"). |
 | `minLabel`, `maxLabel` | Optional English captions for the two ends of a slider without a unit ("Subtle" … "Strong"), shown under the track (slider rows only). |
 | `keywords` | Optional extra search terms (any language). |
@@ -145,7 +145,7 @@ Entry fields:
 | `min`, `max`, `step`, `unit`, `uiScale`, `decimals` | Numeric range and display. `uiScale` multiplies the stored value for display (0.5 shown as 50 with `unit: "%"`); `min`/`max`/`step` stay in stored units. Spin boxes round the displayed value and write it divided back and rounded (seconds shown as minutes with `uiScale: 1/60`). |
 | `options` | Enum values: `[{ "value": <json>, "label": "English", "icon": "optional", "description": "Optional English sentence" }]`; no other option fields. Select and segmented rows show the selected option's description as "Now: <description>" in the text column. |
 | `validate` | `{ "regex": "...", "maxLength": n, "nonEmpty": true, "unique": "<group>" }`. |
-| `enabledWhen`, `visibleWhen` | Conditions, below. While another setting's value disables a row, the row shows a "Requires …" chip (below); a row whose `enabledWhen` names another row of its own section is indented under it with a guide line. |
+| `enabledWhen`, `visibleWhen` | Conditions, below. While another setting's value disables a row, the row shows a "Requires …" chip (below); a row whose `enabledWhen` or `visibleWhen` names another row of its own section is indented under it with a guide line. |
 | `risky` | Needs the 15 s keep-or-revert confirmation. |
 | `action` | For `type: "action"`: handler name provided by the page. |
 | `consumers` | Files (relative to `config/quickshell/ii`, or repo-relative when starting with `config/`/`scripts/`) that read the setting. Required for `config`; each must contain the leaf key name. |
@@ -594,12 +594,12 @@ appear only on hover (`StyledToolTip` needs `parent.hovered === true` or
 | `chips` | `Logic.rowChips(entry, requires)`: at most 2 chips on the label line, priority requires > `confirm` > `nextStart`/`nextLogin`/`newWindows`/`onSave` > `cost`. The requires chip is a link (Enter, Space or click): it scrolls to and highlights the target row on this page, or asks `SettingsSession.requestReveal(key)`, which `SettingsShell` forwards to `settings.qml` `reveal()` (another page). |
 | `help`, `helpOpen`, `toggleHelp()` | Translated `entry.help`; the "?" toggle (`objectName: "helpToggle"`) and the inline text (`"helpText"`). Open state lives in `SettingsSession` for the session. |
 | `optionNote` | "Now: <description>" of the selected option (select and segmented rows). |
-| `statusNote` | Translated `SettingsStore.statusNote(key)`, an italic status line. |
+| `statusNote` | Translated `SettingsStore.statusNote(key)`, an italic status line (`objectName: "statusNote"`, its text `"statusNoteText"`). |
 | `showPlaceholder`, `needsValue`, `placeholderWhenUnavailable` | A writable row whose backend is unavailable (or, with `needsValue`, whose value is `undefined`) shows "—" (`"valuePlaceholder"`) instead of its control, never a made-up checked, unchecked or minimum value. Switch, slider, spin, select and segmented rows set `needsValue`. |
 | `reasonInBanner` | The section banner already shows this row's unavailable reason, so the row has no lock line. |
 | `resetText` | Reset button tooltip and accessible name: "Reset to <formatted default>" (`Logic.formatValue`: units, option labels, On/Off, percentages without decimals), "Reset to default" when the default has no short form, "Reset" when it is unknown. |
 | `highlighted`, `pulse()` | Search reveal highlight. |
-| `Accessible.description` | Description, help, "Now: …", chip texts, status note, disabled reason and error, translated, as one text. |
+| `Accessible.description` | Description, help, "Now: …", chip texts, status note, disabled reason and error, translated, as one text. A row disabled by another setting says its "Requires …" sentence once (the chip), without the identical disabled reason. |
 | `busy`, `errorText` | `errorText` follows `SettingsStore.failed` for this key and clears on `committed`. |
 | `hovered` | `HoverHandler`. |
 | `stacked`, `controlFillsWidth`, `controlPreferredWidth` | Layout: the control goes below the text when `stacked`, the row is narrower than 520 px, or the control needs more than 55% of the width. Drop-downs share `SettingsMetrics.selectWidth` so a section's controls line up; long labels elide. |
@@ -642,8 +642,8 @@ registry order, choosing the row file by `widget`. Members:
 A page file is just `SettingsPage { pageId: "<id>"; ... }`; pages with no
 entries show an empty state. Sections render as `SettingsSection`
 (`sectionId`, `title`, `icon`, `description`, `bannerText`, rows as default
-children, `objectName: "section:" + id`). Rows whose `enabledWhen` names
-another row of the same section (`Logic.sectionDependencies`) are indented by
+children, `objectName: "section:" + id`). Rows whose `enabledWhen` or
+`visibleWhen` names another row of the same section (`Logic.sectionDependencies`) are indented by
 `SettingsMetrics.dependentIndent` with a guide line.
 
 `SettingsChip` (`label`, `iconName`, `interactive`, `maximumWidth`, `clicked`)
@@ -663,8 +663,9 @@ What rows rely on outside `components/`:
   `SettingsShell` opens that row's help before revealing it.
 - `SettingsStore.statusNote(key)` passes through the backend's optional
   `statusNote(entry)` hook: an English source string such as "Paused by Game
-  Mode", or `""` when the backend has no hook, is unavailable or the entry is
-  read-only.
+  Mode", or `""` when the backend has no hook or is unavailable, or the entry
+  is read-only (`backendFor` gives no backend for entries that are not
+  writable, whatever hook their backend has).
 - `SettingsStore.defaultValue(key)` may be `undefined` (unknown): the row then
   hides the default tick and the reset button says "Reset".
 - Tests: `tst_SettingsLogic` (chips, dependency wording, value formatting, the
@@ -673,16 +674,29 @@ What rows rely on outside `components/`:
   which runs `tests/harness/drivers/comprehension.qml` with and without
   `--hyprland-stub`: a word found only in a help text reveals its row with
   the help open, the "?" toggle works by keyboard, a "Requires …" chip is a
-  keyboard link to its target (also on another page), rows show at most 2
-  chips, "Now: …" and the slider captions render, and without Hyprland every
-  Hyprland section shows one banner and "—" instead of values.
+  keyboard link to its target (also on another page) said once to screen
+  readers, rows show at most 2 chips, "Now: …" and the slider captions
+  render, a row paused by Game Mode shows its italic, translated status note
+  (the driver writes Game Mode's overrides file in the sandbox and delivers
+  Hyprland's `configreloaded` through `SettingsStore.backends.hyprland`, a
+  read-only map kept for drivers), the navigation count is hidden at 0 with
+  its width reserved and described above 0, and no page title is elided at
+  1100 and 1600 px (or at 760 px expanded); without Hyprland, on the Windows,
+  Input (list and text rows) and Animations pages, each section that shares
+  the reason shows one banner and every Hyprland row shows "—" and no live
+  control (`"rowControl"` hidden).
 
 Shell components: `SettingsShell` (titlebar honoring `windows.showTitlebar`
 and `windows.centerTitle`, navigation, page host, confirm bar, error toast),
 `SettingsNavigation` (group headers and footer pages from `pages.json`; each
 item shows `SettingsStore.modifiedCount(pageId)` after its title, hidden at 0
 with its width reserved, as its accessible description "Changed
-settings: <n>", and as a dot on the icon when collapsed; search
+settings: <n>", and as a dot on the icon when collapsed; expanded, the list
+is as wide as its longest page title needs in the selected weight beside the
+reserved count (`SettingsMetrics.navExpandedWidth` 248 px at least,
+`navMaxExpandedWidth` 320 px at most, longer titles elide), so titles are
+never cut short and neither a count appearing nor a selection changes its
+width; search
 field with results showing the label and "Page › Section"; Ctrl+F focuses it,
 Up/Down/Enter pick a result, Esc clears; collapses to icons below 900 px with
 a menu button override that resets when the window crosses the threshold;

@@ -757,14 +757,18 @@ var MAX_CHIPS = 2;
 // Lower comes first: requires > confirm > the other `applies` > cost.
 var CHIP_RANK = { "requires": 0, "confirm": 1, "nextStart": 2, "nextLogin": 2, "newWindows": 2, "onSave": 2, "gpu": 3, "battery": 3 };
 
-// When a change takes effect: the entry's `applies`, or "confirm" for risky
-// entries, which always open the keep-or-revert confirmation.
-function effectiveApplies(entry) {
+// When a change takes effect: the entry's known `applies`, plus "confirm" for
+// risky entries, which always open the keep-or-revert confirmation even when
+// they also say when the change applies (contracts: confirm ranks first).
+function appliesIds(entry) {
+    var ids = [];
     if (!entry)
-        return "";
+        return ids;
     if (entry.applies && APPLIES_LABELS[entry.applies] !== undefined)
-        return entry.applies;
-    return entry.risky === true ? "confirm" : "";
+        ids.push(entry.applies);
+    if (entry.risky === true && ids.indexOf("confirm") < 0)
+        ids.push("confirm");
+    return ids;
 }
 
 // Chips on the label line: [{ kind: "requires" | "applies" | "cost", id,
@@ -775,9 +779,9 @@ function rowChips(entry, requires) {
     var chips = [];
     if (requires && requires.text)
         chips.push({ kind: "requires", id: "requires", label: requires.text, icon: "link", target: requires.key || "" });
-    var applies = effectiveApplies(entry);
-    if (applies)
-        chips.push({ kind: "applies", id: applies, label: APPLIES_LABELS[applies], icon: APPLIES_ICONS[applies], target: "" });
+    appliesIds(entry).forEach(function (id) {
+        chips.push({ kind: "applies", id: id, label: APPLIES_LABELS[id], icon: APPLIES_ICONS[id], target: "" });
+    });
     if (entry && entry.cost && COST_LABELS[entry.cost] !== undefined)
         chips.push({ kind: "cost", id: entry.cost, label: COST_LABELS[entry.cost], icon: COST_ICONS[entry.cost], target: "" });
     chips.sort(function (a, b) { return CHIP_RANK[a.id] - CHIP_RANK[b.id]; });

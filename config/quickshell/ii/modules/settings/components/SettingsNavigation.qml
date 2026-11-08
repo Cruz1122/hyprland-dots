@@ -8,7 +8,9 @@ import qs.modules.settings.core
 
 // Grouped page list with global search. Collapses to icons when the window
 // is narrower than SettingsMetrics.navAutoCollapseWidth; the menu button
-// overrides that until the window crosses the threshold again.
+// overrides that until the window crosses the threshold again. Expanded, it
+// is as wide as its longest page title needs (items reserve the count's
+// width either way), between navExpandedWidth and navMaxExpandedWidth.
 ColumnLayout {
     id: root
 
@@ -30,7 +32,10 @@ ColumnLayout {
     spacing: 6
     clip: true
     Layout.fillHeight: true
-    Layout.preferredWidth: root.expanded ? SettingsMetrics.navExpandedWidth : SettingsMetrics.navCollapsedWidth
+    // Items report their full width only while expanded.
+    readonly property real expandedWidth: Math.min(SettingsMetrics.navMaxExpandedWidth,
+        Math.max(SettingsMetrics.navExpandedWidth, groupsColumn.implicitWidth, footerColumn.implicitWidth))
+    Layout.preferredWidth: root.expanded ? root.expandedWidth : SettingsMetrics.navCollapsedWidth
     Layout.minimumWidth: Layout.preferredWidth
     Layout.maximumWidth: Layout.preferredWidth
 
@@ -381,17 +386,23 @@ ColumnLayout {
         color: Appearance.colors.colOutlineVariant
     }
 
-    Repeater {
-        model: SettingsRegistry.footerPages
+    ColumnLayout {
+        id: footerColumn
+        Layout.fillWidth: true
+        spacing: root.spacing
 
-        delegate: SettingsNavigationItem {
-            required property var modelData
-            Layout.fillWidth: root.expanded
-            Layout.alignment: Qt.AlignHCenter
-            page: modelData
-            expanded: root.expanded
-            selected: root.currentPageId === modelData.id
-            onClicked: root.pageSelected(modelData.id)
+        Repeater {
+            model: SettingsRegistry.footerPages
+
+            delegate: SettingsNavigationItem {
+                required property var modelData
+                Layout.fillWidth: root.expanded
+                Layout.alignment: Qt.AlignHCenter
+                page: modelData
+                expanded: root.expanded
+                selected: root.currentPageId === modelData.id
+                onClicked: root.pageSelected(modelData.id)
+            }
         }
     }
 }

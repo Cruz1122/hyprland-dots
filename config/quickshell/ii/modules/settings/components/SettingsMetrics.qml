@@ -21,7 +21,10 @@ QtObject {
     readonly property real selectWidth: 280
     readonly property real cardRadius: 20
     readonly property real rowRadius: 14
+    // The expanded navigation grows from navExpandedWidth to fit its longest
+    // page title, up to navMaxExpandedWidth (longer titles elide).
     readonly property real navExpandedWidth: 248
+    readonly property real navMaxExpandedWidth: 320
     readonly property real navCollapsedWidth: 60
     readonly property real navAutoCollapseWidth: 900
     // Height of the fades at the scrolled edges of the page list.

@@ -8,7 +8,10 @@ import qs.modules.settings.core
 // One page in the navigation. Collapsed, it shows only the icon and the
 // page title as a hover tooltip. A small count shows how many settings of
 // the page are changed (hidden at 0; its width stays reserved so the list
-// does not shift); collapsed, a dot on the icon.
+// does not shift); collapsed, a dot on the icon. Expanded, implicitWidth is
+// what the whole title needs in its selected (heavier) weight beside the
+// reserved count, so SettingsNavigation can size the list to its longest
+// title whatever the counts and the selection.
 RippleButton {
     id: root
 
@@ -77,8 +80,10 @@ RippleButton {
             }
 
             StyledText {
+                objectName: "navTitle"
                 visible: root.expanded
                 Layout.fillWidth: true
+                Layout.preferredWidth: Math.ceil(titleMetrics.advanceWidth) + 1
                 text: root.title
                 elide: Text.ElideRight
                 font.weight: root.selected ? Font.DemiBold : Font.Normal
@@ -99,6 +104,17 @@ RippleButton {
                 font.variableAxes: Appearance.font.variableAxes.numbers
                 color: root.selected ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colPrimary
                 Accessible.ignored: true
+            }
+
+            // The title in its selected weight: selecting a page never
+            // changes the width the list needs.
+            TextMetrics {
+                id: titleMetrics
+                font.family: Appearance.font.family.main
+                font.pixelSize: Appearance?.font.pixelSize.small ?? 15
+                font.variableAxes: Appearance.font.variableAxes.main
+                font.weight: Font.DemiBold
+                text: root.title
             }
 
             TextMetrics {

@@ -268,7 +268,13 @@ TestCase {
         compare(ids(Logic.rowChips({ key: "a", applies: "onSave", cost: "battery" }, { key: "b", text: "Requires “B”" })),
             ["requires", "onSave"], "at most 2, the dependency first");
         compare(ids(Logic.rowChips({ key: "a", risky: true, cost: "gpu" }, null)), ["confirm", "gpu"], "risky entries ask for confirmation");
-        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "nextStart" }, null)), ["nextStart"], "an explicit applies wins");
+        // A risky entry still opens the keep-or-revert confirmation when it
+        // also says when the change applies: both chips, ranked.
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "nextStart" }, null)), ["confirm", "nextStart"], "risky keeps confirm beside an explicit applies");
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "newWindows", cost: "gpu" }, null)), ["confirm", "newWindows"], "the cost chip is cut first");
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "onSave" }, { key: "b", text: "Requires “B”" })), ["requires", "confirm"]);
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "confirm" }, null)), ["confirm"], "never two confirm chips");
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "bogus" }, null)), ["confirm"], "an unknown applies still asks for confirmation");
         compare(ids(Logic.rowChips({ key: "a", applies: "confirm", cost: "gpu" }, { key: "b", text: "Requires “B”" })), ["requires", "confirm"]);
         compare(ids(Logic.rowChips({ key: "a", applies: "bogus", cost: "bogus" }, null)), [], "unknown values never render");
         const req = Logic.rowChips({ key: "a" }, { key: "b", text: "Requires “B”" })[0];
