@@ -4,6 +4,7 @@ import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.settings.components
+import qs.services
 
 SettingsPage {
     id: root
@@ -24,7 +25,8 @@ SettingsPage {
             property var row: null
             readonly property string stored: picker.row?.value ?? ""
             readonly property var names: {
-                const list = Quickshell.screens.map(s => s.name);
+                // A screen without a name cannot be chosen: "" means none.
+                const list = Quickshell.screens.map(s => s.name).filter(n => n.length > 0);
                 if (picker.stored && !list.includes(picker.stored))
                     list.unshift(picker.stored);
                 return list;
@@ -35,6 +37,8 @@ SettingsPage {
                 Layout.preferredWidth: SettingsMetrics.selectWidth
                 enabled: picker.row?.rowEnabled ?? false
                 model: picker.names
+                // No monitor stored yet: say so rather than show an empty box.
+                displayText: combo.currentIndex >= 0 ? combo.currentText : Translation.tr("Choose a monitor")
                 Accessible.name: picker.row?.label ?? ""
                 // ComboBox resets currentIndex when its model is replaced
                 // (languages and screens arrive asynchronously); reapply.
