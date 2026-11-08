@@ -1,4 +1,4 @@
-"""Hyprland entries of the windows/input registry agree with Hyprland 0.57.
+"""Hyprland entries of the windows/input/animations/advanced registry agree with Hyprland 0.57.
 
 Checked against tests/fixtures/hyprland-options.json (see FIXTURE_GENERATOR in
 tests/test_hyprconfigurator.py), so no live session is needed.
@@ -25,7 +25,7 @@ class HyprlandRegistryTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.fixture = json.loads(FIXTURE.read_text())
-        cls.entries = [e for page in ("windows", "input")
+        cls.entries = [e for page in ("windows", "input", "animations", "advanced")
                        for e in json.loads((REGISTRY / f"{page}.json").read_text())["entries"]
                        if e.get("backend") == "hyprland"]
 

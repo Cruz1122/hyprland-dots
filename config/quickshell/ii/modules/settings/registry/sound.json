@@ -7,7 +7,8 @@
     {
       "id": "devices",
       "title": "Devices",
-      "icon": "speaker"
+      "icon": "speaker",
+      "description": "The speakers and the microphone that apps use by default."
     },
     {
       "id": "protection",
@@ -18,7 +19,8 @@
     {
       "id": "sounds",
       "title": "System sounds",
-      "icon": "notification_sound"
+      "icon": "notification_sound",
+      "description": "Short sounds the shell plays for battery and timer events."
     }
   ],
   "entries": [
@@ -65,13 +67,15 @@
     {
       "key": "audio.protection.enable",
       "section": "protection",
-      "label": "Hearing protection",
-      "description": "Block volume jumps and cap the maximum volume.",
+      "label": "Protect my hearing",
+      "description": "Undoes too big a jump and caps the output volume, also when an app changes it.",
       "keywords": [
         "volume",
         "limit",
         "volumen",
-        "límite"
+        "límite",
+        "Hearing protection",
+        "Protección auditiva"
       ],
       "icon": "hearing",
       "backend": "config",
@@ -85,7 +89,7 @@
       "key": "audio.protection.maxAllowedIncrease",
       "section": "protection",
       "label": "Largest volume step",
-      "description": "Bigger single increases are undone.",
+      "description": "A bigger single increase is undone, such as an app jumping from 20% to 100%.",
       "icon": "trending_up",
       "backend": "config",
       "type": "real",
@@ -107,7 +111,7 @@
       "key": "audio.protection.maxAllowed",
       "section": "protection",
       "label": "Maximum volume",
-      "description": "The volume is never raised above this level.",
+      "description": "A higher volume is pulled back to this level; above 100% the sound is amplified and may distort.",
       "icon": "volume_up",
       "backend": "config",
       "type": "real",
@@ -129,7 +133,8 @@
       "key": "sounds.theme",
       "section": "sounds",
       "label": "Sound theme",
-      "description": "Folder name under /usr/share/sounds used for system sounds.",
+      "description": "Name of an installed sound theme, such as freedesktop or ocean.",
+      "help": "Themes are folders in /usr/share/sounds; the shell plays their stereo .oga or .ogg files.",
       "keywords": [
         "freedesktop",
         "ocean",
@@ -153,7 +158,7 @@
       "key": "sounds.battery",
       "section": "sounds",
       "label": "Battery sounds",
-      "description": "Play a sound when the battery is low or charging changes.",
+      "description": "A sound when you plug in or unplug the charger, and with the low, critical and full battery notices.",
       "keywords": [
         "batería"
       ],

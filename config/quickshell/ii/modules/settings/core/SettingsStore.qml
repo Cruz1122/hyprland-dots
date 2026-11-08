@@ -12,6 +12,13 @@ Singleton {
 
     readonly property var pendingConfirmation: impl.pendingConfirmation
     readonly property int revision: impl.revision
+    // Backend instances by name, read-only. The Animations page widgets call
+    // the animation backend's read-only UI helpers through it (curveCatalog,
+    // styleOptions, presets, curveUsage, summaryParts); nothing writes
+    // through it: values change only with write()/reset() below. Harness
+    // drivers also use it to deliver events the sandbox cannot produce
+    // (Hyprland's configreloaded).
+    readonly property var backends: impl.backends
 
     signal committed(string key)
     signal failed(string key, string message)
@@ -26,6 +33,8 @@ Singleton {
     function isEnabled(key) { return impl.isEnabled(key); }
     function isVisible(key) { return impl.isVisible(key); }
     function blockingCondition(key) { return impl.blockingCondition(key); }
+    // English source string from the backend about the row's state, or "".
+    function statusNote(key) { void impl.revision; return impl.statusNote(key); }
     // Backend-provided choices (devices, applications); falls back to the entry options.
     function choices(key) {
         const e = impl.entry(key);
@@ -45,6 +54,10 @@ Singleton {
 
     ConfigBackend { id: configBackend }
     HyprlandBackend { id: hyprlandBackend }
+    AnimationBackend {
+        id: animationBackend
+        sharedBase: hyprlandBackend.basePayload
+    }
     IdleBackend { id: idleBackend }
     DisplayBackend { id: displayBackend }
     MimeBackend { id: mimeBackend }
@@ -59,6 +72,7 @@ Singleton {
         backends: ({
             config: configBackend,
             hyprland: hyprlandBackend,
+            animation: animationBackend,
             idle: idleBackend,
             display: displayBackend,
             mime: mimeBackend,

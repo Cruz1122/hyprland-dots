@@ -4,9 +4,15 @@
 // backends. No Quickshell or QML object dependencies, so tests/qml_settings
 // can exercise it with plain qmltestrunner.
 
-var BACKENDS = ["config", "hyprland", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"];
+var BACKENDS = ["config", "hyprland", "animation", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"];
 var TYPES = ["bool", "int", "real", "enum", "string", "path", "font", "color", "list", "time", "url", "action", "info", "custom"];
-var WIDGETS = ["switch", "slider", "spin", "segmented", "select", "text", "textarea", "path", "font", "color", "list", "time", "device", "action", "info", "custom"];
+var WIDGETS = ["switch", "slider", "spin", "segmented", "select", "text", "textarea", "path", "font", "color", "list", "time", "device", "action", "info", "custom",
+    "animation", "animationPreset", "curveLibrary", "banner"];
+// When a change takes effect, shown as a chip (docs/settings.md "Entry
+// fields"); instant changes have no `applies`.
+var APPLIES = ["newWindows", "nextStart", "nextLogin", "confirm", "onSave"];
+// Resource a setting costs while it is on.
+var COSTS = ["gpu", "battery"];
 // Backends that never persist anything: their rows render from the page.
 var PASSIVE_BACKENDS = ["action", "readonly"];
 var CONFIRM_SECONDS = 15;
@@ -254,7 +260,9 @@ var CAPABILITY_REASONS = {
     "satty": "Requires satty, which is not installed",
     "checkupdates": "Requires checkupdates (pacman-contrib), which is not installed",
     "pipewire": "PipeWire is not running",
-    "touchpad": "No touchpad detected"
+    "touchpad": "No touchpad detected",
+    "animationsLoaded": "Hyprland does not load the animation settings yet: update the dotfiles",
+    "vrr": "No connected display supports variable refresh rate (FreeSync/G-Sync)"
 };
 
 function capabilityReason(name) {
@@ -478,6 +486,10 @@ function entryProblem(raw, sectionIds, retired) {
         return "unknown type " + JSON.stringify(raw.type);
     if (raw.widget !== undefined && WIDGETS.indexOf(raw.widget) < 0)
         return "unknown widget " + JSON.stringify(raw.widget);
+    if (raw.applies !== undefined && APPLIES.indexOf(raw.applies) < 0)
+        return "unknown applies " + JSON.stringify(raw.applies);
+    if (raw.cost !== undefined && COSTS.indexOf(raw.cost) < 0)
+        return "unknown cost " + JSON.stringify(raw.cost);
     if (raw.type === "enum" && (!isArrayLike(raw.options) || raw.options.length === 0))
         return "enum without options";
     var path = raw.path || raw.key;
@@ -496,6 +508,11 @@ function normalizeEntry(raw, page) {
     entry.path = raw.path || raw.key;
     entry.description = raw.description || "";
     entry.note = raw.note || "";
+    entry.help = raw.help || "";
+    entry.applies = raw.applies || "";
+    entry.cost = raw.cost || "";
+    entry.minLabel = raw.minLabel || "";
+    entry.maxLabel = raw.maxLabel || "";
     entry.keywords = isArrayLike(raw.keywords) ? raw.keywords.map(String) : [];
     entry.icon = raw.icon || "";
     entry.risky = raw.risky === true;
@@ -545,13 +562,17 @@ var SCORE_LABEL_WORD = 80;
 var SCORE_LABEL_CONTAINS = 60;
 var SCORE_KEYWORD = 50;
 var SCORE_CONTEXT = 40;
+var SCORE_OPTION = 30;
 var SCORE_DESCRIPTION = 20;
+var SCORE_HELP = 15;
 var SCORE_EXACT = 20;
 var KIND_RANK = { entry: 0, page: 1, section: 2 };
 
-// Scores one search token against a document; 0 when it does not match.
-// doc fields are lists of already folded strings.
-function scoreToken(doc, token) {
+// Best match of one search token in a document: { score, field } with
+// field "label", "keyword", "context", "option", "description" or "help";
+// score 0 (field "") when it does not match. doc fields are lists of
+// already folded strings.
+function matchToken(doc, token) {
     var best = 0;
     doc.labels.forEach(function (label) {
         if (label.indexOf(token) === 0)
@@ -562,14 +583,23 @@ function scoreToken(doc, token) {
             best = Math.max(best, SCORE_LABEL_CONTAINS);
     });
     if (best)
-        return best;
+        return { score: best, field: "label" };
     if (doc.keywords.some(function (k) { return k.indexOf(token) >= 0; }))
-        return SCORE_KEYWORD;
+        return { score: SCORE_KEYWORD, field: "keyword" };
     if (doc.context.some(function (c) { return words(c).some(function (w) { return w.indexOf(token) === 0; }); }))
-        return SCORE_CONTEXT;
+        return { score: SCORE_CONTEXT, field: "context" };
+    if ((doc.options || []).some(function (o) { return o.indexOf(token) >= 0; }))
+        return { score: SCORE_OPTION, field: "option" };
     if (doc.descriptions.some(function (d) { return d.indexOf(token) >= 0; }))
-        return SCORE_DESCRIPTION;
-    return 0;
+        return { score: SCORE_DESCRIPTION, field: "description" };
+    if ((doc.helps || []).some(function (h) { return h.indexOf(token) >= 0; }))
+        return { score: SCORE_HELP, field: "help" };
+    return { score: 0, field: "" };
+}
+
+// Scores one search token against a document; 0 when it does not match.
+function scoreToken(doc, token) {
+    return matchToken(doc, token).score;
 }
 
 function pair(text, tr) {
@@ -577,6 +607,20 @@ function pair(text, tr) {
     var translated = fold(tr(text));
     if (translated !== out[0])
         out.push(translated);
+    return out.filter(function (s) { return s.length > 0; });
+}
+
+// Folded labels and descriptions of an entry's options, English and translated.
+function optionTexts(entry, tr) {
+    var out = [];
+    (isArrayLike(entry.options) ? entry.options : []).forEach(function (o) {
+        if (!o)
+            return;
+        if (o.label !== undefined && o.label !== null)
+            out = out.concat(o.translate === false ? [fold(o.label)] : pair(String(o.label), tr));
+        if (o.description)
+            out = out.concat(pair(String(o.description), tr));
+    });
     return out.filter(function (s) { return s.length > 0; });
 }
 
@@ -606,7 +650,9 @@ function searchDocuments(model, tr) {
                 labels: pair(entry.label, tr),
                 keywords: entry.keywords.map(fold).filter(function (k) { return k.length > 0; }),
                 context: (sectionTitles[entry.section] || []).concat(pageTitles),
-                descriptions: pair(entry.description, tr).concat(pair(entry.note, tr))
+                descriptions: pair(entry.description, tr).concat(pair(entry.note, tr)),
+                helps: pair(entry.help, tr),
+                options: optionTexts(entry, tr)
             });
         });
     });
@@ -614,7 +660,9 @@ function searchDocuments(model, tr) {
 }
 
 // Every query word must match; the score adds up per word, and labels that
-// start with or equal the whole query get a bonus.
+// start with or equal the whole query get a bonus. `fields` lists the field
+// each word matched (matchToken); `helpMatched` is true when a word was found
+// only in the help text, so the revealed row opens its help.
 function search(docs, query, limit) {
     var q = fold(query);
     if (q.length === 0)
@@ -623,17 +671,22 @@ function search(docs, query, limit) {
     var results = [];
     docs.forEach(function (doc, index) {
         var total = 0;
+        var fields = [];
         for (var i = 0; i < tokens.length; i++) {
-            var s = scoreToken(doc, tokens[i]);
-            if (s === 0)
+            var m = matchToken(doc, tokens[i]);
+            if (m.score === 0)
                 return;
-            total += s;
+            total += m.score;
+            fields.push(m.field);
         }
         if (tokens.length > 1 && doc.labels.some(function (l) { return l.indexOf(q) === 0; }))
             total += SCORE_LABEL_PREFIX;
         if (doc.labels.indexOf(q) >= 0)
             total += SCORE_EXACT;
-        results.push({ kind: doc.kind, pageId: doc.pageId, sectionId: doc.sectionId, key: doc.key, score: total, order: index });
+        results.push({
+            kind: doc.kind, pageId: doc.pageId, sectionId: doc.sectionId, key: doc.key, score: total, order: index,
+            fields: fields, helpMatched: fields.indexOf("help") >= 0
+        });
     });
     // Ties: settings before pages before sections, then registry order.
     results.sort(function (a, b) {
@@ -662,4 +715,216 @@ function tickBatch(pending) {
     if (left <= 0)
         return { pending: null, expired: true };
     return { pending: { keys: pending.keys.slice(), secondsLeft: left }, expired: false };
+}
+
+// ----------------------------------------------------------- comprehension
+// Texts that explain a row (docs/settings.md "Rows"). `tr` translates an
+// English source string; every function returns translated text.
+
+// "%1 … %2" placeholders, like QString.arg but for plain JS strings.
+function fmt(text) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return String(text).replace(/%(\d)/g, function (whole, n) {
+        var i = Number(n) - 1;
+        return i >= 0 && i < args.length ? String(args[i]) : whole;
+    });
+}
+
+// Chip texts (English source strings) for `applies` and `cost`.
+var APPLIES_LABELS = {
+    "newWindows": "New windows only",
+    "nextStart": "When the shell restarts",
+    "nextLogin": "At next login",
+    "confirm": "Asks for confirmation",
+    "onSave": "When saved"
+};
+var APPLIES_ICONS = {
+    "newWindows": "open_in_new",
+    "nextStart": "restart_alt",
+    "nextLogin": "login",
+    "confirm": "timer",
+    "onSave": "save"
+};
+var COST_LABELS = {
+    "gpu": "Uses more GPU",
+    "battery": "Uses battery"
+};
+var COST_ICONS = {
+    "gpu": "memory",
+    "battery": "battery_charging_full"
+};
+var MAX_CHIPS = 2;
+// Lower comes first: requires > confirm > the other `applies` > cost.
+var CHIP_RANK = { "requires": 0, "confirm": 1, "nextStart": 2, "nextLogin": 2, "newWindows": 2, "onSave": 2, "gpu": 3, "battery": 3 };
+
+// When a change takes effect: the entry's known `applies`, plus "confirm" for
+// risky entries, which always open the keep-or-revert confirmation even when
+// they also say when the change applies (contracts: confirm ranks first).
+function appliesIds(entry) {
+    var ids = [];
+    if (!entry)
+        return ids;
+    if (entry.applies && APPLIES_LABELS[entry.applies] !== undefined)
+        ids.push(entry.applies);
+    if (entry.risky === true && ids.indexOf("confirm") < 0)
+        ids.push("confirm");
+    return ids;
+}
+
+// Chips on the label line: [{ kind: "requires" | "applies" | "cost", id,
+// label (English, or the translated dependency text), icon, target }], at
+// most MAX_CHIPS, most important first. `requires` is null or
+// { key, text } from dependencyText().
+function rowChips(entry, requires) {
+    var chips = [];
+    if (requires && requires.text)
+        chips.push({ kind: "requires", id: "requires", label: requires.text, icon: "link", target: requires.key || "" });
+    appliesIds(entry).forEach(function (id) {
+        chips.push({ kind: "applies", id: id, label: APPLIES_LABELS[id], icon: APPLIES_ICONS[id], target: "" });
+    });
+    if (entry && entry.cost && COST_LABELS[entry.cost] !== undefined)
+        chips.push({ kind: "cost", id: entry.cost, label: COST_LABELS[entry.cost], icon: COST_ICONS[entry.cost], target: "" });
+    chips.sort(function (a, b) { return CHIP_RANK[a.id] - CHIP_RANK[b.id]; });
+    return chips.slice(0, MAX_CHIPS);
+}
+
+function optionLabel(entry, value, tr) {
+    var options = entry && isArrayLike(entry.options) ? entry.options : [];
+    for (var i = 0; i < options.length; i++) {
+        if (deepEqual(options[i].value, value)) {
+            var label = String(options[i].label !== undefined ? options[i].label : options[i].value);
+            return options[i].translate === false ? label : tr(label);
+        }
+    }
+    return typeof value === "boolean" ? tr(value ? "On" : "Off") : String(value);
+}
+
+// "a", "a or b", "a, b or c".
+function joinOr(labels, tr) {
+    if (labels.length <= 1)
+        return labels.length ? labels[0] : "";
+    return fmt(tr("%1 or %2"), labels.slice(0, -1).join(", "), labels[labels.length - 1]);
+}
+
+// Why a row is disabled by another setting, from the blocking leaf of its
+// enabledWhen ({ key, equals | notEquals | in } or { not: leaf }) and the
+// entry of that key (null when unknown):
+//   bool on            -> Requires “X”
+//   bool off           -> Requires “X” off
+//   enum value(s)      -> Requires “X”: A   /   Requires “X”: A or B
+//   enum notEquals     -> Requires “X” not set to A
+function dependencyText(cond, target, tr) {
+    var negate = false;
+    var leaf = cond;
+    while (leaf && leaf.not !== undefined) {
+        negate = !negate;
+        leaf = leaf.not;
+    }
+    if (!leaf || leaf.key === undefined)
+        return "";
+    var name = tr(target && target.label ? target.label : leaf.key);
+    var mode = "on";
+    var values = [];
+    if (leaf.equals !== undefined) {
+        mode = "is";
+        values = [leaf.equals];
+    } else if (leaf.notEquals !== undefined) {
+        mode = "isNot";
+        values = [leaf.notEquals];
+    } else if (leaf["in"] !== undefined) {
+        mode = "is";
+        values = Array.prototype.slice.call(leaf["in"]);
+    }
+    if (negate)
+        mode = mode === "on" ? "off" : (mode === "is" ? "isNot" : "is");
+    // Booleans read as on/off: equals true, notEquals false, …
+    if ((mode === "is" || mode === "isNot") && values.length === 1 && typeof values[0] === "boolean")
+        mode = (values[0] === (mode === "is")) ? "on" : "off";
+    if (mode === "on")
+        return fmt(tr("Requires “%1”"), name);
+    if (mode === "off")
+        return fmt(tr("Requires “%1” off"), name);
+    var labels = values.map(function (v) { return optionLabel(target, v, tr); });
+    if (mode === "is")
+        return fmt(tr("Requires “%1”: %2"), name, joinOr(labels, tr));
+    return fmt(tr("Requires “%1” not set to %2"), name, joinOr(labels, tr));
+}
+
+// Decimals a numeric value is shown with: percentages never have any.
+function displayDecimals(entry) {
+    if (entry && entry.unit === "%")
+        return 0;
+    if (entry && typeof entry.decimals === "number")
+        return entry.decimals;
+    if (entry && entry.type === "int")
+        return 0;
+    return ((entry && entry.uiScale) || 1) >= 100 ? 0 : 2;
+}
+
+// A stored number as the row shows it (uiScale, decimals, unit).
+function formatNumber(entry, stored, tr) {
+    var scale = (entry && entry.uiScale) || 1;
+    var unit = (entry && entry.unit) || "";
+    if (entry && entry.widget === "spin")
+        return String(Math.round(Number(stored) * scale)) + (unit ? " " + tr(unit) : "");
+    return Number(Number(stored) * scale).toFixed(displayDecimals(entry)) + unit;
+}
+
+var MAX_FORMATTED_TEXT = 32;
+
+// A value as short display text; "" when it has no short form (lists,
+// objects, empty or long text) or is unknown.
+function formatValue(entry, value, tr) {
+    if (value === undefined || value === null || !entry)
+        return "";
+    if (entry.type === "bool")
+        return typeof value === "boolean" ? tr(value ? "On" : "Off") : "";
+    if (entry.type === "enum" || (isArrayLike(entry.options) && entry.options.length > 0 && typeof value !== "object"))
+        return optionLabel(entry, value, tr);
+    if (entry.type === "int" || entry.type === "real")
+        return typeof value === "number" && isFinite(value) ? formatNumber(entry, value, tr) : "";
+    if (typeof value === "string" || typeof value === "number") {
+        var text = String(value);
+        return text.length > 0 && text.length <= MAX_FORMATTED_TEXT ? fmt(tr("“%1”"), text) : "";
+    }
+    return "";
+}
+
+// Text of the reset button: "Reset to 4px", "Reset to default" when the
+// default has no short form, "Reset" when it is unknown (undefined).
+function resetText(entry, defaultValue, tr) {
+    if (defaultValue === undefined)
+        return tr("Reset");
+    var shown = formatValue(entry, defaultValue, tr);
+    return shown ? fmt(tr("Reset to %1"), shown) : tr("Reset to default");
+}
+
+// One banner per section: the shared reason when every visible, writable row
+// of the section is unavailable for the same reason, otherwise "".
+// rows: [{ visible, writable, available, reason }].
+function sectionBannerReason(rows) {
+    var reason = "";
+    var counted = 0;
+    for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        if (!r.visible || !r.writable)
+            continue;
+        if (r.available || !r.reason)
+            return "";
+        if (counted > 0 && r.reason !== reason)
+            return "";
+        reason = r.reason;
+        counted++;
+    }
+    return counted > 0 ? reason : "";
+}
+
+// Keys of the same section that an entry's enabledWhen or visibleWhen
+// depends on (its row is indented under them).
+function sectionDependencies(entry, sectionKeys) {
+    if (!entry)
+        return [];
+    return conditionKeys(entry.visibleWhen, conditionKeys(entry.enabledWhen)).filter(function (k, i, all) {
+        return k !== entry.key && all.indexOf(k) === i && sectionKeys.indexOf(k) >= 0;
+    });
 }

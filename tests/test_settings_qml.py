@@ -18,12 +18,16 @@ class SettingsQmlTest(unittest.TestCase):
             self.skipTest(f"Qt 6 qmltestrunner not found at {QMLTESTRUNNER}")
         result = subprocess.run(
             [str(QMLTESTRUNNER), "-input", str(ROOT / "tests/qml_settings")],
-            env={**os.environ, "QT_QPA_PLATFORM": "offscreen", "QT_QUICK_CONTROLS_STYLE": "Basic"},
+            # File reads let the fixture-driven tests (AnimationLogic parity cases,
+            # CurveMath golden values) run here instead of skipping.
+            env={**os.environ, "QT_QPA_PLATFORM": "offscreen", "QT_QUICK_CONTROLS_STYLE": "Basic",
+                 "QML_XHR_ALLOW_FILE_READ": "1"},
             capture_output=True, text=True, timeout=120,
         )
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, 0, output)
         self.assertIn(", 0 failed", output)
+        self.assertIn(", 0 skipped", output)
 
 
 if __name__ == "__main__":

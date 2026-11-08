@@ -1,0 +1,252 @@
+{
+  "animations": {
+    "border": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 10
+    },
+    "fadeIn": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 3
+    },
+    "fadeLayersIn": {
+      "bezier": "menu_decel",
+      "enabled": true,
+      "speed": 0.5
+    },
+    "fadeLayersOut": {
+      "bezier": "stall",
+      "enabled": true,
+      "speed": 2.7
+    },
+    "fadeOut": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 2
+    },
+    "layersIn": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 2.7,
+      "style": "popin 93%"
+    },
+    "layersOut": {
+      "bezier": "menu_accel",
+      "enabled": true,
+      "speed": 2.4,
+      "style": "popin 94%"
+    },
+    "specialWorkspaceIn": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 2.8,
+      "style": "slidevert"
+    },
+    "specialWorkspaceOut": {
+      "bezier": "emphasizedAccel",
+      "enabled": true,
+      "speed": 1.2,
+      "style": "slidevert"
+    },
+    "windowsIn": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 3,
+      "style": "popin 80%"
+    },
+    "windowsMove": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 3,
+      "style": "slide"
+    },
+    "windowsOut": {
+      "bezier": "emphasizedDecel",
+      "enabled": true,
+      "speed": 2,
+      "style": "popin 90%"
+    },
+    "workspaces": {
+      "bezier": "menu_decel",
+      "enabled": true,
+      "speed": 7,
+      "style": "slide"
+    },
+    "zoomFactor": {
+      "bezier": "standardDecel",
+      "enabled": true,
+      "speed": 3
+    }
+  },
+  "config": {
+    "animations:enabled": true,
+    "binds:hide_special_on_workspace_change": true,
+    "binds:scroll_event_delay": 0,
+    "cursor:hotspot_padding": 1,
+    "cursor:zoom_disable_aa": true,
+    "cursor:zoom_factor": 1,
+    "cursor:zoom_rigid": false,
+    "decoration:blur:brightness": 1,
+    "decoration:blur:contrast": 0.89,
+    "decoration:blur:enabled": true,
+    "decoration:blur:input_methods": true,
+    "decoration:blur:input_methods_ignorealpha": 0.8,
+    "decoration:blur:new_optimizations": true,
+    "decoration:blur:noise": 0.05,
+    "decoration:blur:passes": 3,
+    "decoration:blur:popups": false,
+    "decoration:blur:popups_ignorealpha": 0.6,
+    "decoration:blur:size": 10,
+    "decoration:blur:special": false,
+    "decoration:blur:vibrancy": 0.5,
+    "decoration:blur:vibrancy_darkness": 0.5,
+    "decoration:blur:xray": true,
+    "decoration:dim_inactive": true,
+    "decoration:dim_special": 0.2,
+    "decoration:dim_strength": 0.05,
+    "decoration:rounding": 18,
+    "decoration:rounding_power": 2.5,
+    "decoration:shadow:color": "rgba(00000020)",
+    "decoration:shadow:enabled": true,
+    "decoration:shadow:offset": [
+      0,
+      2
+    ],
+    "decoration:shadow:range": 20,
+    "decoration:shadow:render_power": 4,
+    "dwindle:preserve_split": true,
+    "dwindle:smart_resizing": false,
+    "dwindle:smart_split": false,
+    "general:allow_tearing": true,
+    "general:border_size": 1,
+    "general:col.active_border": "rgba(47474777)",
+    "general:col.inactive_border": "rgba(1b1b1b33)",
+    "general:gaps_in": 4,
+    "general:gaps_out": 5,
+    "general:gaps_workspaces": 50,
+    "general:no_focus_fallback": true,
+    "general:resize_on_border": true,
+    "general:snap:enabled": true,
+    "general:snap:monitor_gap": 5,
+    "general:snap:respect_gaps": true,
+    "general:snap:window_gap": 4,
+    "gestures:workspace_swipe_cancel_ratio": 0.2,
+    "gestures:workspace_swipe_create_new": true,
+    "gestures:workspace_swipe_direction_lock": true,
+    "gestures:workspace_swipe_direction_lock_threshold": 10,
+    "gestures:workspace_swipe_distance": 700,
+    "gestures:workspace_swipe_min_speed_to_force": 5,
+    "input:follow_mouse": 1,
+    "input:kb_layout": "latam",
+    "input:numlock_by_default": true,
+    "input:off_window_axis_events": 2,
+    "input:repeat_delay": 250,
+    "input:repeat_rate": 35,
+    "input:touchpad:clickfinger_behavior": true,
+    "input:touchpad:disable_while_typing": true,
+    "input:touchpad:natural_scroll": true,
+    "input:touchpad:scroll_factor": 0.7,
+    "misc:allow_session_lock_restore": true,
+    "misc:animate_manual_resizes": false,
+    "misc:animate_mouse_windowdragging": false,
+    "misc:background_color": "rgba(131313FF)",
+    "misc:disable_hyprland_logo": true,
+    "misc:disable_splash_rendering": true,
+    "misc:enable_swallow": false,
+    "misc:focus_on_activate": true,
+    "misc:initial_workspace_tracking": false,
+    "misc:key_press_enables_dpms": true,
+    "misc:mouse_move_enables_dpms": true,
+    "misc:on_focus_under_fullscreen": 2,
+    "misc:session_lock_xray": true,
+    "misc:swallow_regex": "(foot|kitty|allacritty|Alacritty)",
+    "misc:vrr": 0,
+    "xwayland:force_zero_scaling": true
+  },
+  "curves": {
+    "emphasizedAccel": {
+      "points": [
+        0.3,
+        0,
+        0.8,
+        0.15
+      ],
+      "type": "bezier"
+    },
+    "emphasizedDecel": {
+      "points": [
+        0.05,
+        0.7,
+        0.1,
+        1
+      ],
+      "type": "bezier"
+    },
+    "expressiveDefaultSpatial": {
+      "points": [
+        0.38,
+        1.21,
+        0.22,
+        1
+      ],
+      "type": "bezier"
+    },
+    "expressiveFastSpatial": {
+      "points": [
+        0.42,
+        1.67,
+        0.21,
+        0.9
+      ],
+      "type": "bezier"
+    },
+    "expressiveSlowSpatial": {
+      "points": [
+        0.39,
+        1.29,
+        0.35,
+        0.98
+      ],
+      "type": "bezier"
+    },
+    "menu_accel": {
+      "points": [
+        0.52,
+        0.03,
+        0.72,
+        0.08
+      ],
+      "type": "bezier"
+    },
+    "menu_decel": {
+      "points": [
+        0.1,
+        1,
+        0,
+        1
+      ],
+      "type": "bezier"
+    },
+    "stall": {
+      "points": [
+        1,
+        -0.1,
+        0.7,
+        0.85
+      ],
+      "type": "bezier"
+    },
+    "standardDecel": {
+      "points": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "type": "bezier"
+    }
+  },
+  "errors": [],
+  "ok": true
+}

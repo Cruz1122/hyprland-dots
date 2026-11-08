@@ -131,7 +131,7 @@ RowLayout {
         background: MaterialShape {
             RotationAnimation on rotation {
                 running: songRecButton.toggled
-                duration: 12000
+                duration: 12000 // motion-ok: endless rotation while recognizing a song
                 easing.type: Easing.Linear
                 loops: Animation.Infinite
                 from: 0

@@ -12,6 +12,8 @@ QtObject {
     readonly property real rowHorizontalPadding: 16
     readonly property real rowVerticalPadding: 12
     readonly property real rowStackWidth: 520
+    // Left indent of a row that depends on another row of its section.
+    readonly property real dependentIndent: 20
     readonly property real controlHeight: 36
     readonly property real controlRadius: 12
     // Drop-downs share one width so a section's controls line up; long
@@ -19,7 +21,10 @@ QtObject {
     readonly property real selectWidth: 280
     readonly property real cardRadius: 20
     readonly property real rowRadius: 14
+    // The expanded navigation grows from navExpandedWidth to fit its longest
+    // page title, up to navMaxExpandedWidth (longer titles elide).
     readonly property real navExpandedWidth: 248
+    readonly property real navMaxExpandedWidth: 320
     readonly property real navCollapsedWidth: 60
     readonly property real navAutoCollapseWidth: 900
     // Height of the fades at the scrolled edges of the page list.

@@ -23,19 +23,24 @@ HYPRLAND_FIXTURE = REPO / "tests/fixtures/hyprland-options.json"
 
 PAGE_IDS = [
     "quick", "appearance", "background", "bar", "panels",
-    "windows", "input", "displays",
+    "windows", "animations", "input", "displays",
     "sound", "power", "notifications", "apps", "region",
     "capture", "search", "services",
     "advanced", "about",
 ]
-BACKENDS = {"config", "hyprland", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"}
+BACKENDS = {"config", "hyprland", "animation", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"}
 TYPES = {"bool", "int", "real", "enum", "string", "path", "font", "color", "list", "time", "url", "action", "info", "custom"}
 WIDGETS = {"switch", "slider", "spin", "segmented", "select", "text", "textarea", "path", "font", "color", "list",
-           "time", "device", "action", "info", "custom"}
+           "time", "device", "action", "info", "custom", "animation", "animationPreset", "curveLibrary", "banner"}
 ENTRY_FIELDS = {"key", "section", "label", "description", "note", "keywords", "icon", "backend", "path", "option",
                 "type", "widget", "min", "max", "step", "unit", "uiScale", "decimals", "options", "validate",
                 "enabledWhen", "visibleWhen", "risky", "action", "actionLabel", "actionIcon", "actionKind",
-                "consumers", "external", "keys", "placeholder", "pick"}
+                "consumers", "external", "keys", "placeholder", "pick", "help", "applies", "cost", "minLabel",
+                "maxLabel"}
+# When a change takes effect (chip) and what it costs; see docs/settings.md.
+APPLIES = {"newWindows", "nextStart", "nextLogin", "confirm", "onSave"}
+COSTS = {"gpu", "battery"}
+OPTION_FIELDS = {"value", "label", "icon", "description"}
 DENIED_SERVICES = ["Battery", "Hyprsunset", "Brightness", "Notifications", "Weather", "Idle", "Ai", "AiQuotaUsage",
                    "Cliphist", "ConflictKiller", "Updates", "SongRec", "TimerService"]
 # Config value types each entry type may target.
@@ -114,6 +119,12 @@ def qml_files(root: Path) -> list[Path]:
 def capability_reasons() -> dict[str, str]:
     source = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
     block = re.search(r"var CAPABILITY_REASONS = \{(.*?)\};", source, re.S)
+    return dict(re.findall(r'"([^"]+)":\s*"([^"]+)"', block.group(1))) if block else {}
+
+
+def chip_labels(name: str) -> dict[str, str]:
+    source = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
+    block = re.search(rf"var {name} = \{{(.*?)\}};", source, re.S)
     return dict(re.findall(r'"([^"]+)":\s*"([^"]+)"', block.group(1))) if block else {}
 
 
@@ -199,11 +210,23 @@ class SettingsContractTest(unittest.TestCase):
                         self.assertIn(entry["widget"], WIDGETS)
                     if entry.get("description"):
                         self.assertTrue(entry["description"].endswith("."), "description is one sentence")
+                    for field in ("help", "minLabel", "maxLabel"):
+                        if field in entry:
+                            self.assertIsInstance(entry[field], str, field)
+                            self.assertTrue(entry[field].strip(), f"{field} is not empty")
+                    if "applies" in entry:
+                        self.assertIn(entry["applies"], APPLIES)
+                    if "cost" in entry:
+                        self.assertIn(entry["cost"], COSTS)
                     if entry["type"] == "enum":
                         self.assertTrue(entry.get("options"))
-                        for option in entry["options"]:
-                            self.assertIn("value", option)
-                            self.assertTrue(option.get("label"))
+                    for option in entry.get("options", []):
+                        self.assertIn("value", option)
+                        self.assertTrue(option.get("label"))
+                        self.assertLessEqual(set(option) - OPTION_FIELDS, set(), "unknown option fields")
+                        if "description" in option:
+                            self.assertIsInstance(option["description"], str)
+                            self.assertTrue(option["description"].strip(), "option description is not empty")
                     if "min" in entry and "max" in entry:
                         self.assertLessEqual(entry["min"], entry["max"])
                     if entry["type"] == "action":
@@ -235,7 +258,7 @@ class SettingsContractTest(unittest.TestCase):
         keys = [entry["key"] for _, entry in self.entries]
         duplicates = sorted({key for key in keys if keys.count(key) > 1})
         self.assertEqual(duplicates, [])
-        prefixes = ("hyprland.", "display.", "mime.", "audio.", "power.", "ipc.", "action.", "info.", "idle.")
+        prefixes = ("hyprland.", "animation.", "display.", "mime.", "audio.", "power.", "ipc.", "action.", "info.", "idle.")
         for _, entry in self.entries:
             if entry["backend"] not in ("config", "idle"):
                 self.assertTrue(entry["key"].startswith(prefixes), f"{entry['key']}: backend prefix")
@@ -344,8 +367,10 @@ class SettingsContractTest(unittest.TestCase):
                 if "ref" in entry:
                     continue
                 needed |= {entry["label"], entry.get("description", ""), entry.get("note", ""),
-                           entry.get("actionLabel", ""), entry.get("placeholder", "")}
+                           entry.get("actionLabel", ""), entry.get("placeholder", ""), entry.get("help", ""),
+                           entry.get("minLabel", ""), entry.get("maxLabel", "")}
                 needed |= {option["label"] for option in entry.get("options", [])}
+                needed |= {option.get("description", "") for option in entry.get("options", [])}
         tr_literal = re.compile(r'Translation\.tr\("((?:\\.|[^"\\])*)"\)')
         for path in qml_files(COMPONENTS) + qml_files(PAGES_DIR) + [SHELL / "settings.qml"]:
             needed |= set(tr_literal.findall(path.read_text(encoding="utf-8")))
@@ -353,8 +378,31 @@ class SettingsContractTest(unittest.TestCase):
         for path in [SETTINGS / "core/SettingsLogic.js", SETTINGS / "core/SettingsStoreImpl.qml", *sorted((SETTINGS / "backends").glob("*.qml"))]:
             needed |= set(message.findall(path.read_text(encoding="utf-8")))
         needed |= set(capability_reasons().values())
+        logic = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
+        # Row texts built in SettingsLogic.js with tr("…") and the chip labels.
+        needed |= set(re.findall(r'\btr\("((?:\\.|[^"\\])*)"\)', logic))
+        needed |= set(chip_labels("APPLIES_LABELS").values()) | set(chip_labels("COST_LABELS").values())
         missing = sorted(text for text in needed if text and text not in self.translations)
         self.assertEqual(missing, [], "add these to translations/es_MX.json")
+
+    def test_every_applies_and_cost_value_has_a_chip(self) -> None:
+        self.assertEqual(set(chip_labels("APPLIES_LABELS")), APPLIES)
+        self.assertEqual(set(chip_labels("COST_LABELS")), COSTS)
+
+    def test_banner_widget_renders_and_game_mode_banners(self) -> None:
+        page = (COMPONENTS / "SettingsPage.qml").read_text(encoding="utf-8")
+        self.assertIn('"banner": "SettingsBannerRow.qml"', page)
+        self.assertTrue((COMPONENTS / "SettingsBannerRow.qml").is_file())
+        windows = self.docs["windows"]
+        first = windows["entries"][0]
+        self.assertEqual(first["key"], "info.windows.gameMode")
+        self.assertEqual(first["section"], windows["sections"][0]["id"])
+        for key in ["info.windows.gameMode", "info.animations.gameMode"]:
+            _, entry = self.by_key[key]
+            with self.subTest(key=key):
+                self.assertEqual((entry["backend"], entry["type"], entry.get("widget")), ("readonly", "info", "banner"))
+                self.assertEqual(entry.get("visibleWhen"), {"capability": "gameMode"})
+        self.assertEqual(self.translations.get("Paused by Game Mode"), "Pausado por el Modo Juego")
 
     def test_disabling_capabilities_explain_why(self) -> None:
         # A row disabled by a missing capability shows Logic.capabilityReason;
@@ -460,7 +508,7 @@ class SettingsContractTest(unittest.TestCase):
         backend = (SETTINGS / "backends/ConfigBackend.qml").read_text(encoding="utf-8")
         self.assertIn("Logic.setPath(Config.options, entry.path, value)", backend)
         store = (SETTINGS / "core/SettingsStore.qml").read_text(encoding="utf-8")
-        for name in ["Config", "Hyprland", "Idle", "Display", "Mime", "Audio", "Power", "Ipc", "System"]:
+        for name in ["Config", "Hyprland", "Animation", "Idle", "Display", "Mime", "Audio", "Power", "Ipc", "System"]:
             self.assertIn(f"{name}Backend {{", store, f"the store instantiates {name}Backend")
             self.assertTrue((SETTINGS / f"backends/{name}Backend.qml").is_file())
 

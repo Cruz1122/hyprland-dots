@@ -91,8 +91,11 @@ Scope {
         const motion = GlobalStates.authenticatorOpen ? Appearance.animation.elementMoveEnter : Appearance.animation.elementMoveExit;
         // Full-screen travel needs a softer start/finish than a small popup.
         // Keep short reversals long enough to render instead of snapping shut.
-        const fullDuration = Math.max(GlobalStates.authenticatorOpen ? 520 : 420, motion.duration);
-        revealAnimation.duration = Math.max(160, fullDuration * Math.abs(revealAnimation.to - root.revealProgress));
+        // Work in base milliseconds (the preset is unscaled; the factor is 0 under
+        // reduceMotion, hence the 0.25 guard) and apply the shell motion setting
+        // once, so the floors follow it like the presets do.
+        const fullDuration = Math.max(GlobalStates.authenticatorOpen ? 520 : 420, motion.duration / Math.max(Appearance.animationFactor, 0.25));
+        revealAnimation.duration = Appearance.scaled(Math.max(160, fullDuration * Math.abs(revealAnimation.to - root.revealProgress)));
         revealAnimation.easing.type = Easing.InOutCubic;
         revealAnimation.start();
     }

@@ -1,0 +1,363 @@
+[
+ [
+  {
+   "name": "specialWorkspaceOut",
+   "overridden": true,
+   "bezier": "emphasizedAccel",
+   "enabled": true,
+   "speed": 1.2,
+   "style": "slidevert"
+  },
+  {
+   "name": "workspacesIn",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "layersIn",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 2.7,
+   "style": "popin 93%"
+  },
+  {
+   "name": "fadeDpms",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "windowsMove",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 3.0,
+   "style": "slide"
+  },
+  {
+   "name": "fadeGlow",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "zoomFactor",
+   "overridden": true,
+   "bezier": "standardDecel",
+   "enabled": true,
+   "speed": 3.0,
+   "style": ""
+  },
+  {
+   "name": "shadowangle",
+   "overridden": true,
+   "bezier": "default",
+   "enabled": false,
+   "speed": 1.0,
+   "style": ""
+  },
+  {
+   "name": "specialWorkspace",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "glowangle",
+   "overridden": true,
+   "bezier": "default",
+   "enabled": false,
+   "speed": 1.0,
+   "style": ""
+  },
+  {
+   "name": "fadeSwitch",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "borderangle",
+   "overridden": true,
+   "bezier": "default",
+   "enabled": false,
+   "speed": 1.0,
+   "style": ""
+  },
+  {
+   "name": "fadeOut",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 2.0,
+   "style": ""
+  },
+  {
+   "name": "fade",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "border",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 10.0,
+   "style": ""
+  },
+  {
+   "name": "specialWorkspaceIn",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 2.8,
+   "style": "slidevert"
+  },
+  {
+   "name": "workspaces",
+   "overridden": true,
+   "bezier": "menu_decel",
+   "enabled": true,
+   "speed": 7.0,
+   "style": "slide"
+  },
+  {
+   "name": "global",
+   "overridden": true,
+   "bezier": "default",
+   "enabled": true,
+   "speed": 8.0,
+   "style": ""
+  },
+  {
+   "name": "__internal_fadeCTM",
+   "overridden": true,
+   "bezier": "linear",
+   "enabled": true,
+   "speed": 5.0,
+   "style": ""
+  },
+  {
+   "name": "workspacesOut",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "layersOut",
+   "overridden": true,
+   "bezier": "menu_accel",
+   "enabled": true,
+   "speed": 2.4,
+   "style": "popin 94%"
+  },
+  {
+   "name": "windowsIn",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 3.0,
+   "style": "popin 80%"
+  },
+  {
+   "name": "windowsOut",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 2.0,
+   "style": "popin 90%"
+  },
+  {
+   "name": "layers",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadeIn",
+   "overridden": true,
+   "bezier": "emphasizedDecel",
+   "enabled": true,
+   "speed": 3.0,
+   "style": ""
+  },
+  {
+   "name": "fadePopups",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadeShadow",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadeLayers",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "windows",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadeLayersIn",
+   "overridden": true,
+   "bezier": "menu_decel",
+   "enabled": true,
+   "speed": 0.5,
+   "style": ""
+  },
+  {
+   "name": "fadeLayersOut",
+   "overridden": true,
+   "bezier": "stall",
+   "enabled": true,
+   "speed": 2.7,
+   "style": ""
+  },
+  {
+   "name": "fadeDim",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadePopupsIn",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "monitorAdded",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  },
+  {
+   "name": "fadePopupsOut",
+   "overridden": false,
+   "bezier": "",
+   "enabled": true,
+   "speed": 0.0,
+   "style": ""
+  }
+ ],
+ [
+  {
+   "name": "stall",
+   "X0": 1.0,
+   "Y0": -0.1,
+   "X1": 0.7,
+   "Y1": 0.85
+  },
+  {
+   "name": "menu_accel",
+   "X0": 0.52,
+   "Y0": 0.03,
+   "X1": 0.72,
+   "Y1": 0.08
+  },
+  {
+   "name": "menu_decel",
+   "X0": 0.1,
+   "Y0": 1.0,
+   "X1": 0.0,
+   "Y1": 1.0
+  },
+  {
+   "name": "emphasizedAccel",
+   "X0": 0.3,
+   "Y0": 0.0,
+   "X1": 0.8,
+   "Y1": 0.15
+  },
+  {
+   "name": "standardDecel",
+   "X0": 0.0,
+   "Y0": 0.0,
+   "X1": 0.0,
+   "Y1": 1.0
+  },
+  {
+   "name": "expressiveSlowSpatial",
+   "X0": 0.39,
+   "Y0": 1.29,
+   "X1": 0.35,
+   "Y1": 0.98
+  },
+  {
+   "name": "emphasizedDecel",
+   "X0": 0.05,
+   "Y0": 0.7,
+   "X1": 0.1,
+   "Y1": 1.0
+  },
+  {
+   "name": "expressiveDefaultSpatial",
+   "X0": 0.38,
+   "Y0": 1.21,
+   "X1": 0.22,
+   "Y1": 1.0
+  },
+  {
+   "name": "expressiveFastSpatial",
+   "X0": 0.42,
+   "Y0": 1.67,
+   "X1": 0.21,
+   "Y1": 0.9
+  },
+  {
+   "name": "linear",
+   "X0": 0.0,
+   "Y0": 0.0,
+   "X1": 1.0,
+   "Y1": 1.0
+  },
+  {
+   "name": "default",
+   "X0": 0.0,
+   "Y0": 0.75,
+   "X1": 0.15,
+   "Y1": 1.0
+  }
+ ]
+]

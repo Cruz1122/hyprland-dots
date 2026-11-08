@@ -1,0 +1,13 @@
+# Translation keys that translation-orphans.py cannot see in any source
+# because the code builds them at runtime, for example
+# Translation.tr(someVariable) outside modules/settings, or a key assembled
+# with string concatenation.
+#
+# One key per line, written as a JSON string, followed by a comment that names
+# the code building it:
+#   "Mo"  # modules/ii/sidebarRight/calendar/CalendarWidget.qml: Translation.tr(modelData.day)
+#
+# Literals passed straight to Translation.tr(...), registry texts and string
+# literals inside modules/settings are found automatically; do not list them.
+# Empty today: every key of es_MX.json that the code uses is found that way
+# (the calendar weekday names above have no es_MX key).

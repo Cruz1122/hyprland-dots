@@ -20,6 +20,16 @@ import "HyprlandLogic.js" as HL
 // Risky entries preview with `hyprctl eval 'hl.config({...})'` and persist on
 // confirm. While the store holds a confirmation (`deferWrites`), normal file
 // writes wait, because the reload they trigger would drop the live preview.
+//
+// Defaults are the dotfiles' own values (scripts/settings/hyprbase.py runs
+// hyprland.lua without the app's files and Game Mode), read at start and after
+// every `configreloaded`.
+//
+// While Game Mode is on, the options its shellOverrides/main.lua overrides
+// (`hyprconfigurator.py --list --json`) show the user's stored value instead
+// of Game Mode's live one, and say "Paused by Game Mode". Changes to them are
+// only written to shell-settings.lua, never evaluated live (no risky preview
+// either): they apply when Game Mode ends.
 QtObject {
     id: root
 
@@ -34,8 +44,20 @@ QtObject {
     property var defaults: ({})
     // Override key (input:kb_layout) -> value stored in shell-settings.lua.
     property var overrides: ({})
+    // getoption name -> value the dotfiles set (hyprbase.py `config`).
+    property var base: ({})
+    property bool baseLoaded: false
+    // The whole parsed hyprbase.py result ({ ok, config, curves, animations })
+    // or null while unknown. AnimationBackend uses it through SettingsStore, so
+    // the dotfiles run once per reload for both backends.
+    property var basePayload: null
     property bool touchpad: false
     property bool gameMode: false
+    // Override key -> value in shellOverrides/main.lua while Game Mode is on.
+    property var gameModeOverrides: ({})
+    // A configreloaded dropped the live previews; they are applied again once
+    // Game Mode's state is known (see _reapplyIfDue).
+    property bool _reapplyDue: false
     readonly property var capabilities: {
         const caps = [];
         if (root.touchpad)
@@ -51,6 +73,7 @@ QtObject {
         || root.runner.running || root._jobs.length > 0 || root.reloadFallback.running
 
     readonly property string scriptPath: Quickshell.shellPath("scripts/hyprland/hyprconfigurator.py")
+    readonly property string baseScriptPath: Quickshell.shellPath("scripts/settings/hyprbase.py")
     readonly property string configDir: FileUtils.trimFileProtocol(Directories.config)
     readonly property string settingsFile: `${root.configDir}/hypr/custom/shell-settings.lua`
     readonly property string shellOverridesFile: `${root.configDir}/hypr/hyprland/shellOverrides/main.lua`
@@ -83,16 +106,29 @@ QtObject {
         return HL.fromHypr(entry, root.values[entry.option]);
     }
 
+    function _paused(entry) {
+        return HL.isPausedByGameMode(entry, root.gameMode, root.gameModeOverrides);
+    }
+
     function read(entry) {
         root._note(entry);
         if (entry.key in root._optimistic)
             return root._optimistic[entry.key];
+        // Game Mode's live value is temporary; show what the user keeps.
+        if (root._paused(entry))
+            return HL.storedValue(entry, root.overrides, root.base, root.defaults);
         return root._effective(entry);
     }
 
-    // Hyprland's compiled default, not the user's base config: reference only.
+    // What a reset applies: the dotfiles' base value, or Hyprland's compiled
+    // default when nothing in the dotfiles sets the option. Undefined while
+    // the base is unknown (hyprbase.py failed), so rows show no default.
     function defaultValue(entry) {
-        return HL.fromHypr(entry, root.defaults[entry.option]);
+        return HL.defaultFor(entry, root.base, root.baseLoaded, root.defaults);
+    }
+
+    function statusNote(entry) {
+        return root._paused(entry) ? "Paused by Game Mode" : "";
     }
 
     function isModified(entry) {
@@ -225,6 +261,7 @@ QtObject {
     function snapshot(entries) {
         return entries.map(e => ({
             entry: e,
+            paused: root._paused(e),
             effective: root._effective(e),
             hadOverride: HL.overrideKey(e.path) in root.overrides,
             override: root.overrides[HL.overrideKey(e.path)],
@@ -232,11 +269,16 @@ QtObject {
         }));
     }
 
+    // An option paused by Game Mode is not previewed live: the value is held
+    // until persist() writes it (it applies when Game Mode ends).
     function preview(entry, value) {
-        if (!root._validEntry(entry) || !root._eval(entry, value, entry.key))
+        if (!root._validEntry(entry))
+            return false;
+        const paused = root._paused(entry);
+        if (!paused && !root._eval(entry, value, entry.key))
             return false;
         const live = Object.assign({}, root._live);
-        live[entry.key] = { entry: entry, value: value };
+        live[entry.key] = { entry: entry, value: value, paused: paused };
         root._live = live;
         root._setOptimistic(entry.key, value);
         return true;
@@ -277,12 +319,15 @@ QtObject {
         for (const item of snap) {
             const e = item.entry;
             const wasReset = (e.key + "\u0000reset") in live;
+            // Paused now or when the preview started: either way Game Mode's
+            // live value must not be covered.
+            const paused = item.paused || !!live[e.key]?.paused || root._paused(e);
             delete live[e.key];
             delete live[e.key + "\u0000reset"];
             root._setOptimistic(e.key, undefined);
             if (wasReset && item.hadOverride)
                 fileOps.push({ entry: e, op: "set", value: HL.fromHypr(e, item.override) });
-            else if (item.effective !== undefined)
+            else if (item.effective !== undefined && !paused)
                 root._eval(e, item.effective, e.key);
         }
         root._live = live;
@@ -291,11 +336,22 @@ QtObject {
     }
 
     // Live previews are runtime state: a reload (another write, Game Mode)
-    // drops them, so they are applied again while the confirmation lasts.
+    // drops them, so they are applied again while the confirmation lasts,
+    // unless Game Mode overrides the option now (it may have started after
+    // the preview). A reload re-applies only once Game Mode's file and
+    // overrides are read again (_reapplyIfDue): the reload Game Mode itself
+    // triggers must not see the overrides from before it started.
+    function _reapplyIfDue() {
+        if (!root._reapplyDue)
+            return;
+        root._reapplyDue = false;
+        root._reapplyLive();
+    }
+
     function _reapplyLive() {
         for (const k in root._live) {
             const item = root._live[k];
-            if (!item.reset)
+            if (!item.reset && !item.paused && !root._paused(item.entry))
                 root._eval(item.entry, item.value, item.entry.key);
         }
     }
@@ -322,6 +378,30 @@ QtObject {
         root.descriptionsProc.running = true;
         root.listProc.running = true;
         root.devicesProc.running = true;
+        root.baseTimer.restart();
+    }
+
+    function _setGameMode(active) {
+        const before = root._readAll();
+        root.gameMode = active;
+        if (active) {
+            root._startProc(root.gameModeProc);
+        } else {
+            root.gameModeOverrides = {};
+        }
+        root._announce(before);
+        // With Game Mode on, gameModeProc re-applies once its overrides are in.
+        if (!active)
+            root._reapplyIfDue();
+    }
+
+    // Starts a read; one already running is restarted when it ends, so the
+    // newest file contents always win.
+    function _startProc(proc) {
+        if (proc.running)
+            proc.rerun = true;
+        else
+            proc.running = true;
     }
 
     // Tells the store which shown values changed outside a write.
@@ -341,7 +421,7 @@ QtObject {
     }
 
     function _state(entry) {
-        return [root.read(entry), root.isModified(entry)];
+        return [root.read(entry), root.isModified(entry), root.defaultValue(entry), root.statusNote(entry)];
     }
 
     onDeferWritesChanged: {
@@ -444,8 +524,62 @@ QtObject {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.gameMode = HL.isGameModeActive(text())
-        onLoadFailed: root.gameMode = false
+        onLoaded: root._setGameMode(HL.isGameModeActive(text()))
+        onLoadFailed: root._setGameMode(false)
+    }
+
+    // Game Mode writes only flat `hl.config` lines, which the configurator
+    // lists; its overrides are read from the file, never assumed.
+    readonly property Process gameModeProc: Process {
+        property bool rerun: false
+        command: ["python3", root.scriptPath, "--file", root.shellOverridesFile, "--list", "--json"]
+        stdout: StdioCollector { id: gameModeOut }
+        onExited: (exitCode, exitStatus) => {
+            if (root.gameModeProc.rerun) {
+                root.gameModeProc.rerun = false;
+                root.gameModeProc.running = true;
+                return;
+            }
+            const before = root._readAll();
+            try {
+                if (exitCode !== 0)
+                    throw new Error(`exit ${exitCode}`);
+                root.gameModeOverrides = root.gameMode ? JSON.parse(gameModeOut.text) : {};
+            } catch (error) {
+                console.warn(`[HyprlandBackend] cannot list ${root.shellOverridesFile}: ${error}`);
+                root.gameModeOverrides = {};
+            }
+            root._announce(before);
+            root._reapplyIfDue();
+        }
+    }
+
+    // Debounced: Game Mode and the app's own writes come with reloads in bursts.
+    readonly property Timer baseTimer: Timer {
+        interval: 300
+        onTriggered: root._startProc(root.baseProc)
+    }
+
+    // The base is unknown when it cannot be read (broken or missing
+    // hyprland.lua): defaults become undefined, which rows show as no
+    // default. That is an expected state, so it is not a warning.
+    readonly property Process baseProc: Process {
+        property bool rerun: false
+        command: ["python3", root.baseScriptPath, "--json", "--config-dir", `${root.configDir}/hypr`]
+        stdout: StdioCollector { id: baseOut }
+        onExited: (exitCode, exitStatus) => {
+            if (root.baseProc.rerun) {
+                root.baseProc.rerun = false;
+                root.baseProc.running = true;
+                return;
+            }
+            const before = root._readAll();
+            const parsed = HL.parseBase(baseOut.text);
+            root.base = parsed.config;
+            root.baseLoaded = parsed.ok;
+            root.basePayload = parsed.ok ? parsed : null;
+            root._announce(before);
+        }
     }
 
     readonly property FileView xkb: FileView {
@@ -462,11 +596,12 @@ QtObject {
                 return;
             root._lastReloadAt = Date.now();
             root.reloadFallback.stop();
+            // Set before the reload: the file may load synchronously.
+            root._reapplyDue = true;
             // Game Mode replaces its file atomically and Hyprland reloads
             // right after, so the reload also refreshes the watch.
             root.gameModeFile.reload();
             root.refresh();
-            root._reapplyLive();
         }
     }
 }

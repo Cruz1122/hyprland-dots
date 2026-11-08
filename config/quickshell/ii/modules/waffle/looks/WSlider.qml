@@ -20,7 +20,7 @@ Slider {
 
     Behavior on value { // This makes the adjusted value (like volume) shift smoothly
         SmoothedAnimation {
-            velocity: Looks.transition.velocity
+            velocity: Appearance.scaledVelocity(Looks.transition.velocity)
         }
     }
 

@@ -405,3 +405,19 @@ function vrrFromManagedText(text) {
     }
     return out;
 }
+
+// Capability "vrr": some output of `hyprctl -j monitors all` can do variable
+// refresh rate. `hardwareDetails.vrrCapable` says it can; `vrr` true means it
+// is active right now, which also proves it (older Hyprland builds have no
+// hardwareDetails).
+function anyVrrCapable(infos) {
+    var list = Array.isArray(infos) ? infos : [];
+    for (var i = 0; i < list.length; i++) {
+        var info = list[i];
+        if (!info || typeof info !== "object")
+            continue;
+        if (info.vrr === true || (info.hardwareDetails && info.hardwareDetails.vrrCapable === true))
+            return true;
+    }
+    return false;
+}

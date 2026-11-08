@@ -12,7 +12,7 @@ ProgressBar {
 
     Behavior on value {
         SmoothedAnimation {
-            velocity: Looks.transition.velocity
+            velocity: Appearance.scaledVelocity(Looks.transition.velocity)
         }
     }
 

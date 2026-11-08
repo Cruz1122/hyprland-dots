@@ -205,7 +205,10 @@ function modifierNames(mask) {
 }
 
 // `hyprctl -j binds` -> [{ keys, action, described }], described first.
-function parseBinds(text) {
+// anyKeyLabel names the key of catch-all binds; the page passes it translated
+// so that the shown text and the filter use the same words.
+function parseBinds(text, anyKeyLabel) {
+    var anyKey = anyKeyLabel === undefined ? "Any key" : String(anyKeyLabel);
     var list = JSON.parse(text);
     var out = [];
     for (var i = 0; i < list.length; i++) {
@@ -213,7 +216,7 @@ function parseBinds(text) {
         var key = b.key || (b.keycode ? "code:" + b.keycode : "");
         if (!key && !b.catch_all)
             continue;
-        var keys = modifierNames(b.modmask || 0).concat([b.catch_all ? "Any key" : key]).join(" + ");
+        var keys = modifierNames(b.modmask || 0).concat([b.catch_all ? anyKey : key]).join(" + ");
         var action = b.has_description && b.description ? b.description : (b.dispatcher + (b.arg ? " " + b.arg : ""));
         out.push({ keys: (b.submap ? b.submap + ": " : "") + keys, action: action, described: !!b.has_description });
     }
@@ -230,4 +233,65 @@ function filterBinds(binds, query) {
         var hay = (b.keys + " " + b.action).toLowerCase();
         return words.every(function (w) { return hay.indexOf(w) >= 0; });
     });
+}
+
+// Raw value the dotfiles give an option (hyprbase.py `config`), or undefined.
+// Registry options use getoption names; Lua-path names cover options whose
+// getoption name differs (input:touchpad:tap-to-click is set as tap_to_click).
+function baseRaw(entry, base) {
+    if (!base)
+        return undefined;
+    if (entry.option !== undefined && Object.prototype.hasOwnProperty.call(base, entry.option))
+        return base[entry.option];
+    var key = overrideKey(entry.path);
+    return Object.prototype.hasOwnProperty.call(base, key) ? base[key] : undefined;
+}
+
+// What a reset falls back to: the dotfiles' base value; Hyprland's compiled
+// default when the base was read and nothing in the dotfiles sets the option;
+// undefined (unknown) when the base could not be read.
+function defaultFor(entry, base, baseLoaded, compiled) {
+    if (!baseLoaded)
+        return undefined;
+    var raw = baseRaw(entry, base);
+    return fromHypr(entry, raw !== undefined ? raw : (compiled || {})[entry.option]);
+}
+
+// Value the user has stored while Game Mode overrides the option: the
+// shell-settings.lua override, else the base, else the compiled default.
+function storedValue(entry, overrides, base, compiled) {
+    var key = overrideKey(entry.path);
+    if (overrides && Object.prototype.hasOwnProperty.call(overrides, key))
+        return fromHypr(entry, overrides[key]);
+    var raw = baseRaw(entry, base);
+    return fromHypr(entry, raw !== undefined ? raw : (compiled || {})[entry.option]);
+}
+
+// Game Mode's overrides are `hyprconfigurator.py --list --json` of
+// shellOverrides/main.lua (keys like "general:gaps_in").
+function isPausedByGameMode(entry, gameMode, gameModeOverrides) {
+    return !!gameMode && !!gameModeOverrides
+        && Object.prototype.hasOwnProperty.call(gameModeOverrides, overrideKey(entry.path));
+}
+
+function isObject(value) {
+    return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+// hyprbase.py output -> { ok, config, curves, animations }; anything
+// unexpected is not ok. curves and animations feed AnimationBackend.
+function parseBase(text) {
+    try {
+        var data = JSON.parse(text);
+        if (data && data.ok === true && isObject(data.config))
+            return {
+                ok: true,
+                config: data.config,
+                curves: isObject(data.curves) ? data.curves : {},
+                animations: isObject(data.animations) ? data.animations : {}
+            };
+    } catch (error) {
+        // Truncated or non-JSON output: the base is unknown, as with ok=false.
+    }
+    return { ok: false, config: {}, curves: {}, animations: {} };
 }

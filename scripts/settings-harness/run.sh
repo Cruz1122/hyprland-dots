@@ -7,7 +7,9 @@
 # network, no live Wayland/Hyprland/PipeWire/D-Bus sockets, and a private
 # session bus without service activation. The only live resource exposed is
 # the Xwayland socket (read-only bind) that the GPU renderer needs for a GLX
-# context; nothing is ever mapped on screen.
+# context; nothing is ever mapped on screen. With --hyprland-stub, a fake
+# hyprctl (tests/harness/stubs/hyprctl) answers from fixtures so the Hyprland
+# rows render available; the real Hyprland is never contacted.
 #
 # Exit status: 0 pass, 1 failure, 2 usage error, 77 skipped (missing tool).
 set -euo pipefail
@@ -27,15 +29,22 @@ Usage: scripts/settings-harness/run.sh [options]
   --env NAME=VALUE  Extra environment variable for the app (repeatable)
   --settle MS       Delay before each capture (default: 900)
   --timeout SEC     Kill the app after SEC seconds (default: 300)
-  --strict          Fail on app warnings, row overlaps/overflow, open popups and config writes
+  --hyprland-stub   Put a fake hyprctl (tests/harness/stubs/hyprctl, answers from fixtures) first
+                    on PATH, set HYPRLAND_INSTANCE_SIGNATURE=settings-harness and seed the
+                    sandbox config with copies of config/hypr/hyprland.lua and its base files;
+                    its calls are logged to <out>/hyprctl.log. --env PATH=... still wins.
+  --strict          Fail on app warnings, row overlaps/overflow, open popups, config.json
+                    writes and writes to hypr/custom/* or hypr/monitors.lua
   --allow-config-writes
-                    With --strict, report config.json writes instead of failing (interaction drivers)
+                    With --strict, report those writes instead of failing (interaction drivers)
   --keep            Keep the temporary shell copy and XDG directories
   --discard         Delete the output directory when the run passes
   -h, --help        Show this help
 
 Outputs (in the output directory): <W>x<H>/<NN>-<page>.png screenshots,
-harness.log, report.json, config.before.json and config.after.json.
+harness.log, report.json, config.before.json, config.after.json,
+hypr.before.json and hypr.after.json (sha256 of hypr/custom/* and
+hypr/monitors.lua), and hyprctl.log with --hyprland-stub.
 EOF
 }
 
@@ -64,6 +73,7 @@ settle=900
 timeout_s=300
 strict=0
 allow_writes=0
+hypr_stub=0
 keep=0
 discard=0
 extra_env=()
@@ -86,6 +96,7 @@ while (($#)); do
         --timeout) timeout_s="${2:?--timeout needs a value}"; shift 2 ;;
         --strict) strict=1; shift ;;
         --allow-config-writes) allow_writes=1; shift ;;
+        --hyprland-stub) hypr_stub=1; shift ;;
         --keep) keep=1; shift ;;
         --discard) discard=1; shift ;;
         -h | --help) usage; exit 0 ;;
@@ -139,7 +150,7 @@ cleanup() {
     if ((keep)); then
         printf 'kept work tree: %s\n' "$work" >&2
     elif [[ "$out" == "$work/out" && -d "$out" ]]; then
-        rm -rf -- "$work/ii" "$work/xdg" "$work/home" "$work/dbus-session.conf"
+        rm -rf -- "$work/ii" "$work/xdg" "$work/home" "$work/hyprctl" "$work/dbus-session.conf"
     else
         rm -rf -- "$work"
     fi
@@ -189,6 +200,39 @@ cp -- "$repo_root/config/hypr/wallpaper.png" "$xdg/config/hypr/wallpaper.png"
 for size in "${size_list[@]}"; do
     mkdir -p "$out/$size"
 done
+if ((hypr_stub)); then
+    # Inside $work: the sandbox replaces /tmp, so files elsewhere vanish.
+    mkdir -p "$work/hyprctl/bin" "$work/hyprctl/fixtures"
+    cp -- "$harness_src/stubs/hyprctl" "$work/hyprctl/bin/hyprctl"
+    chmod 0755 "$work/hyprctl/bin/hyprctl"
+    for fixture in hyprland-options.json hyprctl-devices.json hyprctl-monitors-all.json hyprctl-animations.json; do
+        cp -- "$repo_root/tests/fixtures/$fixture" "$work/hyprctl/fixtures/$fixture"
+    done
+    : >"$out/hyprctl.log"
+    # Copies of the repository's Hyprland entry point and the base files that
+    # come before the app's own files, never the live ~/.config.
+    mkdir -p "$xdg/config/hypr/hyprland/lib"
+    cp -- "$repo_root/config/hypr/hyprland.lua" "$xdg/config/hypr/hyprland.lua"
+    cp -- "$repo_root/config/hypr/hyprland/general.lua" "$repo_root/config/hypr/hyprland/colors.lua" "$xdg/config/hypr/hyprland/"
+    cp -- "$repo_root/config/hypr/hyprland/lib/init.lua" "$xdg/config/hypr/hyprland/lib/init.lua"
+fi
+
+# sha256 of the Hyprland files the app may write (hypr/custom/*,
+# hypr/monitors.lua); --strict fails when one appears or changes.
+snapshot_hypr() {
+    python3 - "$xdg/config" "$1" <<'PY'
+import hashlib
+import json
+import sys
+from pathlib import Path
+root, target = Path(sys.argv[1]), Path(sys.argv[2])
+files = sorted((root / "hypr/custom").rglob("*")) + [root / "hypr/monitors.lua"]
+digests = {str(path.relative_to(root)): hashlib.sha256(path.read_bytes()).hexdigest()
+           for path in files if path.is_file()}
+target.write_text(json.dumps(digests, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+}
+snapshot_hypr "$out/hypr.before.json"
 
 bwrap_args=(
     --ro-bind / /
@@ -243,9 +287,22 @@ if [[ "$renderer" == gpu ]]; then
 else
     bwrap_args+=(--setenv QT_QUICK_BACKEND software)
 fi
+if ((hypr_stub)); then
+    # Before extra_env, so a test's own --env PATH=<stub> keeps priority.
+    bwrap_args+=(
+        --setenv PATH "$work/hyprctl/bin:${PATH:-/usr/bin:/bin}"
+        --setenv HYPRLAND_INSTANCE_SIGNATURE settings-harness
+        --setenv HYPRCTL_LOG "$out/hyprctl.log"
+        --setenv HYPRCTL_FIXTURES "$work/hyprctl/fixtures"
+    )
+fi
 bwrap_args+=("${extra_env[@]}")
 
-printf 'settings-harness: renderer=%s sizes=%s pages=%s\n' "$renderer" "$sizes" "${pages:-all}" >&2
+hyprland_mode=absent
+if ((hypr_stub)); then
+    hyprland_mode=stub
+fi
+printf 'settings-harness: renderer=%s sizes=%s pages=%s hyprland=%s\n' "$renderer" "$sizes" "${pages:-all}" "$hyprland_mode" >&2
 set +e
 bwrap "${bwrap_args[@]}" \
     dbus-run-session --config-file="$work/dbus-session.conf" -- \
@@ -254,12 +311,15 @@ bwrap "${bwrap_args[@]}" \
 status=$?
 set -e
 cp -- "$xdg/config/illogical-impulse/config.json" "$out/config.after.json" 2>/dev/null || true
+snapshot_hypr "$out/hypr.after.json"
 
 summary_args=(
     --log "$out/harness.log"
     --known "$harness_src/known-env-warnings.txt"
     --config-before "$out/config.before.json"
     --config-after "$out/config.after.json"
+    --hypr-before "$out/hypr.before.json"
+    --hypr-after "$out/hypr.after.json"
     --out "$out/report.json"
     --exit-code "$status"
 )
@@ -268,6 +328,10 @@ if ((strict)); then
 fi
 if ((allow_writes)); then
     summary_args+=(--allow-config-writes)
+fi
+if ((hypr_stub)); then
+    # With --strict, proves the stub was used and the Hyprland rows rendered available.
+    summary_args+=(--hyprctl-log "$out/hyprctl.log")
 fi
 set +e
 python3 "$script_dir/summarize.py" "${summary_args[@]}"

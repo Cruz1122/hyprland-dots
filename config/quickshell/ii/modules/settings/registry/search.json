@@ -2,12 +2,13 @@
   "id": "search",
   "title": "Search",
   "icon": "manage_search",
-  "description": "The launcher, its prefixes and web search.",
+  "description": "The launcher (Super), its prefixes and web search.",
   "sections": [
     {
       "id": "launcher",
       "title": "Launcher",
-      "icon": "apps"
+      "icon": "apps",
+      "description": "The search that opens when you press Super by itself: how it finds apps."
     },
     {
       "id": "prefixes",
@@ -18,19 +19,22 @@
     {
       "id": "web",
       "title": "Web search",
-      "icon": "travel_explore"
+      "icon": "travel_explore",
+      "description": "Where web searches go and which sites they leave out."
     }
   ],
   "entries": [
     {
       "key": "search.sloppy",
       "section": "launcher",
-      "label": "Typo-tolerant matching",
-      "description": "Match apps by edit distance instead of fuzzy search; tolerates typos but may miss acronyms.",
+      "label": "Forgive typos",
+      "description": "Finds apps despite typos, such as “fierfox” for Firefox, but abbreviations like “vsc” may stop working.",
       "keywords": [
         "levenshtein",
         "fuzzy",
-        "errores"
+        "errores",
+        "Typo-tolerant matching",
+        "Coincidencia tolerante a errores"
       ],
       "icon": "spellcheck",
       "backend": "config",
@@ -43,8 +47,12 @@
     {
       "key": "search.nonAppResultDelay",
       "section": "launcher",
-      "label": "Delay for other results",
-      "description": "Wait before adding non-app results so typing stays responsive.",
+      "label": "Calculator delay",
+      "description": "Wait after each key press before calculating, so typing stays smooth.",
+      "keywords": [
+        "Delay for other results",
+        "Retraso de otros resultados"
+      ],
       "icon": "timer",
       "backend": "config",
       "type": "int",
@@ -60,11 +68,14 @@
     {
       "key": "launcher.pinnedApps",
       "section": "launcher",
-      "label": "Pinned apps",
-      "description": "Desktop entry ids pinned in the start menu.",
+      "label": "Apps pinned in the start menu",
+      "description": "Listed by .desktop file name without the extension, e.g. org.kde.dolphin, in the Windows-style start menu.",
+      "help": "Only the alternative Windows-style panels use it; Ctrl+Super+P switches between panel styles.",
       "keywords": [
         "anclar",
-        "fijar"
+        "fijar",
+        "Pinned apps",
+        "Aplicaciones ancladas"
       ],
       "icon": "push_pin",
       "backend": "config",
@@ -81,8 +92,12 @@
     {
       "key": "search.prefix.showDefaultActionsWithoutPrefix",
       "section": "prefixes",
-      "label": "Show actions without a prefix",
-      "description": "List matching actions even when the action prefix is not typed.",
+      "label": "Add calculator, command and web results",
+      "description": "Every search ends with a calculator result, a run-as-command result and a web search, even without a prefix.",
+      "keywords": [
+        "Show actions without a prefix",
+        "Mostrar acciones sin prefijo"
+      ],
       "icon": "bolt",
       "backend": "config",
       "type": "bool",
@@ -95,7 +110,7 @@
       "key": "search.prefix.app",
       "section": "prefixes",
       "label": "Apps",
-      "description": "Search only applications.",
+      "description": "Search apps by name, e.g. >firefox.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -118,7 +133,7 @@
       "key": "search.prefix.action",
       "section": "prefixes",
       "label": "Actions",
-      "description": "Run shell actions such as changing the wallpaper.",
+      "description": "Run a shell action such as /dark or /wallpaper; type the prefix alone to list them all.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -141,7 +156,7 @@
       "key": "search.prefix.clipboard",
       "section": "prefixes",
       "label": "Clipboard",
-      "description": "Search the clipboard history.",
+      "description": "Search the clipboard history; Super+V opens the launcher with this prefix.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -164,7 +179,7 @@
       "key": "search.prefix.emojis",
       "section": "prefixes",
       "label": "Emojis",
-      "description": "Search emojis to copy.",
+      "description": "Search emojis to copy; Super+. opens the launcher with this prefix.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -187,7 +202,7 @@
       "key": "search.prefix.math",
       "section": "prefixes",
       "label": "Calculator",
-      "description": "Evaluate a math expression.",
+      "description": "Calculate with qalc, e.g. =2*(3+4); a search that starts with a number also calculates.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -210,7 +225,7 @@
       "key": "search.prefix.shellCommand",
       "section": "prefixes",
       "label": "Shell command",
-      "description": "Run a command in a terminal.",
+      "description": "Run the typed text as a command in the background, without opening a terminal.",
       "keywords": [
         "prefijo",
         "prefix"
@@ -256,7 +271,8 @@
       "key": "search.engineBaseUrl",
       "section": "web",
       "label": "Search engine",
-      "description": "Address the search terms are appended to.",
+      "description": "Your search words are added at the end of this address.",
+      "help": "Example: https://duckduckgo.com/?q= for DuckDuckGo.",
       "keywords": [
         "google",
         "duckduckgo",
@@ -277,7 +293,8 @@
       "key": "search.excludedSites",
       "section": "web",
       "label": "Excluded sites",
-      "description": "Sites removed from web search results.",
+      "description": "Each site is added as -site:<site> to web searches to leave its pages out, e.g. quora.com.",
+      "help": "It only works with search engines that understand -site:, such as Google.",
       "icon": "block",
       "backend": "config",
       "type": "list",

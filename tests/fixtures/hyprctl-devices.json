@@ -1,0 +1,40 @@
+{
+ "mice": [
+  {
+   "address": "0x1000",
+   "name": "logitech-g305-1",
+   "defaultSpeed": 0.0,
+   "scrollFactor": -1.0
+  },
+  {
+   "address": "0x1001",
+   "name": "elan1203:00-04f3:307a-touchpad",
+   "defaultSpeed": 0.0,
+   "scrollFactor": -1.0
+  }
+ ],
+ "keyboards": [
+  {
+   "address": "0x2000",
+   "name": "at-translated-set-2-keyboard",
+   "rules": "",
+   "model": "",
+   "layout": "latam",
+   "variant": "",
+   "options": "",
+   "active_layout_index": 0,
+   "active_keymap": "Spanish (Latin American)",
+   "capsLock": false,
+   "numLock": true,
+   "main": true
+  }
+ ],
+ "tablets": [],
+ "touch": [],
+ "switches": [
+  {
+   "address": "0x3000",
+   "name": "Lid Switch"
+  }
+ ]
+}

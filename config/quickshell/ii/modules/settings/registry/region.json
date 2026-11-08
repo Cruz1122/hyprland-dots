@@ -7,12 +7,14 @@
     {
       "id": "language",
       "title": "Language",
-      "icon": "translate"
+      "icon": "translate",
+      "description": "Language of the menus and texts of the shell and of this app."
     },
     {
       "id": "time",
       "title": "Time",
-      "icon": "schedule"
+      "icon": "schedule",
+      "description": "How clocks show the time in the bar, the lock screen and the desktop widgets."
     },
     {
       "id": "date",
@@ -26,7 +28,8 @@
       "key": "language.ui",
       "section": "language",
       "label": "Interface language",
-      "description": "Language of the shell and this app; Automatic follows the system locale, and a regional variant without its own translation uses the closest one.",
+      "description": "Language of the bar, the panels and this app; Automatic follows the system language.",
+      "help": "A regional variant without its own translation, such as Spanish (Colombia), uses the closest one (Spanish, Mexico).",
       "keywords": [
         "idioma",
         "locale",
@@ -63,19 +66,23 @@
       "options": [
         {
           "value": "hh:mm",
-          "label": "24h"
+          "label": "24h",
+          "description": "Hours from 00 to 23, e.g. 09:05 or 14:05."
         },
         {
           "value": "h:mm",
-          "label": "12h"
+          "label": "12h",
+          "description": "Hours from 1 to 12 without a.m. or p.m., e.g. 2:05."
         },
         {
           "value": "h:mm ap",
-          "label": "12h am/pm"
+          "label": "12h am/pm",
+          "description": "Hours from 1 to 12 with a lowercase marker, e.g. 2:05 pm."
         },
         {
           "value": "h:mm AP",
-          "label": "12h AM/PM"
+          "label": "12h AM/PM",
+          "description": "Hours from 1 to 12 with an uppercase marker, e.g. 2:05 PM."
         }
       ],
       "external": "scripts/settings/hyprlock-time.py",
@@ -87,7 +94,8 @@
       "key": "time.secondPrecision",
       "section": "time",
       "label": "Show seconds",
-      "description": "Clocks update every second and show seconds where they fit.",
+      "description": "Adds seconds to every time format and a second hand to the analog desktop clock.",
+      "help": "The analog clock's rotating date also turns with the seconds, and clocks redraw every second. While locked, the 12h format shows seconds even with this off.",
       "keywords": [
         "segundos",
         "seconds"
@@ -103,7 +111,12 @@
     {
       "key": "info.region.timePreview",
       "section": "time",
-      "label": "Preview",
+      "label": "Time preview",
+      "description": "The current time in the chosen format.",
+      "keywords": [
+        "Preview",
+        "Vista previa"
+      ],
       "icon": "visibility",
       "backend": "readonly",
       "type": "info",
@@ -112,8 +125,14 @@
     {
       "key": "time.dateFormat",
       "section": "date",
-      "label": "Date",
-      "description": "Date shown in the bar and panels.",
+      "label": "Desktop clock date",
+      "description": "Date under the Digital-style desktop clock, when that clock shows the date.",
+      "keywords": [
+        "Date",
+        "Fecha",
+        "long date",
+        "fecha larga"
+      ],
       "icon": "today",
       "backend": "config",
       "type": "string",
@@ -132,7 +151,7 @@
       "key": "time.shortDateFormat",
       "section": "date",
       "label": "Short date",
-      "description": "Compact date for small spaces.",
+      "description": "Date of the clock in the vertical bar.",
       "icon": "event",
       "backend": "config",
       "type": "string",
@@ -151,7 +170,8 @@
       "key": "time.dateWithYearFormat",
       "section": "date",
       "label": "Date with year",
-      "description": "Date that includes the year.",
+      "description": "Date of the clock in the Windows-style taskbar and of the last weather refresh in the bar's weather popup.",
+      "help": "The Windows-style taskbar belongs to the alternative panels; Ctrl+Super+P switches between panel styles.",
       "icon": "calendar_today",
       "backend": "config",
       "type": "string",
@@ -169,7 +189,12 @@
     {
       "key": "info.region.datePreview",
       "section": "date",
-      "label": "Preview",
+      "label": "Date preview",
+      "description": "Today in the three formats above, in order.",
+      "keywords": [
+        "Preview",
+        "Vista previa"
+      ],
       "icon": "visibility",
       "backend": "readonly",
       "type": "info",

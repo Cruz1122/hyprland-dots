@@ -5,6 +5,7 @@ SettingsRow {
     id: row
 
     focusVisible: control.visualFocus
+    needsValue: true
     activateHandler: () => row.flip()
     interactHandler: () => row.flip()
 

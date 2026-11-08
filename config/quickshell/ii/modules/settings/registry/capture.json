@@ -2,33 +2,37 @@
   "id": "capture",
   "title": "Capture and recording",
   "icon": "screen_record",
-  "description": "Screenshots, the region selector and screen recording.",
+  "description": "Screenshots, the area selector and screen recording.",
   "sections": [
     {
       "id": "screenshots",
       "title": "Screenshots",
-      "icon": "screenshot_region"
+      "icon": "screenshot_region",
+      "description": "Area screenshots taken with Super+Shift+S: where they are saved and which editor opens them."
     },
     {
       "id": "imageSearch",
       "title": "Image search",
-      "icon": "image_search"
+      "icon": "image_search",
+      "description": "Search the web with a part of the screen, like Google Lens (Super+Shift+A)."
     },
     {
       "id": "regionSelector",
-      "title": "Region selector",
+      "title": "Area selector",
       "icon": "select",
-      "description": "The overlay used to pick a window, a layer or a free region."
+      "description": "Appears when you capture, search or record an area: click a window or drag a rectangle."
     },
     {
       "id": "recordingActions",
       "title": "Recording controls",
-      "icon": "radio_button_checked"
+      "icon": "radio_button_checked",
+      "description": "Start, pause and stop screen recordings; Ctrl+Alt+R also records the whole screen."
     },
     {
       "id": "recording",
       "title": "Screen recording",
-      "icon": "videocam"
+      "icon": "videocam",
+      "description": "Where recordings are saved, their quality and their sound."
     }
   ],
   "entries": [
@@ -36,7 +40,7 @@
       "key": "screenSnip.savePath",
       "section": "screenshots",
       "label": "Screenshot folder",
-      "description": "Folder where region screenshots are saved; leave empty to only copy them to the clipboard.",
+      "description": "Area screenshots are also saved here as PNG; leave it empty to only copy them to the clipboard.",
       "icon": "folder",
       "keywords": [
         "captura",
@@ -57,6 +61,7 @@
       "section": "screenshots",
       "label": "Annotate with Satty",
       "description": "Open screenshots for editing in Satty instead of Swappy.",
+      "help": "Right-click the area in the selector to open it in the editor instead of copying it.",
       "icon": "draw",
       "keywords": [
         "swappy",
@@ -77,7 +82,8 @@
       "key": "search.imageSearch.imageSearchEngineBaseUrl",
       "section": "imageSearch",
       "label": "Image search engine",
-      "description": "Address the uploaded screenshot link is appended to.",
+      "description": "The selected area is uploaded and its link is added at the end of this address.",
+      "help": "The image goes to uguu.se, a public file host, so avoid searching private content. Example: https://lens.google.com/uploadbyurl?url=",
       "icon": "travel_explore",
       "keywords": [
         "lens",
@@ -99,6 +105,7 @@
       "section": "imageSearch",
       "label": "Circle to search",
       "description": "Select the area to search by drawing around it instead of a rectangle.",
+      "help": "Windows and panels cannot be picked with a click in this mode.",
       "icon": "gesture",
       "keywords": [
         "círculo",
@@ -114,8 +121,15 @@
     {
       "key": "regionSelector.targetRegions.windows",
       "section": "regionSelector",
-      "label": "Snap to windows",
-      "description": "Offer open windows as ready-made regions.",
+      "label": "Pick windows with a click",
+      "description": "Outlines the windows of the current workspace, so a click captures a whole window.",
+      "help": "Not available with circle selection.",
+      "keywords": [
+        "Snap to windows",
+        "Ajustar a ventanas",
+        "Region selector",
+        "Selector de región"
+      ],
       "icon": "select_window",
       "backend": "config",
       "type": "bool",
@@ -127,8 +141,15 @@
     {
       "key": "regionSelector.targetRegions.layers",
       "section": "regionSelector",
-      "label": "Snap to shell layers",
-      "description": "Offer panels and bars as ready-made regions.",
+      "label": "Pick panels with a click",
+      "description": "Also outlines open shell panels such as the sidebars, so a click captures one; the bar and dock are not included.",
+      "help": "Not available with circle selection.",
+      "keywords": [
+        "Snap to shell layers",
+        "Ajustar a capas del shell",
+        "layers",
+        "capas"
+      ],
       "icon": "layers",
       "backend": "config",
       "type": "bool",
@@ -140,8 +161,13 @@
     {
       "key": "regionSelector.targetRegions.content",
       "section": "regionSelector",
-      "label": "Snap to content",
-      "description": "Offer detected images and text blocks as ready-made regions.",
+      "label": "Pick images and text with a click",
+      "description": "Detects images and blocks of text on the screen and outlines them as ready-made areas.",
+      "help": "The detection analyzes the screen each time the selector opens and can miss or merge areas.",
+      "keywords": [
+        "Snap to content",
+        "Ajustar al contenido"
+      ],
       "icon": "image",
       "backend": "config",
       "type": "bool",
@@ -154,7 +180,10 @@
       "key": "regionSelector.targetRegions.showLabel",
       "section": "regionSelector",
       "label": "Show region labels",
-      "description": "Name each ready-made region while selecting.",
+      "description": "Writes the window class (such as org.kde.dolphin) or the panel's layer name on each outlined area.",
+      "keywords": [
+        "Mostrar etiquetas de región"
+      ],
       "icon": "label",
       "backend": "config",
       "type": "bool",
@@ -167,7 +196,10 @@
       "key": "regionSelector.targetRegions.opacity",
       "section": "regionSelector",
       "label": "Region highlight opacity",
-      "description": "Opacity of the window and layer highlights.",
+      "description": "How visible the outlines of windows and panels are while you choose.",
+      "keywords": [
+        "Opacidad del resaltado de regiones"
+      ],
       "icon": "opacity",
       "backend": "config",
       "type": "real",
@@ -185,7 +217,10 @@
       "key": "regionSelector.targetRegions.contentRegionOpacity",
       "section": "regionSelector",
       "label": "Content highlight opacity",
-      "description": "Opacity of the detected content highlights.",
+      "description": "How visible the outlines of detected images and text are; 0 % hides them.",
+      "keywords": [
+        "Opacidad del resaltado de contenido"
+      ],
       "icon": "opacity",
       "backend": "config",
       "type": "real",
@@ -202,8 +237,12 @@
     {
       "key": "regionSelector.targetRegions.selectionPadding",
       "section": "regionSelector",
-      "label": "Region padding",
-      "description": "Extra space added around a ready-made region.",
+      "label": "Margin around a clicked area",
+      "description": "Space added on every side of a window, panel or detected area picked with a click.",
+      "keywords": [
+        "Region padding",
+        "Margen de región"
+      ],
       "icon": "padding",
       "backend": "config",
       "type": "int",
@@ -218,8 +257,13 @@
     {
       "key": "regionSelector.rect.showAimLines",
       "section": "regionSelector",
-      "label": "Aim lines",
-      "description": "Show crosshair lines while drawing a rectangle.",
+      "label": "Show aim lines",
+      "description": "Faint lines across the whole screen follow the pointer while you draw a rectangle.",
+      "keywords": [
+        "Aim lines",
+        "Líneas de mira",
+        "crosshair"
+      ],
       "icon": "center_focus_weak",
       "backend": "config",
       "type": "bool",
@@ -276,9 +320,11 @@
       "key": "action.capture.recordRegion",
       "section": "recordingActions",
       "label": "Record a region",
-      "description": "Pick a region with the selector and record it.",
+      "description": "Pick an area with the selector and record it, like Super+Shift+R.",
+      "keywords": [
+        "Grabar una región"
+      ],
       "icon": "screenshot_region",
-      "note": "Needs the shell to be running.",
       "backend": "action",
       "type": "action",
       "enabledWhen": {
@@ -317,7 +363,7 @@
       "key": "screenRecord.barButtonAction",
       "section": "recordingActions",
       "label": "Left sidebar record button",
-      "description": "What the screen record button in the left sidebar does when clicked.",
+      "description": "What the record button of the left sidebar (Super+A) does when clicked.",
       "icon": "radio_button_checked",
       "keywords": [
         "record",
@@ -359,7 +405,7 @@
       "key": "screenRecord.savePath",
       "section": "recording",
       "label": "Video folder",
-      "description": "Folder where recordings are saved.",
+      "description": "Recordings are saved here as recording_<date>.<format>.",
       "icon": "folder",
       "backend": "config",
       "type": "path",
@@ -376,7 +422,7 @@
       "key": "screenRecord.fileFormat",
       "section": "recording",
       "label": "File format",
-      "description": "Container of the recorded file.",
+      "description": "Type of video file each recording is saved as.",
       "icon": "movie",
       "backend": "config",
       "type": "enum",
@@ -384,15 +430,18 @@
       "options": [
         {
           "value": "mp4",
-          "label": "MP4"
+          "label": "MP4",
+          "description": "Plays almost everywhere."
         },
         {
           "value": "mkv",
-          "label": "MKV"
+          "label": "MKV",
+          "description": "Still playable if a crash cuts the recording short."
         },
         {
           "value": "webm",
-          "label": "WebM"
+          "label": "WebM",
+          "description": "Open format made for the web."
         }
       ],
       "consumers": [
@@ -403,7 +452,7 @@
       "key": "screenRecord.fps",
       "section": "recording",
       "label": "Frame rate",
-      "description": "Frames recorded per second.",
+      "description": "Higher is smoother but makes larger files.",
       "icon": "speed",
       "backend": "config",
       "type": "int",
@@ -418,8 +467,14 @@
     {
       "key": "screenRecord.pixelFormat",
       "section": "recording",
-      "label": "Pixel format",
-      "description": "Pixel format passed to the encoder; Automatic lets wf-recorder choose.",
+      "label": "Color format",
+      "description": "How colors are stored in the video; keep yuv420p unless you need another one.",
+      "keywords": [
+        "Pixel format",
+        "Formato de píxel",
+        "yuv420p",
+        "nv12"
+      ],
       "icon": "palette",
       "backend": "config",
       "type": "enum",
@@ -427,15 +482,18 @@
       "options": [
         {
           "value": "yuv420p",
-          "label": "yuv420p (most compatible)"
+          "label": "yuv420p (most compatible)",
+          "description": "Plays in every video player and browser."
         },
         {
           "value": "nv12",
-          "label": "nv12"
+          "label": "nv12",
+          "description": "Same color detail as yuv420p in another layout; some hardware encoders need it."
         },
         {
           "value": "auto",
-          "label": "Automatic"
+          "label": "Automatic",
+          "description": "wf-recorder picks the format."
         }
       ],
       "consumers": [
@@ -446,7 +504,10 @@
       "key": "screenRecord.fullscreenUsesFocusedMonitor",
       "section": "recording",
       "label": "Record the focused monitor",
-      "description": "Full-screen recordings capture only the monitor that has focus.",
+      "description": "With several monitors, full-screen recordings capture only the one that has focus.",
+      "keywords": [
+        "Grabar el monitor enfocado"
+      ],
       "icon": "select_window",
       "backend": "config",
       "type": "bool",
@@ -459,11 +520,13 @@
       "key": "screenRecord.recordAudioByDefault",
       "section": "recording",
       "label": "Record audio by default",
-      "description": "Include audio when a recording is started without choosing.",
+      "description": "Recordings started without an audio choice (Ctrl+Alt+R, Super+Shift+R or the buttons above) include audio.",
+      "help": "Super+Shift+Alt+R always records the system sound.",
       "icon": "mic",
       "keywords": [
         "sonido",
-        "audio"
+        "audio",
+        "Grabar audio por defecto"
       ],
       "backend": "config",
       "type": "bool",
@@ -486,7 +549,8 @@
         {
           "value": "system",
           "label": "System",
-          "icon": "speaker"
+          "icon": "speaker",
+          "description": "What your speakers or headphones play."
         },
         {
           "value": "mic",
@@ -496,12 +560,14 @@
         {
           "value": "both",
           "label": "Both",
-          "icon": "join"
+          "icon": "join",
+          "description": "System sound and microphone mixed in one track."
         },
         {
           "value": "none",
           "label": "None",
-          "icon": "volume_off"
+          "icon": "volume_off",
+          "description": "No audio, unless a shortcut asks for sound, such as Super+Shift+Alt+R."
         }
       ],
       "consumers": [

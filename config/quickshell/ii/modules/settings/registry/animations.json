@@ -1,0 +1,887 @@
+{
+  "id": "animations",
+  "title": "Animations",
+  "icon": "animation",
+  "description": "How windows, workspaces and shell panels move, and the motion inside the shell.",
+  "sections": [
+    {
+      "id": "intro",
+      "title": "What each part controls",
+      "icon": "info",
+      "description": "Hyprland animates windows, workspaces and shell panels; the shell animates its own menus and controls."
+    },
+    {
+      "id": "general",
+      "title": "General",
+      "icon": "tune",
+      "description": "Turn every desktop animation on or off at once."
+    },
+    {
+      "id": "windows",
+      "title": "Windows",
+      "icon": "select_window",
+      "description": "How windows open, close and move, and whether resizing and dragging are animated."
+    },
+    {
+      "id": "workspaces",
+      "title": "Workspaces",
+      "icon": "view_carousel",
+      "description": "How you move between workspaces and how the auxiliary workspace (Super+S) appears."
+    },
+    {
+      "id": "panels",
+      "title": "Shell panels",
+      "icon": "side_navigation",
+      "description": "How long shell panels such as the sidebars take to open and close, and with which curve."
+    },
+    {
+      "id": "details",
+      "title": "Details",
+      "icon": "more_horiz",
+      "description": "The color change of the active window border and the screen zoom (Super + = / Super + -)."
+    },
+    {
+      "id": "curves",
+      "title": "My curves",
+      "icon": "timeline",
+      "description": "Curves you create here, ready to use in any animation on this page."
+    },
+    {
+      "id": "shellMotion",
+      "title": "Motion inside the shell",
+      "icon": "motion_mode",
+      "description": "Speed of the menus, buttons and panels drawn by the shell; it does not change Hyprland animations."
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.animations.intro",
+      "section": "intro",
+      "label": "Desktop, interface and Game Mode",
+      "description": "This page changes two kinds of motion, and Game Mode pauses one of them.",
+      "keywords": [
+        "help",
+        "ayuda",
+        "Hyprland",
+        "shell",
+        "interfaz",
+        "escritorio",
+        "Game Mode",
+        "Modo Juego",
+        "qué cambia"
+      ],
+      "icon": "info",
+      "backend": "readonly",
+      "type": "info",
+      "widget": "custom"
+    },
+    {
+      "key": "info.animations.gameMode",
+      "section": "general",
+      "label": "Game Mode is on",
+      "description": "Game Mode turns off desktop animations while it is on; your changes are saved and apply when you turn it off.",
+      "icon": "sports_esports",
+      "backend": "readonly",
+      "type": "info",
+      "widget": "banner",
+      "visibleWhen": {
+        "capability": "gameMode"
+      }
+    },
+    {
+      "key": "hyprland.animations.enabled",
+      "section": "general",
+      "label": "Desktop animations",
+      "description": "Animate windows, workspaces and shell panels; motion inside the shell has its own setting below.",
+      "keywords": [
+        "Animations",
+        "animaciones",
+        "desactivar animaciones",
+        "quitar animaciones",
+        "disable animations",
+        "rendimiento",
+        "performance"
+      ],
+      "icon": "animation",
+      "backend": "hyprland",
+      "path": "animations.enabled",
+      "option": "animations:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "animation.preset",
+      "section": "general",
+      "label": "Animation preset",
+      "description": "Sets every desktop animation at once; the motion inside the shell stays as it is.",
+      "help": "Pick one and fine-tune any card on the Animations page; the preset then shows Custom. Default goes back to the dotfiles animations and keeps your curves.",
+      "keywords": [
+        "preset",
+        "preajuste",
+        "Default",
+        "Predeterminado",
+        "Agile",
+        "Ágil",
+        "Smooth",
+        "Suave",
+        "Bouncy",
+        "Con rebote",
+        "Minimal",
+        "Mínimo",
+        "Custom",
+        "Personalizado",
+        "animation",
+        "animación",
+        "rápido",
+        "fast",
+        "lento",
+        "slow"
+      ],
+      "icon": "auto_awesome",
+      "backend": "animation",
+      "path": "preset",
+      "type": "custom",
+      "widget": "animationPreset",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js"
+      ]
+    },
+    {
+      "key": "animation.windowsIn",
+      "section": "windows",
+      "label": "Open",
+      "description": "How a new window appears.",
+      "keywords": [
+        "open window",
+        "abrir ventana",
+        "new window",
+        "ventana nueva",
+        "popin",
+        "emerger",
+        "slide",
+        "deslizar",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "windowsIn"
+      ],
+      "icon": "open_in_new",
+      "backend": "animation",
+      "path": "windowsIn",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.windowsOut",
+      "section": "windows",
+      "label": "Close",
+      "description": "How a window disappears when you close it.",
+      "keywords": [
+        "close window",
+        "cerrar ventana",
+        "popin",
+        "emerger",
+        "fade",
+        "fundido",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "windowsOut"
+      ],
+      "icon": "close",
+      "backend": "animation",
+      "path": "windowsOut",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.windowsMove",
+      "section": "windows",
+      "label": "Move",
+      "description": "How windows travel to their new place when the layout changes or you move one.",
+      "help": "Moving a window with the mouse follows this animation only while “Animate windows dragged with the mouse” is on.",
+      "keywords": [
+        "move window",
+        "mover ventana",
+        "layout",
+        "distribución",
+        "tiling",
+        "mosaico",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "windowsMove"
+      ],
+      "icon": "open_with",
+      "backend": "animation",
+      "path": "windowsMove",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "hyprland.misc.animate_manual_resizes",
+      "section": "windows",
+      "label": "Animate manual resizing",
+      "description": "When you resize a window yourself, the change is animated instead of instant.",
+      "keywords": [
+        "Animate manual resizes",
+        "Animar al redimensionar",
+        "redimensionar",
+        "resize",
+        "tamaño"
+      ],
+      "icon": "aspect_ratio",
+      "backend": "hyprland",
+      "path": "misc.animate_manual_resizes",
+      "option": "misc:animate_manual_resizes",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.misc.animate_mouse_windowdragging",
+      "section": "windows",
+      "label": "Animate windows dragged with the mouse",
+      "description": "A window you drag follows the pointer with an animation instead of sticking to it.",
+      "help": "Some curves make the dragged window wobble or lag behind; turn this off if dragging feels unsteady.",
+      "keywords": [
+        "Animate window dragging",
+        "Animar al arrastrar",
+        "arrastrar",
+        "drag",
+        "mover"
+      ],
+      "icon": "drag_pan",
+      "backend": "hyprland",
+      "path": "misc.animate_mouse_windowdragging",
+      "option": "misc:animate_mouse_windowdragging",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "animation.workspaces",
+      "section": "workspaces",
+      "label": "Switch workspace",
+      "description": "How one workspace replaces the other when you change workspace.",
+      "keywords": [
+        "workspace",
+        "espacio de trabajo",
+        "change workspace",
+        "cambiar de espacio",
+        "slide",
+        "deslizar",
+        "fade",
+        "fundido",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "workspaces"
+      ],
+      "icon": "swap_horiz",
+      "backend": "animation",
+      "path": "workspaces",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.specialWorkspaceIn",
+      "section": "workspaces",
+      "label": "Show the auxiliary workspace",
+      "description": "How the auxiliary workspace (Super+S) appears over the current one.",
+      "keywords": [
+        "special workspace",
+        "espacio especial",
+        "espacio auxiliar",
+        "scratchpad",
+        "Super+S",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "specialWorkspaceIn"
+      ],
+      "icon": "visibility",
+      "backend": "animation",
+      "path": "specialWorkspaceIn",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.specialWorkspaceOut",
+      "section": "workspaces",
+      "label": "Hide the auxiliary workspace",
+      "description": "How the auxiliary workspace (Super+S) goes away and the current one comes back.",
+      "keywords": [
+        "special workspace",
+        "espacio especial",
+        "espacio auxiliar",
+        "scratchpad",
+        "Super+S",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "specialWorkspaceOut"
+      ],
+      "icon": "visibility_off",
+      "backend": "animation",
+      "path": "specialWorkspaceOut",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "hyprland.animations.workspace_wraparound",
+      "section": "workspaces",
+      "label": "Wraparound workspace slide",
+      "description": "Moving between the last and the first workspace slides as if they were next to each other.",
+      "keywords": [
+        "wraparound",
+        "workspace wraparound",
+        "circular",
+        "bucle",
+        "vuelta",
+        "deslizar"
+      ],
+      "icon": "all_inclusive",
+      "backend": "hyprland",
+      "path": "animations.workspace_wraparound",
+      "option": "animations:workspace_wraparound",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.general.gaps_workspaces",
+      "section": "workspaces",
+      "label": "Gap between workspaces while sliding",
+      "description": "Empty space between two workspaces during the slide animation, in pixels.",
+      "help": "It adds to the gap at the screen edges.",
+      "keywords": [
+        "gaps_workspaces",
+        "separación",
+        "espacio",
+        "hueco"
+      ],
+      "icon": "width",
+      "backend": "hyprland",
+      "path": "general.gaps_workspaces",
+      "option": "general:gaps_workspaces",
+      "type": "int",
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    },
+    {
+      "key": "animation.layersIn",
+      "section": "panels",
+      "label": "Open",
+      "description": "How long shell panels take to appear, and with which curve.",
+      "help": "Each panel keeps its own entrance: the sidebars slide in from their side, the bar slides in, the dock, the shortcut guide (Super+F1) and the on-screen keyboard (Super+K) rise from the bottom, and the wallpaper selector drops from the top. The volume and brightness indicator, the media controls, the bar tooltips, the authenticator (Super+O), the AI quota panel and the display controls (Super+P) pop in. Notification popups only fade in, with a curve of their own and a much shorter time than the one shown here; the overview (Super), the session menu, the region selector, the widget layer (Super+G) and the system password dialog (polkit) do not use this animation.",
+      "keywords": [
+        "layers",
+        "capas",
+        "panel",
+        "paneles",
+        "sidebar",
+        "barra lateral",
+        "dock",
+        "open panel",
+        "abrir panel",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "layersIn",
+        "polkit",
+        "authenticator",
+        "autenticador"
+      ],
+      "icon": "login",
+      "backend": "animation",
+      "path": "layersIn",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.layersOut",
+      "section": "panels",
+      "label": "Close",
+      "description": "How long shell panels take to go away, and with which curve.",
+      "help": "Each panel leaves the way it came in: the sidebars slide back to their side, the bar slides out, the dock, the shortcut guide (Super+F1) and the on-screen keyboard (Super+K) sink to the bottom, and the wallpaper selector rises to the top. The volume and brightness indicator, the media controls, the bar tooltips, the authenticator (Super+O), the AI quota panel and the display controls (Super+P) shrink away. Notification popups only fade out, with a curve of their own that this card does not change; the overview (Super), the session menu, the region selector, the widget layer (Super+G) and the system password dialog (polkit) do not use this animation.",
+      "keywords": [
+        "layers",
+        "capas",
+        "panel",
+        "paneles",
+        "sidebar",
+        "barra lateral",
+        "dock",
+        "close panel",
+        "cerrar panel",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "layersOut",
+        "polkit",
+        "authenticator",
+        "autenticador"
+      ],
+      "icon": "logout",
+      "backend": "animation",
+      "path": "layersOut",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.border",
+      "section": "details",
+      "label": "Border color change",
+      "description": "How the border color changes when another window takes the focus.",
+      "keywords": [
+        "border",
+        "borde",
+        "active border",
+        "borde activo",
+        "color",
+        "focus",
+        "foco",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "border"
+      ],
+      "icon": "border_color",
+      "backend": "animation",
+      "path": "border",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.zoomFactor",
+      "section": "details",
+      "label": "Screen zoom",
+      "description": "How the zoom moves when you zoom in or out with Super + = and Super + -.",
+      "keywords": [
+        "zoom",
+        "lupa",
+        "magnifier",
+        "acercar",
+        "alejar",
+        "Super + =",
+        "animation",
+        "animación",
+        "curve",
+        "curva",
+        "bezier",
+        "easing",
+        "duration",
+        "duración",
+        "speed",
+        "velocidad",
+        "style",
+        "estilo",
+        "zoomFactor"
+      ],
+      "icon": "zoom_in",
+      "backend": "animation",
+      "path": "zoomFactor",
+      "type": "custom",
+      "widget": "animation",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js",
+        "config/hypr/hyprland/general.lua"
+      ]
+    },
+    {
+      "key": "animation.curves",
+      "section": "curves",
+      "label": "Create and edit",
+      "description": "Make a curve from a starting point, name it and use it in any card above.",
+      "help": "A curve sets how an animation speeds up and slows down (a bezier or easing curve). A curve that a card uses cannot be deleted until that card uses another one.",
+      "keywords": [
+        "curve",
+        "curva",
+        "curvas",
+        "bezier",
+        "easing",
+        "editor",
+        "custom curve",
+        "curva propia",
+        "timing",
+        "aceleración"
+      ],
+      "icon": "timeline",
+      "backend": "animation",
+      "path": "curves",
+      "type": "custom",
+      "widget": "curveLibrary",
+      "enabledWhen": {
+        "capability": "animationsLoaded"
+      },
+      "consumers": [
+        "modules/settings/backends/AnimationLogic.js"
+      ]
+    },
+    {
+      "key": "appearance.animations.reduceMotion",
+      "section": "shellMotion",
+      "label": "Reduce motion in the shell",
+      "description": "Switches, sliders, menus and the transitions inside the shell's panels end instantly.",
+      "help": "Some effects still animate, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions; loading spinners keep turning and the speed below has no effect. For the desktop itself, turn off “Desktop animations” at the top of this page: the Minimal preset only shortens them.",
+      "keywords": [
+        "reduce motion",
+        "reduced motion",
+        "reducir movimiento",
+        "menos movimiento",
+        "sin animaciones",
+        "quitar animaciones",
+        "accesibilidad",
+        "accessibility",
+        "mareo",
+        "motion sickness",
+        "animaciones",
+        "movimiento"
+      ],
+      "icon": "accessibility_new",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.animations.durationScale",
+      "section": "shellMotion",
+      "label": "Speed of menus and transitions",
+      "description": "Changes how long switches, sliders and the transitions inside the shell's panels take.",
+      "help": "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed, and some effects ignore it, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions.",
+      "keywords": [
+        "Speed of the shell's motion",
+        "animation speed",
+        "shell animations",
+        "velocidad",
+        "velocidad de animaciones",
+        "animaciones",
+        "movimiento",
+        "rapidez",
+        "rápido",
+        "lento",
+        "transiciones",
+        "duration",
+        "duración"
+      ],
+      "icon": "speed",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": 0.5,
+          "label": "Very fast",
+          "description": "Transitions take half the usual time."
+        },
+        {
+          "value": 0.75,
+          "label": "Fast",
+          "description": "Transitions take three quarters of the usual time."
+        },
+        {
+          "value": 1,
+          "label": "Normal",
+          "description": "The speed the shell was designed with."
+        },
+        {
+          "value": 1.5,
+          "label": "Slow",
+          "description": "Transitions take one and a half times as long."
+        },
+        {
+          "value": 2,
+          "label": "Very slow",
+          "description": "Transitions take twice as long, so it is easier to follow what moves."
+        }
+      ],
+      "enabledWhen": {
+        "key": "appearance.animations.reduceMotion",
+        "notEquals": true
+      },
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "action.animations.applyMinimal",
+      "section": "shellMotion",
+      "label": "Minimal desktop animations",
+      "description": "The speed controls above do not change desktop animations; this button applies the Minimal preset to them.",
+      "keywords": [
+        "Minimal",
+        "Mínimo",
+        "reduce motion",
+        "reducir movimiento",
+        "menos movimiento",
+        "mareo",
+        "motion sickness",
+        "accesibilidad",
+        "Hyprland"
+      ],
+      "icon": "motion_photos_paused",
+      "backend": "action",
+      "type": "action",
+      "action": "applyMinimalPreset",
+      "actionLabel": "Apply Minimal",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "hyprland.animations.enabled",
+            "equals": true
+          },
+          {
+            "capability": "animationsLoaded"
+          }
+        ]
+      }
+    }
+  ]
+}

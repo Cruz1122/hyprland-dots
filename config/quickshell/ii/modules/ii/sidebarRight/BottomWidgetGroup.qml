@@ -17,6 +17,9 @@ Rectangle {
     property int selectedTab: Persistent.states.sidebar.bottomGroup.tab
     property int previousIndex: -1
     property bool collapsed: Persistent.states.sidebar.bottomGroup.collapsed
+    // Half of the scaled elementMove, shared by the two row fades and the
+    // timer that waits for them; never 0, which would finish synchronously.
+    readonly property int halfMoveDuration: Math.max(1, Math.round(Appearance.animation.elementMove.duration / 2))
     property var tabs: [
         {
             "type": "calendar",
@@ -58,7 +61,7 @@ Rectangle {
 
     Timer {
         id: collapseCleanFadeTimer
-        interval: Appearance.animation.elementMove.duration / 2
+        interval: root.halfMoveDuration
         repeat: false
         onTriggered: {
             if (collapsed)
@@ -87,7 +90,7 @@ Rectangle {
         Behavior on opacity {
             NumberAnimation {
                 id: collapsedBottomWidgetGroupRowFade
-                duration: Appearance.animation.elementMove.duration / 2
+                duration: root.halfMoveDuration
                 easing.type: Appearance.animation.elementMove.type
                 easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
             }
@@ -130,7 +133,7 @@ Rectangle {
         Behavior on opacity {
             NumberAnimation {
                 id: bottomWidgetGroupRowFade
-                duration: Appearance.animation.elementMove.duration / 2
+                duration: root.halfMoveDuration
                 easing.type: Appearance.animation.elementMove.type
                 easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
             }

@@ -86,6 +86,18 @@ QtObject {
         return b ? (b.unavailableReason || "Not available") : "Not available";
     }
 
+    // Optional backend hook statusNote(entry): an English source string about
+    // the row's current state (for example "Paused by Game Mode"), or "".
+    function statusNote(key) {
+        void root.revision;
+        const e = root.entry(key);
+        const b = root.backendFor(e);
+        if (!b || !b.available || typeof b.statusNote !== "function")
+            return "";
+        const note = b.statusNote(e);
+        return typeof note === "string" ? note : "";
+    }
+
     function hasCapability(name) {
         for (const backendName in root.backends) {
             const b = root.backends[backendName];

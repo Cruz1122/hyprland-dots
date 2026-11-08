@@ -25,6 +25,14 @@ Item {
         navigation.focusSearch();
     }
 
+    // "Requires …" chips ask to reveal a setting, possibly on another page.
+    Connections {
+        target: SettingsSession
+        function onRevealRequested(key) {
+            root.revealRequested(key);
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 8
@@ -67,6 +75,9 @@ Item {
                 currentPageId: root.currentPageId
                 onPageSelected: pageId => root.pageRequested(pageId)
                 onResultActivated: result => {
+                    // A hit found in the help text opens that help.
+                    if (result.kind === "entry" && result.helpMatched)
+                        SettingsSession.setHelpOpen(result.key, true);
                     if (result.kind === "entry")
                         root.revealRequested(result.key);
                     else if (result.kind === "section") {

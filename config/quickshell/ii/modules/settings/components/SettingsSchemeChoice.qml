@@ -15,9 +15,20 @@ RowLayout {
     property var row: null
     readonly property var options: (root.row?.entry?.options ?? []).map(o => ({
         value: o.value,
-        label: Translation.tr(String(o.label ?? o.value))
+        label: Translation.tr(String(o.label ?? o.value)),
+        description: o.description ? Translation.tr(o.description) : ""
     }))
     readonly property int currentIndex: root.options.findIndex(o => Logic.deepEqual(o.value, root.row?.value))
+    // The row shows the selected scheme's description as "Now: …", like
+    // SettingsSelectRow; this delegate replaces that row's own control.
+    readonly property string optionNote: root.currentIndex >= 0 && root.options[root.currentIndex].description ? Translation.tr("Now: %1").arg(root.options[root.currentIndex].description) : ""
+
+    Binding {
+        target: root.row
+        when: root.row !== null
+        property: "optionNote"
+        value: root.optionNote
+    }
 
     StyledComboBox {
         id: combo

@@ -42,6 +42,9 @@ QtObject {
             caps.push("multiMonitor");
         if (root.fileState === "unmanaged")
             caps.push("monitorsFileUnmanaged");
+        // hyprland.misc.vrr is enabled only when an output can use it.
+        if (DisplayLogic.anyVrrCapable(root.monitors))
+            caps.push("vrr");
         return caps;
     }
     property bool deferWrites: false

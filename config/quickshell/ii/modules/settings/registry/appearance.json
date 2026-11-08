@@ -7,12 +7,14 @@
     {
       "id": "color",
       "title": "Color",
-      "icon": "format_paint"
+      "icon": "format_paint",
+      "description": "Light or dark theme and how the palette is taken from the wallpaper."
     },
     {
       "id": "transparency",
       "title": "Transparency",
-      "icon": "opacity"
+      "icon": "opacity",
+      "description": "It only affects the shell, never app windows; turn it off for the clearest text."
     },
     {
       "id": "fonts",
@@ -24,12 +26,13 @@
       "id": "wallpaperTheming",
       "title": "Colors from the wallpaper",
       "icon": "auto_awesome",
-      "description": "Generated each time the wallpaper changes."
+      "description": "Generated each time the wallpaper changes; Apply now shows a change at once."
     },
     {
       "id": "shellWindows",
       "title": "Shell windows",
-      "icon": "web_asset"
+      "icon": "web_asset",
+      "description": "Windows of the shell itself, such as this Settings window."
     }
   ],
   "entries": [
@@ -37,7 +40,7 @@
       "key": "action.appearance.darkMode",
       "section": "color",
       "label": "Theme",
-      "description": "Light or dark colors, generated from the current wallpaper.",
+      "description": "Light or dark colors from the current wallpaper; Ctrl+Super+Shift+D switches them anywhere.",
       "keywords": [
         "dark mode",
         "light mode",
@@ -54,7 +57,7 @@
       "key": "appearance.palette.type",
       "section": "color",
       "label": "Color scheme",
-      "description": "How colors are picked from the wallpaper; the palette is regenerated on change.",
+      "description": "How the palette is built from the wallpaper; Auto picks Neutral for dull wallpapers and Tonal spot for the rest.",
       "keywords": [
         "material you",
         "matugen",
@@ -70,39 +73,48 @@
       "options": [
         {
           "value": "auto",
-          "label": "Auto"
+          "label": "Auto",
+          "description": "Neutral for wallpapers with little color, Tonal spot for the rest."
         },
         {
           "value": "scheme-content",
-          "label": "Content"
+          "label": "Content",
+          "description": "Colors close to the wallpaper's own, with their saturation."
         },
         {
           "value": "scheme-expressive",
-          "label": "Expressive"
+          "label": "Expressive",
+          "description": "Hues shifted away from the wallpaper for a bolder look."
         },
         {
           "value": "scheme-fidelity",
-          "label": "Fidelity"
+          "label": "Fidelity",
+          "description": "Keeps the wallpaper's main color as exact as possible."
         },
         {
           "value": "scheme-fruit-salad",
-          "label": "Fruit Salad"
+          "label": "Fruit Salad",
+          "description": "A playful mix of hues rotated away from the wallpaper's color."
         },
         {
           "value": "scheme-monochrome",
-          "label": "Monochrome"
+          "label": "Monochrome",
+          "description": "Shades of grey only."
         },
         {
           "value": "scheme-neutral",
-          "label": "Neutral"
+          "label": "Neutral",
+          "description": "Almost grey, with a faint tint of the wallpaper's color."
         },
         {
           "value": "scheme-rainbow",
-          "label": "Rainbow"
+          "label": "Rainbow",
+          "description": "Colorful accents over grey backgrounds."
         },
         {
           "value": "scheme-tonal-spot",
-          "label": "Tonal Spot"
+          "label": "Tonal Spot",
+          "description": "Calm, slightly muted colors from the wallpaper; the Material You default."
         }
       ],
       "consumers": [
@@ -132,7 +144,7 @@
       "key": "appearance.extraBackgroundTint",
       "section": "color",
       "label": "Extra background tint",
-      "description": "Tint panel backgrounds a little more with the accent color.",
+      "description": "Mix a touch of the accent color into the bar and panel backgrounds.",
       "icon": "format_color_fill",
       "backend": "config",
       "type": "bool",
@@ -143,12 +155,14 @@
     {
       "key": "appearance.transparency.enable",
       "section": "transparency",
-      "label": "Transparency",
-      "description": "Make panels and the bar see-through.",
+      "label": "See-through bar and panels",
+      "description": "The bar, sidebars and other panels let the wallpaper and windows behind them show through.",
       "keywords": [
         "translucent",
         "translúcido",
-        "transparencia"
+        "transparencia",
+        "Transparency",
+        "Transparencia"
       ],
       "icon": "opacity",
       "backend": "config",
@@ -162,7 +176,7 @@
       "key": "appearance.transparency.automatic",
       "section": "transparency",
       "label": "Automatic amount",
-      "description": "Pick the transparency from the wallpaper colors.",
+      "description": "Set the amount from the wallpaper colors; turn it off to choose the two amounts below by hand.",
       "icon": "auto_awesome",
       "backend": "config",
       "type": "bool",
@@ -178,7 +192,7 @@
       "key": "appearance.transparency.backgroundTransparency",
       "section": "transparency",
       "label": "Background transparency",
-      "description": "Transparency of panel backgrounds.",
+      "description": "How see-through the bar and panel backgrounds are; 0 % is solid.",
       "icon": "gradient",
       "backend": "config",
       "type": "real",
@@ -208,8 +222,12 @@
     {
       "key": "appearance.transparency.contentTransparency",
       "section": "transparency",
-      "label": "Content transparency",
-      "description": "Transparency of cards and buttons inside panels.",
+      "label": "Card and button transparency",
+      "description": "How see-through the cards and buttons inside panels are; 0 % is solid.",
+      "keywords": [
+        "Content transparency",
+        "Transparencia del contenido"
+      ],
       "icon": "layers",
       "backend": "config",
       "type": "real",
@@ -253,7 +271,7 @@
       "key": "appearance.fonts.title",
       "section": "fonts",
       "label": "Titles",
-      "description": "Headings and titles.",
+      "description": "Headings of dialogs and pages, the power menu and the rotating date of the analog clock.",
       "icon": "title",
       "backend": "config",
       "type": "font",
@@ -292,7 +310,7 @@
       "key": "appearance.fonts.iconNerd",
       "section": "fonts",
       "label": "Nerd Font icons",
-      "description": "Font that provides Nerd Font glyphs.",
+      "description": "Icon glyphs in buttons and in workspace labels; it must be a Nerd Font.",
       "icon": "emoji_symbols",
       "backend": "config",
       "type": "font",
@@ -305,7 +323,7 @@
       "key": "appearance.fonts.reading",
       "section": "fonts",
       "label": "Reading",
-      "description": "Long text such as notes and chat.",
+      "description": "The quote under the analog clock and its big hour numbers.",
       "icon": "menu_book",
       "backend": "config",
       "type": "font",
@@ -317,8 +335,14 @@
     {
       "key": "appearance.fonts.expressive",
       "section": "fonts",
-      "label": "Expressive",
-      "description": "Decorative text such as the welcome screen.",
+      "label": "Display font",
+      "description": "Large text such as the analog clock digits, the digital clock's date and quote, and the weather widget.",
+      "keywords": [
+        "Expressive",
+        "Expresivo",
+        "Display",
+        "Decorativa"
+      ],
       "icon": "brush",
       "backend": "config",
       "type": "font",
@@ -331,7 +355,8 @@
       "key": "appearance.wallpaperTheming.enableAppsAndShell",
       "section": "wallpaperTheming",
       "label": "Shell and apps",
-      "description": "Color the shell, GTK apps and tools from the wallpaper.",
+      "description": "Recolor the shell, GTK apps, window borders, the lock screen and fuzzel with each wallpaper.",
+      "help": "Turn it off to keep the current colors when the wallpaper changes.",
       "keywords": [
         "gtk",
         "matugen",
@@ -348,7 +373,7 @@
       "key": "appearance.wallpaperTheming.enableQtApps",
       "section": "wallpaperTheming",
       "label": "Qt apps",
-      "description": "Also color Qt and KDE apps.",
+      "description": "Also recolor Qt and KDE apps through the KDE color scheme.",
       "icon": "widgets",
       "backend": "config",
       "type": "bool",
@@ -363,8 +388,11 @@
     {
       "key": "appearance.wallpaperTheming.enableTerminal",
       "section": "wallpaperTheming",
-      "label": "Terminal",
-      "description": "Also generate terminal colors.",
+      "label": "Terminal colors",
+      "description": "Also recolor kitty and every terminal that is open.",
+      "keywords": [
+        "Terminal"
+      ],
       "icon": "terminal",
       "backend": "config",
       "type": "bool",
@@ -379,8 +407,13 @@
     {
       "key": "appearance.wallpaperTheming.terminalGenerationProps.harmony",
       "section": "wallpaperTheming",
-      "label": "Terminal harmony",
-      "description": "How much terminal colors lean towards the accent.",
+      "label": "Accent tint in the terminal",
+      "description": "How far each terminal color turns toward the accent hue; 0 % keeps the original colors.",
+      "keywords": [
+        "Terminal harmony",
+        "Armonía de la terminal",
+        "harmony"
+      ],
       "icon": "tune",
       "backend": "config",
       "type": "real",
@@ -402,8 +435,13 @@
     {
       "key": "appearance.wallpaperTheming.terminalGenerationProps.harmonizeThreshold",
       "section": "wallpaperTheming",
-      "label": "Harmonize threshold",
-      "description": "Colors further than this from the accent are left as they are.",
+      "label": "Maximum color shift",
+      "description": "Caps how many degrees of hue a terminal color can turn toward the accent; 0 keeps them all.",
+      "help": "A low value keeps red, green and yellow recognizable while the accent still tints them a little.",
+      "keywords": [
+        "Harmonize threshold",
+        "Umbral de armonización"
+      ],
       "icon": "linear_scale",
       "backend": "config",
       "type": "real",
@@ -412,6 +450,7 @@
       "max": 100,
       "step": 5,
       "decimals": 0,
+      "unit": "°",
       "enabledWhen": {
         "key": "appearance.wallpaperTheming.enableTerminal",
         "equals": true
@@ -423,8 +462,12 @@
     {
       "key": "appearance.wallpaperTheming.terminalGenerationProps.termFgBoost",
       "section": "wallpaperTheming",
-      "label": "Text contrast boost",
-      "description": "Make terminal text stand out more from its background.",
+      "label": "Terminal color contrast",
+      "description": "Make terminal colors brighter in dark mode, or darker in light mode, so they stand out from the background.",
+      "keywords": [
+        "Text contrast boost",
+        "Realce del contraste del texto"
+      ],
       "icon": "contrast",
       "backend": "config",
       "type": "real",
@@ -475,7 +518,7 @@
       "key": "windows.showTitlebar",
       "section": "shellWindows",
       "label": "Title bar",
-      "description": "Show a title bar on windows of the shell such as Settings.",
+      "description": "Show a title bar on the shell's own windows, such as Settings and the welcome app.",
       "icon": "title",
       "backend": "config",
       "type": "bool",
@@ -507,7 +550,7 @@
       "key": "appearance.fakeScreenRounding",
       "section": "shellWindows",
       "label": "Rounded screen corners",
-      "description": "Draw rounded corners on the edges of the screen.",
+      "description": "Draw rounded corners over the edges of the screen, like a display with rounded corners.",
       "keywords": [
         "corners",
         "esquinas",
@@ -528,7 +571,8 @@
         },
         {
           "value": 2,
-          "label": "Not in fullscreen"
+          "label": "Not in fullscreen",
+          "description": "Hidden while a window is fullscreen."
         }
       ],
       "consumers": [

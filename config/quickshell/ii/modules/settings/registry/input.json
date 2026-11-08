@@ -13,23 +13,26 @@
     {
       "id": "mouse",
       "title": "Mouse and pointer",
-      "icon": "mouse"
+      "icon": "mouse",
+      "description": "Pointer speed, acceleration, scrolling and focus for all apps."
     },
     {
       "id": "touchpad",
       "title": "Touchpad",
-      "icon": "touchpad_mouse"
+      "icon": "touchpad_mouse",
+      "description": "Taps, clicks and scrolling of the laptop touchpad."
     },
     {
       "id": "scrolling",
-      "title": "Scrolling in the shell",
+      "title": "Scrolling in shell lists",
       "icon": "swipe_vertical",
-      "description": "How lists and panels of the shell react to the mouse wheel and the touchpad."
+      "description": "Only the bar, panels and launcher; apps follow the Mouse and Touchpad sections."
     },
     {
       "id": "shortcuts",
       "title": "Keyboard shortcuts",
-      "icon": "keyboard_command_key"
+      "icon": "keyboard_command_key",
+      "description": "Every key combination currently active; Super+F1 shows a summary of the main ones anywhere."
     }
   ],
   "entries": [
@@ -81,8 +84,8 @@
     {
       "key": "hyprland.input.kb_options",
       "section": "keyboard",
-      "label": "XKB options",
-      "description": "Extra keyboard behavior, such as grp:alt_shift_toggle or caps:escape.",
+      "label": "Extra keyboard options",
+      "description": "Change special keys, e.g. caps:escape turns Caps Lock into Escape, grp:alt_shift_toggle switches layout with Alt+Shift.",
       "icon": "settings_applications",
       "backend": "hyprland",
       "path": "input.kb_options",
@@ -96,8 +99,11 @@
         "xkb",
         "opciones",
         "caps lock",
-        "compose"
-      ]
+        "compose",
+        "XKB options",
+        "Opciones XKB"
+      ],
+      "help": "The full list is in `man xkeyboard-config`."
     },
     {
       "key": "hyprland.input.repeat_rate",
@@ -117,7 +123,7 @@
       "key": "hyprland.input.repeat_delay",
       "section": "keyboard",
       "label": "Repeat delay",
-      "description": "Time a key must be held before it repeats.",
+      "description": "How long a key must be held before it starts repeating.",
       "icon": "timer",
       "backend": "hyprland",
       "path": "input.repeat_delay",
@@ -131,19 +137,24 @@
     {
       "key": "hyprland.input.numlock_by_default",
       "section": "keyboard",
-      "label": "Num Lock on at startup",
-      "description": "Turn Num Lock on when the session starts.",
+      "label": "Num Lock on at login",
+      "description": "The number pad types digits from the start of the session.",
       "icon": "dialpad",
       "backend": "hyprland",
       "path": "input.numlock_by_default",
       "option": "input:numlock_by_default",
-      "type": "bool"
+      "type": "bool",
+      "applies": "nextLogin",
+      "keywords": [
+        "Num Lock on at startup",
+        "Bloq Num activado al iniciar"
+      ]
     },
     {
       "key": "hyprland.input.sensitivity",
       "section": "mouse",
       "label": "Pointer speed",
-      "description": "Pointer sensitivity: 0 keeps the device speed.",
+      "description": "Slower (−1) or faster (+1) than the device's own speed.",
       "icon": "speed",
       "backend": "hyprland",
       "path": "input.sensitivity",
@@ -152,13 +163,15 @@
       "min": -1,
       "max": 1,
       "step": 0.05,
-      "decimals": 2
+      "decimals": 2,
+      "minLabel": "Slower",
+      "maxLabel": "Faster"
     },
     {
       "key": "hyprland.input.accel_profile",
       "section": "mouse",
       "label": "Acceleration",
-      "description": "How pointer speed follows the movement speed.",
+      "description": "Whether moving the mouse faster also makes the pointer travel further.",
       "icon": "trending_up",
       "backend": "hyprland",
       "path": "input.accel_profile",
@@ -168,34 +181,62 @@
       "options": [
         {
           "value": "",
-          "label": "Device default"
+          "label": "Device default",
+          "description": "Whatever the device and libinput choose."
         },
         {
           "value": "adaptive",
-          "label": "Adaptive"
+          "label": "Adaptive",
+          "description": "Faster movements travel further."
         },
         {
           "value": "flat",
-          "label": "Flat"
+          "label": "Flat",
+          "description": "Same distance at any speed; preferred for games."
         }
       ]
     },
     {
       "key": "hyprland.input.natural_scroll",
       "section": "mouse",
-      "label": "Natural scrolling",
-      "description": "Content moves in the same direction as the wheel.",
+      "label": "Reverse wheel direction",
+      "description": "Rolling the wheel down moves the content up, like on a phone.",
       "icon": "swap_vert",
       "backend": "hyprland",
       "path": "input.natural_scroll",
       "option": "input:natural_scroll",
-      "type": "bool"
+      "type": "bool",
+      "keywords": [
+        "Natural scrolling",
+        "Desplazamiento natural"
+      ]
+    },
+    {
+      "key": "hyprland.input.scroll_factor",
+      "section": "mouse",
+      "label": "Wheel scroll speed",
+      "description": "How far apps scroll per wheel notch of an external mouse; 1× is the normal distance.",
+      "keywords": [
+        "scroll factor",
+        "rueda",
+        "wheel"
+      ],
+      "icon": "unfold_more",
+      "backend": "hyprland",
+      "path": "input.scroll_factor",
+      "option": "input:scroll_factor",
+      "type": "real",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1,
+      "decimals": 1,
+      "unit": "×"
     },
     {
       "key": "hyprland.input.follow_mouse",
       "section": "mouse",
-      "label": "Focus follows the mouse",
-      "description": "How keyboard focus follows the pointer.",
+      "label": "Which window gets the keyboard",
+      "description": "Choose whether typing goes to the window under the pointer or to the one you clicked.",
       "icon": "ads_click",
       "backend": "hyprland",
       "path": "input.follow_mouse",
@@ -205,19 +246,61 @@
       "options": [
         {
           "value": 0,
-          "label": "Click to focus"
+          "label": "On click",
+          "description": "A window gets the keyboard only when you click it."
         },
         {
           "value": 1,
-          "label": "Always follow"
+          "label": "Under the pointer",
+          "description": "Moving the pointer over a window gives it the keyboard."
         },
         {
           "value": 2,
-          "label": "Detached from the keyboard"
+          "label": "Pointer free, keyboard on click",
+          "description": "Scrolling and hovering reach the window under the pointer; typing goes to the last one you clicked."
         },
         {
           "value": 3,
-          "label": "Separate for mouse and keyboard"
+          "label": "Fully independent",
+          "description": "The pointer never moves the keyboard focus, not even when you click."
+        }
+      ],
+      "keywords": [
+        "Focus follows the mouse",
+        "El foco sigue al ratón",
+        "follow mouse"
+      ]
+    },
+    {
+      "key": "hyprland.input.focus_on_close",
+      "section": "mouse",
+      "label": "Focus after closing a window",
+      "description": "Which window gets the keyboard when the active one closes.",
+      "keywords": [
+        "focus on close",
+        "foco al cerrar"
+      ],
+      "icon": "close_fullscreen",
+      "backend": "hyprland",
+      "path": "input.focus_on_close",
+      "option": "input:focus_on_close",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Next in the layout",
+          "description": "Hyprland picks the window next to the closed one."
+        },
+        {
+          "value": 1,
+          "label": "Under the pointer",
+          "description": "The window the pointer is over."
+        },
+        {
+          "value": 2,
+          "label": "Last used",
+          "description": "The window you used just before the closed one."
         }
       ]
     },
@@ -225,7 +308,7 @@
       "key": "hyprland.cursor.inactive_timeout",
       "section": "mouse",
       "label": "Hide idle cursor",
-      "description": "Seconds without movement before the cursor hides; 0 never hides it.",
+      "description": "Seconds without movement before the pointer hides; 0 never hides it.",
       "icon": "visibility_off",
       "backend": "hyprland",
       "path": "cursor.inactive_timeout",
@@ -238,10 +321,25 @@
       "unit": "s"
     },
     {
+      "key": "hyprland.cursor.hide_on_key_press",
+      "section": "mouse",
+      "label": "Hide the pointer while typing",
+      "description": "Pressing any key hides the pointer until you move the mouse again.",
+      "keywords": [
+        "hide cursor",
+        "ocultar cursor"
+      ],
+      "icon": "keyboard_hide",
+      "backend": "hyprland",
+      "path": "cursor.hide_on_key_press",
+      "option": "cursor:hide_on_key_press",
+      "type": "bool"
+    },
+    {
       "key": "hyprland.input.touchpad.disable_while_typing",
       "section": "touchpad",
-      "label": "Disable while typing",
-      "description": "Ignore the touchpad while you type.",
+      "label": "Ignore while typing",
+      "description": "Touches do nothing while you type, so your palm does not move the pointer.",
       "icon": "keyboard_hide",
       "backend": "hyprland",
       "path": "input.touchpad.disable_while_typing",
@@ -249,7 +347,11 @@
       "type": "bool",
       "visibleWhen": {
         "capability": "touchpad"
-      }
+      },
+      "keywords": [
+        "Disable while typing",
+        "Desactivar al escribir"
+      ]
     },
     {
       "key": "hyprland.input.touchpad.tap_to_click",
@@ -266,10 +368,69 @@
       }
     },
     {
+      "key": "hyprland.input.touchpad.tap_and_drag",
+      "section": "touchpad",
+      "label": "Tap and drag",
+      "description": "Tap, then touch again and move to drag; lifting the finger drops the item.",
+      "keywords": [
+        "tap-and-drag",
+        "drag",
+        "arrastrar"
+      ],
+      "icon": "drag_pan",
+      "backend": "hyprland",
+      "path": "input.touchpad.tap_and_drag",
+      "option": "input:touchpad:tap-and-drag",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.input.touchpad.drag_lock",
+      "section": "touchpad",
+      "label": "Keep dragging after lifting",
+      "description": "Lets you lift the finger during a tap-and-drag, e.g. to reach the other side of the touchpad.",
+      "keywords": [
+        "drag lock",
+        "bloqueo de arrastre"
+      ],
+      "icon": "lock",
+      "backend": "hyprland",
+      "path": "input.touchpad.drag_lock",
+      "option": "input:touchpad:drag_lock",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Off",
+          "description": "Lifting the finger drops the item."
+        },
+        {
+          "value": 1,
+          "label": "Briefly",
+          "description": "The drag ends if you do not touch again shortly after lifting."
+        },
+        {
+          "value": 2,
+          "label": "Until you tap",
+          "description": "The drag continues until you tap once more."
+        }
+      ],
+      "visibleWhen": {
+        "capability": "touchpad"
+      },
+      "enabledWhen": {
+        "key": "hyprland.input.touchpad.tap_and_drag",
+        "equals": true
+      }
+    },
+    {
       "key": "hyprland.input.touchpad.natural_scroll",
       "section": "touchpad",
       "label": "Natural scrolling",
-      "description": "Content follows your fingers.",
+      "description": "Content follows your fingers, like on a phone.",
       "icon": "swap_vert",
       "backend": "hyprland",
       "path": "input.touchpad.natural_scroll",
@@ -283,7 +444,7 @@
       "key": "hyprland.input.touchpad.scroll_factor",
       "section": "touchpad",
       "label": "Scroll speed",
-      "description": "Multiplier of the touchpad scroll distance.",
+      "description": "How far apps scroll for the same finger movement; 1× is the normal distance.",
       "icon": "speed",
       "backend": "hyprland",
       "path": "input.touchpad.scroll_factor",
@@ -301,8 +462,8 @@
     {
       "key": "hyprland.input.touchpad.clickfinger_behavior",
       "section": "touchpad",
-      "label": "Click with fingers",
-      "description": "Two- and three-finger presses give right and middle click instead of touchpad areas.",
+      "label": "Click by number of fingers",
+      "description": "Pressing with two or three fingers gives right or middle click, instead of pressing the bottom corners.",
       "icon": "back_hand",
       "backend": "hyprland",
       "path": "input.touchpad.clickfinger_behavior",
@@ -310,26 +471,34 @@
       "type": "bool",
       "visibleWhen": {
         "capability": "touchpad"
-      }
+      },
+      "keywords": [
+        "Click with fingers",
+        "Clic con dedos"
+      ]
     },
     {
       "key": "interactions.scrolling.fasterTouchpadScroll",
       "section": "scrolling",
-      "label": "Custom scroll speed",
-      "description": "Shell lists use the speeds below instead of the default scrolling.",
+      "label": "Custom scrolling in shell lists",
+      "description": "Shell lists and panels use the speeds below; off uses Qt's standard scrolling.",
       "icon": "fast_forward",
       "backend": "config",
       "type": "bool",
       "consumers": [
         "modules/common/widgets/StyledFlickable.qml",
         "modules/common/widgets/StyledListView.qml"
+      ],
+      "keywords": [
+        "Custom scroll speed",
+        "Velocidad de desplazamiento personalizada"
       ]
     },
     {
       "key": "interactions.scrolling.mouseScrollFactor",
       "section": "scrolling",
-      "label": "Mouse wheel speed",
-      "description": "Distance the shell lists scroll per wheel step.",
+      "label": "Pixels per wheel notch",
+      "description": "How far a shell list moves for each notch of the mouse wheel.",
       "icon": "mouse",
       "backend": "config",
       "type": "int",
@@ -344,13 +513,17 @@
       "consumers": [
         "modules/common/widgets/StyledFlickable.qml",
         "modules/common/widgets/StyledListView.qml"
+      ],
+      "keywords": [
+        "Mouse wheel speed",
+        "Velocidad de la rueda del ratón"
       ]
     },
     {
       "key": "interactions.scrolling.touchpadScrollFactor",
       "section": "scrolling",
-      "label": "Touchpad scroll speed",
-      "description": "Distance the shell lists scroll per touchpad movement.",
+      "label": "Touchpad speed",
+      "description": "How far a shell list moves for the same finger movement; higher scrolls further.",
       "icon": "speed",
       "backend": "config",
       "type": "int",
@@ -364,13 +537,19 @@
       "consumers": [
         "modules/common/widgets/StyledFlickable.qml",
         "modules/common/widgets/StyledListView.qml"
+      ],
+      "minLabel": "Slower",
+      "maxLabel": "Faster",
+      "keywords": [
+        "Touchpad scroll speed",
+        "Velocidad del panel táctil"
       ]
     },
     {
       "key": "interactions.scrolling.mouseScrollDeltaThreshold",
       "section": "scrolling",
-      "label": "Wheel step threshold",
-      "description": "Scroll deltas at or above this value count as mouse wheel steps instead of touchpad movement.",
+      "label": "Mouse or touchpad detection",
+      "description": "Leave it at 120 unless your mouse is detected as a touchpad; 120 equals one wheel notch.",
       "icon": "tune",
       "backend": "config",
       "type": "int",
@@ -384,13 +563,18 @@
       "consumers": [
         "modules/common/widgets/StyledFlickable.qml",
         "modules/common/widgets/StyledListView.qml"
+      ],
+      "help": "Scroll events at or above this value count as wheel notches; smaller ones count as touchpad movement.",
+      "keywords": [
+        "Wheel step threshold",
+        "Umbral del paso de la rueda"
       ]
     },
     {
       "key": "info.input.shortcuts",
       "section": "shortcuts",
-      "label": "Shortcuts",
-      "description": "Every key binding Hyprland has loaded; edit them in your custom keybinds file.",
+      "label": "Active shortcuts",
+      "description": "Every key binding Hyprland has loaded; add your own in hypr/custom/keybinds.lua.",
       "icon": "keyboard_command_key",
       "backend": "readonly",
       "type": "custom",
@@ -399,7 +583,9 @@
         "keybinds",
         "atajos",
         "binds",
-        "teclas"
+        "teclas",
+        "Shortcuts",
+        "Atajos"
       ]
     }
   ]

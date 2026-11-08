@@ -4,6 +4,7 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
 import qs.modules.settings.core
+import "../core/SettingsLogic.js" as Logic
 
 // Renders a registry page: header, then every section and entry in registry
 // order with the row variant chosen by entry.widget.
@@ -46,6 +47,10 @@ StyledFlickable {
         "device": "SettingsDeviceRow.qml",
         "action": "SettingsActionRow.qml",
         "info": "SettingsInfoRow.qml",
+        "banner": "SettingsBannerRow.qml",
+        "animation": "SettingsAnimationRow.qml",
+        "animationPreset": "SettingsAnimationPresetRow.qml",
+        "curveLibrary": "SettingsCurveLibraryRow.qml",
         "custom": "SettingsCustomRow.qml"
     })
 
@@ -54,6 +59,21 @@ StyledFlickable {
     contentHeight: column.implicitHeight + 2 * page.margin
     Accessible.role: Accessible.Pane
     Accessible.name: Translation.tr(page.pageData?.title ?? "")
+
+    // English reason shown once at the top of a section when every visible,
+    // writable row in it is unavailable for that same reason, else "".
+    function sectionBannerReason(sectionId) {
+        void SettingsStore.revision;
+        return Logic.sectionBannerReason(page.entries.filter(e => e.section === sectionId).map(e => {
+            const available = SettingsStore.isAvailable(e.key);
+            return {
+                visible: SettingsStore.isVisible(e.key),
+                writable: Logic.isWritable(e),
+                available: available,
+                reason: available ? "" : SettingsStore.unavailableReason(e.key)
+            };
+        }));
+    }
 
     function findItem(item, name) {
         if (!item)
@@ -245,6 +265,7 @@ StyledFlickable {
                 id: section
                 required property var modelData
                 readonly property var sectionEntries: page.entries.filter(e => e.section === section.modelData.id)
+                readonly property var sectionKeys: section.sectionEntries.map(e => e.key)
                 readonly property bool anyVisible: {
                     void SettingsStore.revision;
                     return section.sectionEntries.some(e => SettingsStore.isVisible(e.key));
@@ -256,20 +277,49 @@ StyledFlickable {
                 title: Translation.tr(section.modelData.title)
                 icon: section.modelData.icon
                 description: section.modelData.description ? Translation.tr(section.modelData.description) : ""
+                bannerText: {
+                    const reason = page.sectionBannerReason(section.modelData.id);
+                    return reason ? Translation.tr(reason) : "";
+                }
 
                 Repeater {
                     model: section.sectionEntries
 
-                    delegate: Loader {
-                        id: rowLoader
+                    // Rows that depend on another row of this section are
+                    // indented under it with a guide line.
+                    delegate: Item {
+                        id: rowSlot
                         required property var modelData
+                        readonly property bool dependent: Logic.sectionDependencies(rowSlot.modelData, section.sectionKeys).length > 0
+
                         Layout.fillWidth: true
-                        visible: (SettingsStore.revision, SettingsStore.isVisible(rowLoader.modelData.key))
-                        Component.onCompleted: rowLoader.setSource(Qt.resolvedUrl(page.rowSources[rowLoader.modelData.widget] ?? "SettingsCustomRow.qml"), {
-                            settingKey: rowLoader.modelData.key,
-                            listedEntry: rowLoader.modelData,
-                            page: page
-                        })
+                        implicitHeight: rowLoader.implicitHeight
+                        visible: (SettingsStore.revision, SettingsStore.isVisible(rowSlot.modelData.key))
+
+                        Rectangle {
+                            visible: rowSlot.dependent
+                            anchors.left: parent.left
+                            anchors.leftMargin: SettingsMetrics.dependentIndent / 2
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.topMargin: 6
+                            anchors.bottomMargin: 6
+                            implicitWidth: 2
+                            radius: 1
+                            color: Appearance.colors.colOutlineVariant
+                        }
+
+                        Loader {
+                            id: rowLoader
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.leftMargin: rowSlot.dependent ? SettingsMetrics.dependentIndent : 0
+                            Component.onCompleted: rowLoader.setSource(Qt.resolvedUrl(page.rowSources[rowSlot.modelData.widget] ?? "SettingsCustomRow.qml"), {
+                                settingKey: rowSlot.modelData.key,
+                                listedEntry: rowSlot.modelData,
+                                page: page
+                            })
+                        }
                     }
                 }
             }

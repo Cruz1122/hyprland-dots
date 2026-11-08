@@ -7,28 +7,32 @@
     {
       "id": "profile",
       "title": "Power profile",
-      "icon": "speed"
+      "icon": "speed",
+      "description": "The same modes as the power quick toggle; Performance only appears when your hardware offers it."
     },
     {
       "id": "battery",
       "title": "Battery",
-      "icon": "battery_full"
+      "icon": "battery_full",
+      "description": "Notices and automatic suspend based on the battery level."
     },
     {
       "id": "idle",
       "title": "When idle",
       "icon": "timer",
-      "description": "Each step must happen at the same time or after the one above it."
+      "description": "What happens while you leave the computer idle; each step must come at or after the one above."
     },
     {
       "id": "lock",
       "title": "Lock screen",
-      "icon": "lock"
+      "icon": "lock",
+      "description": "How the session locks (Super+L) and what unlocking does."
     },
     {
       "id": "lockStyle",
       "title": "Lock screen style",
-      "icon": "palette"
+      "icon": "palette",
+      "description": "Look of the built-in lock screen; it does not apply to Hyprlock."
     }
   ],
   "entries": [
@@ -52,17 +56,20 @@
         {
           "value": "power-saver",
           "label": "Power saver",
-          "icon": "energy_savings_leaf"
+          "icon": "energy_savings_leaf",
+          "description": "Slower, cooler and quieter; the battery lasts longer."
         },
         {
           "value": "balanced",
           "label": "Balanced",
-          "icon": "airwave"
+          "icon": "airwave",
+          "description": "The usual balance between speed and power use."
         },
         {
           "value": "performance",
           "label": "Performance",
-          "icon": "local_fire_department"
+          "icon": "local_fire_department",
+          "description": "Full speed for games or heavy work, with more heat, fan noise and power use."
         }
       ]
     },
@@ -70,7 +77,7 @@
       "key": "battery.low",
       "section": "battery",
       "label": "Low battery warning",
-      "description": "Battery level that shows the low battery warning.",
+      "description": "At this level or below, while unplugged, you get a notice and the battery icon in the bar turns red.",
       "icon": "battery_3_bar",
       "backend": "config",
       "type": "int",
@@ -91,7 +98,7 @@
       "key": "battery.critical",
       "section": "battery",
       "label": "Critical battery warning",
-      "description": "Battery level that shows the critical battery warning.",
+      "description": "At this level or below, while unplugged, you get an urgent notice that also shows the suspend level.",
       "icon": "battery_alert",
       "backend": "config",
       "type": "int",
@@ -111,8 +118,7 @@
       "key": "battery.full",
       "section": "battery",
       "label": "Full charge notice",
-      "description": "Battery level that shows the fully charged notice.",
-      "note": "101% turns the notice off.",
+      "description": "While charging, a notice tells you to unplug at this level; at 101% it never appears.",
       "icon": "battery_full",
       "backend": "config",
       "type": "int",
@@ -132,7 +138,13 @@
       "key": "battery.automaticSuspend",
       "section": "battery",
       "label": "Suspend on low battery",
-      "description": "Suspend the system automatically when the battery runs out.",
+      "description": "Suspends the computer when the battery reaches the “Suspend at” level and is not charging.",
+      "keywords": [
+        "battery runs out",
+        "batería se agota",
+        "drops to the level below",
+        "baja al nivel de abajo"
+      ],
       "icon": "bedtime",
       "backend": "config",
       "type": "bool",
@@ -147,7 +159,7 @@
       "key": "battery.suspend",
       "section": "battery",
       "label": "Suspend at",
-      "description": "Battery level that triggers the automatic suspend.",
+      "description": "Battery level at which the computer suspends while it is not charging.",
       "icon": "battery_0_bar",
       "backend": "config",
       "type": "int",
@@ -171,7 +183,8 @@
       "key": "action.power.applyIdle",
       "section": "idle",
       "label": "Idle timeouts are not applied",
-      "description": "The hypridle file does not match these settings.",
+      "description": "The idle service still uses other times; apply them so the screen locks and turns off as set below.",
+      "help": "They are written to ~/.config/hypr/custom/shell-idle.conf and hypridle restarts.",
       "icon": "sync_problem",
       "backend": "action",
       "type": "action",
@@ -186,7 +199,7 @@
       "key": "action.power.replaceIdle",
       "section": "idle",
       "label": "Idle file edited by hand",
-      "description": "~/.config/hypr/custom/shell-idle.conf was not written by Settings; replacing it discards those edits.",
+      "description": "The times below are not applied until you replace ~/.config/hypr/custom/shell-idle.conf; your edits there are lost.",
       "icon": "warning",
       "backend": "action",
       "type": "action",
@@ -357,8 +370,12 @@
       "key": "lock.useHyprlock",
       "section": "lock",
       "label": "Use Hyprlock",
-      "description": "Lock with Hyprlock instead of the shell lock screen.",
-      "note": "Useful for fingerprint unlock.",
+      "description": "Locking opens Hyprlock, a separate lock screen app, instead of the built-in lock screen.",
+      "help": "Hyprlock can unlock with a fingerprint reader if you set it up in ~/.config/hypr/hyprlock.conf. The style below, the keyring and the power password only apply to the built-in screen.",
+      "keywords": [
+        "fingerprint",
+        "huella"
+      ],
       "icon": "fingerprint",
       "backend": "config",
       "type": "bool",
@@ -370,7 +387,9 @@
       "key": "lock.launchOnStartup",
       "section": "lock",
       "label": "Lock on startup",
-      "description": "Lock the session as soon as the shell starts.",
+      "description": "Locks the session right after you log in; restarting the shell does not lock it.",
+      "help": "Useful with automatic login, so the desktop is never shown unlocked.",
+      "applies": "nextLogin",
       "icon": "login",
       "backend": "config",
       "type": "bool",
@@ -382,7 +401,7 @@
       "key": "lock.security.unlockKeyring",
       "section": "lock",
       "label": "Also unlock the keyring",
-      "description": "Unlock the GNOME keyring with your password when unlocking.",
+      "description": "Unlocking with your password also unlocks the GNOME keyring, where apps keep saved passwords.",
       "icon": "key",
       "backend": "config",
       "type": "bool",
@@ -407,7 +426,7 @@
       "key": "lock.centerClock",
       "section": "lockStyle",
       "label": "Center the clock",
-      "description": "Show the clock in the middle of the lock screen.",
+      "description": "Moves the desktop clock to the middle of the screen while it is locked.",
       "icon": "schedule",
       "backend": "config",
       "type": "bool",
@@ -431,7 +450,7 @@
       "key": "lock.materialShapeChars",
       "section": "lockStyle",
       "label": "Shapes for password characters",
-      "description": "Draw each typed character as a different shape.",
+      "description": "Each typed character appears as a different shape instead of a dot.",
       "icon": "interests",
       "backend": "config",
       "type": "bool",
@@ -443,7 +462,8 @@
       "key": "lock.blur.enable",
       "section": "lockStyle",
       "label": "Blur the wallpaper",
-      "description": "Blur the wallpaper while the screen is locked.",
+      "description": "While locked, the wallpaper behind the clock is blurred and slightly darkened.",
+      "cost": "gpu",
       "icon": "blur_on",
       "backend": "config",
       "type": "bool",
@@ -455,7 +475,7 @@
       "key": "lock.blur.radius",
       "section": "lockStyle",
       "label": "Blur strength",
-      "description": "How strongly the wallpaper is blurred.",
+      "description": "Blur radius; at 0 the wallpaper stays sharp.",
       "icon": "blur_medium",
       "backend": "config",
       "type": "real",
@@ -464,6 +484,7 @@
       "max": 200,
       "step": 5,
       "decimals": 0,
+      "unit": "px",
       "enabledWhen": {
         "key": "lock.blur.enable",
         "equals": true
@@ -475,8 +496,12 @@
     {
       "key": "lock.blur.extraZoom",
       "section": "lockStyle",
-      "label": "Wallpaper zoom",
-      "description": "Zoom the blurred wallpaper to hide its edges.",
+      "label": "Zoom of the blurred wallpaper",
+      "description": "Enlarges the wallpaper while locked so its blurred edges stay off screen.",
+      "keywords": [
+        "Wallpaper zoom",
+        "Zoom del fondo"
+      ],
       "icon": "zoom_in",
       "backend": "config",
       "type": "real",

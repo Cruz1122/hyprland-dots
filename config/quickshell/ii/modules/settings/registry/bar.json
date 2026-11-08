@@ -8,43 +8,50 @@
     {
       "id": "layout",
       "title": "Layout",
-      "icon": "dashboard"
+      "icon": "dashboard",
+      "description": "Where the bar sits and how it looks; Super+J shows or hides it."
     },
     {
       "id": "autoHide",
       "title": "Auto-hide",
-      "icon": "visibility_off"
+      "icon": "visibility_off",
+      "description": "Hide the bar until the pointer reaches its edge, to gain screen space."
     },
     {
       "id": "workspaces",
       "title": "Workspaces",
-      "icon": "workspaces"
+      "icon": "workspaces",
+      "description": "The workspace indicator of the bar; right-click it to open the overview."
     },
     {
       "id": "buttons",
       "title": "Buttons",
-      "icon": "smart_button"
+      "icon": "smart_button",
+      "description": "Buttons next to the clock, shown with “Show song title and buttons” on screens over 1200 px wide."
     },
     {
       "id": "indicators",
       "title": "Indicators and tooltips",
-      "icon": "notifications"
+      "icon": "notifications",
+      "description": "Badges and the details that bar modules open on hover or click."
     },
     {
       "id": "resources",
       "title": "Resources",
       "icon": "memory",
-      "description": "Shown in the vertical bar."
+      "description": "Usage meters of the vertical bar, shown only when the bar is on a side."
     },
     {
       "id": "weather",
       "title": "Weather",
-      "icon": "partly_cloudy_day"
+      "icon": "partly_cloudy_day",
+      "description": "Weather module of the horizontal bar; the location and units are set in Services."
     },
     {
       "id": "tray",
       "title": "System tray",
-      "icon": "shelf_auto_hide"
+      "icon": "shelf_auto_hide",
+      "description": "Icons of apps running in the background, such as Steam or an input method."
     }
   ],
   "entries": [
@@ -83,8 +90,12 @@
     {
       "key": "bar.cornerStyle",
       "section": "layout",
-      "label": "Style",
-      "description": "Hug blends the bar into the screen corners.",
+      "label": "Bar shape",
+      "description": "How the bar meets the edges and corners of the screen.",
+      "keywords": [
+        "Style",
+        "Estilo"
+      ],
       "icon": "rounded_corner",
       "backend": "config",
       "type": "enum",
@@ -92,15 +103,18 @@
       "options": [
         {
           "value": 0,
-          "label": "Hug"
+          "label": "Hug",
+          "description": "Spans the edge and curves into the rounded screen corners."
         },
         {
           "value": 1,
-          "label": "Float"
+          "label": "Float",
+          "description": "Floats with a gap and rounded corners."
         },
         {
           "value": 2,
-          "label": "Rectangle"
+          "label": "Rectangular",
+          "description": "Spans the edge with square corners."
         }
       ],
       "consumers": [
@@ -113,8 +127,12 @@
     {
       "key": "bar.floatStyleShadow",
       "section": "layout",
-      "label": "Floating shadow",
-      "description": "Draw a shadow under the floating bar.",
+      "label": "Shadow under the bar",
+      "description": "Add a soft shadow below the floating bar so it stands out from windows.",
+      "keywords": [
+        "Floating shadow",
+        "Sombra flotante"
+      ],
       "icon": "shadow",
       "backend": "config",
       "type": "bool",
@@ -129,8 +147,12 @@
     {
       "key": "bar.borderless",
       "section": "layout",
-      "label": "Grouping",
-      "description": "How modules are grouped.",
+      "label": "Module grouping",
+      "description": "How the bar separates its groups of modules.",
+      "keywords": [
+        "Grouping",
+        "Agrupación"
+      ],
       "icon": "view_column",
       "backend": "config",
       "type": "enum",
@@ -138,11 +160,13 @@
       "options": [
         {
           "value": false,
-          "label": "Pills"
+          "label": "Pills",
+          "description": "Each group sits on its own rounded box."
         },
         {
           "value": true,
-          "label": "Separators"
+          "label": "Separators",
+          "description": "No boxes; thin lines separate the groups."
         }
       ],
       "consumers": [
@@ -155,8 +179,12 @@
     {
       "key": "bar.showBackground",
       "section": "layout",
-      "label": "Background",
-      "description": "Draw the bar background.",
+      "label": "Bar background",
+      "description": "Draw a solid strip behind the modules; off leaves them floating over the wallpaper.",
+      "keywords": [
+        "Background",
+        "Fondo"
+      ],
       "icon": "rectangle",
       "backend": "config",
       "type": "bool",
@@ -170,8 +198,12 @@
     {
       "key": "bar.verbose",
       "section": "layout",
-      "label": "Detailed",
-      "description": "Show more text in modules such as media and the clock.",
+      "label": "Show song title and buttons",
+      "description": "Show the playing song in the media module and the buttons next to the clock; the center gets wider.",
+      "keywords": [
+        "Detailed",
+        "Detallada"
+      ],
       "icon": "notes",
       "backend": "config",
       "type": "bool",
@@ -185,7 +217,7 @@
       "key": "bar.topLeftIcon",
       "section": "layout",
       "label": "Corner icon",
-      "description": "Icon of the left sidebar button.",
+      "description": "Logo on the button that opens the left sidebar (Super+A).",
       "icon": "image",
       "backend": "config",
       "type": "enum",
@@ -281,8 +313,12 @@
     {
       "key": "bar.autoHide.hoverRegionWidth",
       "section": "autoHide",
-      "label": "Reveal zone",
-      "description": "Thickness of the edge that reveals the bar.",
+      "label": "Bar reveal zone",
+      "description": "Thickness of the screen edge that brings the bar back when the pointer touches it.",
+      "keywords": [
+        "Reveal zone",
+        "Zona para mostrar"
+      ],
       "icon": "border_outer",
       "backend": "config",
       "type": "int",
@@ -303,7 +339,7 @@
       "key": "bar.autoHide.pushWindows",
       "section": "autoHide",
       "label": "Push windows",
-      "description": "Make room for the bar while it shows.",
+      "description": "While the bar shows, tiled windows make room for it instead of being covered.",
       "icon": "expand",
       "backend": "config",
       "type": "bool",
@@ -320,7 +356,7 @@
       "key": "bar.autoHide.showWhenPressingSuper.enable",
       "section": "autoHide",
       "label": "Show while holding Super",
-      "description": "Holding Super shows the bar and workspace numbers.",
+      "description": "Holding Super reveals the hidden bar and shows the workspace numbers.",
       "icon": "keyboard_command_key",
       "backend": "config",
       "type": "bool",
@@ -333,8 +369,13 @@
     {
       "key": "bar.autoHide.showWhenPressingSuper.delay",
       "section": "autoHide",
-      "label": "Delay",
-      "description": "How long Super must be held.",
+      "label": "Delay before showing",
+      "description": "How long Super must be held first, so a quick press does not flash them.",
+      "keywords": [
+        "Delay",
+        "Retraso",
+        "retardo"
+      ],
       "icon": "timer",
       "backend": "config",
       "type": "int",
@@ -356,7 +397,13 @@
     {
       "key": "bar.workspaces.shown",
       "section": "workspaces",
-      "label": "Workspaces shown",
+      "label": "Workspaces per group",
+      "description": "How many workspaces the indicator shows at once; higher ones appear as the next group.",
+      "help": "It also sets how far the wallpaper slides per workspace.",
+      "keywords": [
+        "Workspaces shown",
+        "Espacios de trabajo mostrados"
+      ],
       "icon": "filter_9_plus",
       "backend": "config",
       "type": "int",
@@ -383,7 +430,12 @@
     {
       "key": "bar.workspaces.monochromeIcons",
       "section": "workspaces",
-      "label": "Tint app icons",
+      "label": "Monochrome app icons",
+      "description": "Draw the app icons in one muted color instead of their own colors.",
+      "keywords": [
+        "Tint app icons",
+        "Colorear iconos de aplicaciones"
+      ],
       "icon": "format_color_fill",
       "backend": "config",
       "type": "bool",
@@ -399,6 +451,7 @@
       "key": "bar.workspaces.alwaysShowNumbers",
       "section": "workspaces",
       "label": "Always show numbers",
+      "description": "Show the workspace number instead of a dot on workspaces without an app icon.",
       "icon": "pin",
       "backend": "config",
       "type": "bool",
@@ -411,6 +464,7 @@
       "section": "workspaces",
       "label": "Workspace labels",
       "description": "Text shown instead of each number, in order.",
+      "help": "The first item replaces 1, the second 2, and so on; for example 一, 二, 三. Turn on “Nerd Font labels” to use icon glyphs.",
       "icon": "label",
       "backend": "config",
       "type": "list",
@@ -436,6 +490,7 @@
       "key": "bar.utilButtons.showKeyboardToggle",
       "section": "buttons",
       "label": "On-screen keyboard",
+      "description": "Button that shows or hides the on-screen keyboard (also Super+K).",
       "icon": "keyboard",
       "backend": "config",
       "type": "bool",
@@ -447,6 +502,7 @@
       "key": "bar.utilButtons.showMicToggle",
       "section": "buttons",
       "label": "Microphone",
+      "description": "Button that mutes or unmutes the default microphone.",
       "icon": "mic",
       "backend": "config",
       "type": "bool",
@@ -458,6 +514,7 @@
       "key": "bar.utilButtons.showDarkModeToggle",
       "section": "buttons",
       "label": "Light and dark mode",
+      "description": "Button that switches between light and dark mode (also Ctrl+Super+Shift+D).",
       "icon": "contrast",
       "backend": "config",
       "type": "bool",
@@ -481,7 +538,7 @@
       "key": "bar.tooltips.clickToShow",
       "section": "indicators",
       "label": "Click for details",
-      "description": "Open module details on click instead of on hover.",
+      "description": "Open the details of the clock, battery, resources and weather on click instead of on hover.",
       "icon": "ads_click",
       "backend": "config",
       "type": "bool",
@@ -496,6 +553,7 @@
       "key": "bar.resources.alwaysShowGpu",
       "section": "resources",
       "label": "Always show the GPU",
+      "description": "Add a GPU usage meter under memory, swap and CPU when a GPU is detected.",
       "icon": "developer_board",
       "backend": "config",
       "type": "bool",
@@ -511,7 +569,7 @@
       "key": "bar.resources.cpuWarningThreshold",
       "section": "resources",
       "label": "CPU warning",
-      "description": "Highlight the CPU above this usage.",
+      "description": "The CPU meter changes color at or above this usage.",
       "icon": "memory",
       "backend": "config",
       "type": "int",
@@ -532,7 +590,7 @@
       "key": "bar.resources.gpuWarningThreshold",
       "section": "resources",
       "label": "GPU warning",
-      "description": "Highlight the GPU above this usage.",
+      "description": "The GPU meter changes color at or above this usage.",
       "icon": "developer_board",
       "backend": "config",
       "type": "int",
@@ -553,7 +611,7 @@
       "key": "bar.resources.memoryWarningThreshold",
       "section": "resources",
       "label": "Memory warning",
-      "description": "Highlight memory above this usage.",
+      "description": "The memory meter changes color at or above this usage.",
       "icon": "memory_alt",
       "backend": "config",
       "type": "int",
@@ -574,7 +632,7 @@
       "key": "bar.resources.swapWarningThreshold",
       "section": "resources",
       "label": "Swap warning",
-      "description": "Highlight swap above this usage.",
+      "description": "The swap meter changes color at or above this usage.",
       "icon": "swap_horiz",
       "backend": "config",
       "type": "int",
@@ -595,6 +653,7 @@
       "key": "bar.weather.enable",
       "section": "weather",
       "label": "Weather in the bar",
+      "description": "Show the current temperature and conditions on the right of the bar.",
       "icon": "partly_cloudy_day",
       "backend": "config",
       "type": "bool",
@@ -605,7 +664,12 @@
     {
       "key": "tray.monochromeIcons",
       "section": "tray",
-      "label": "Tint icons",
+      "label": "Monochrome icons",
+      "description": "Draw tray icons in one muted color instead of their own colors.",
+      "keywords": [
+        "Tint icons",
+        "Colorear iconos"
+      ],
       "icon": "format_color_fill",
       "backend": "config",
       "type": "bool",
@@ -616,8 +680,13 @@
     {
       "key": "tray.invertPinnedItems",
       "section": "tray",
-      "label": "Pin by default",
-      "description": "Show every item in the bar; the list below hides them instead.",
+      "label": "Show every icon in the bar",
+      "description": "Every tray icon shows in the bar except those in the list below, which go to the overflow menu.",
+      "help": "Off: only the icons in the list show in the bar and the rest wait in the overflow menu.",
+      "keywords": [
+        "Pin by default",
+        "Fijar por defecto"
+      ],
       "icon": "push_pin",
       "backend": "config",
       "type": "bool",
@@ -628,8 +697,13 @@
     {
       "key": "tray.pinnedItems",
       "section": "tray",
-      "label": "Pinned items",
-      "description": "Tray item ids listed apart from the rest.",
+      "label": "Listed icons",
+      "description": "IDs of the tray icons kept in the bar, or kept in the overflow menu while the switch above is on.",
+      "help": "Right-click a tray icon and choose Pin or Unpin to edit this list; Advanced › Show tray item ids adds each ID to its tooltip.",
+      "keywords": [
+        "Pinned items",
+        "Elementos fijados"
+      ],
       "icon": "list",
       "backend": "config",
       "type": "list",
@@ -643,7 +717,7 @@
       "key": "tray.filterPassive",
       "section": "tray",
       "label": "Hide idle items",
-      "description": "Hide items that report themselves as passive.",
+      "description": "Hide icons whose app marks them as having nothing to show right now.",
       "icon": "filter_alt",
       "backend": "config",
       "type": "bool",

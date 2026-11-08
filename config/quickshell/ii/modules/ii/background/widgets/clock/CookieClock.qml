@@ -82,7 +82,7 @@ Item {
 
         RotationAnimation on rotation {
             running: Config.options.background.widgets.clock.cookie.constantlyRotate
-            duration: 30000
+            duration: 30000 // motion-ok: endless decorative rotation
             easing.type: Easing.Linear
             loops: Animation.Infinite
             from: 360

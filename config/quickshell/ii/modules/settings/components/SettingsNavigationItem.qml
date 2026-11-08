@@ -3,9 +3,15 @@ import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
+import qs.modules.settings.core
 
 // One page in the navigation. Collapsed, it shows only the icon and the
-// page title as a hover tooltip.
+// page title as a hover tooltip. A small count shows how many settings of
+// the page are changed (hidden at 0; its width stays reserved so the list
+// does not shift); collapsed, a dot on the icon. Expanded, implicitWidth is
+// what the whole title needs in its selected (heavier) weight beside the
+// reserved count, so SettingsNavigation can size the list to its longest
+// title whatever the counts and the selection.
 RippleButton {
     id: root
 
@@ -13,10 +19,19 @@ RippleButton {
     property bool expanded: true
     property bool selected: false
     readonly property string title: Translation.tr(root.page?.title ?? "")
+    // Width the title gets: the whole title in its selected weight.
+    readonly property real titleWidth: Math.ceil(titleMetrics.advanceWidth) + 1
+    readonly property int modifiedCount: {
+        void SettingsStore.revision;
+        return root.page ? SettingsStore.modifiedCount(root.page.id) : 0;
+    }
 
     objectName: "nav:" + (root.page?.id ?? "")
     implicitHeight: 40
-    implicitWidth: root.expanded ? content.implicitWidth + 32 : 44
+    // Basic-style horizontal padding (8 + 8): the icon starts and the
+    // reserved count ends 8 px inside the pill's round ends, clear of both.
+    // Every pixel here narrows the page at 1100 px.
+    implicitWidth: root.expanded ? content.implicitWidth + 16 : 44
     buttonRadius: height / 2
     toggled: root.selected
     colBackground: "transparent"
@@ -26,6 +41,7 @@ RippleButton {
     colRipple: Appearance.colors.colLayer1Active
     colRippleToggled: Appearance.colors.colSecondaryContainerActive
     Accessible.name: root.title
+    Accessible.description: root.modifiedCount > 0 ? Translation.tr("Changed settings: %1").arg(root.modifiedCount) : ""
     Accessible.role: Accessible.PageTab
     Accessible.selected: root.selected
 
@@ -36,25 +52,82 @@ RippleButton {
         RowLayout {
             id: content
             anchors.verticalCenter: parent.verticalCenter
-            x: root.expanded ? 4 : (parent.width - width) / 2
-            width: root.expanded ? parent.width - 4 : implicitWidth // size-ok: content of a button, not in a layout
-            spacing: 14
+            x: root.expanded ? 0 : (parent.width - width) / 2
+            width: root.expanded ? parent.width : implicitWidth // size-ok: content of a button, not in a layout
+            spacing: 6
 
-            MaterialSymbol {
-                text: root.page?.icon ?? "settings"
-                rotation: root.page?.iconRotation ?? 0
-                iconSize: 22
-                fill: root.selected ? 1 : 0
-                color: root.selected ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnSurfaceVariant
+            Item {
+                implicitWidth: pageIcon.implicitWidth
+                implicitHeight: pageIcon.implicitHeight
+
+                MaterialSymbol {
+                    id: pageIcon
+                    anchors.centerIn: parent
+                    text: root.page?.icon ?? "settings"
+                    rotation: root.page?.iconRotation ?? 0
+                    iconSize: 22
+                    fill: root.selected ? 1 : 0
+                    color: root.selected ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnSurfaceVariant
+                }
+
+                // Outside the icon, so a rotated icon does not move it.
+                Rectangle {
+                    visible: !root.expanded && root.modifiedCount > 0
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.rightMargin: -3
+                    anchors.topMargin: -1
+                    implicitWidth: 8
+                    implicitHeight: 8
+                    radius: 4
+                    color: Appearance.colors.colPrimary
+                }
             }
 
             StyledText {
+                objectName: "navTitle"
                 visible: root.expanded
                 Layout.fillWidth: true
+                Layout.preferredWidth: root.titleWidth
                 text: root.title
                 elide: Text.ElideRight
                 font.weight: root.selected ? Font.DemiBold : Font.Normal
                 color: root.selected ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colOnSurfaceVariant
+            }
+
+            // Changed settings on the page; the width is reserved at 0.
+            StyledText {
+                objectName: "modifiedCount"
+                visible: root.expanded
+                opacity: root.modifiedCount > 0 ? 1 : 0
+                Layout.preferredWidth: Math.ceil(countMetrics.advanceWidth)
+                horizontalAlignment: Text.AlignRight
+                text: root.modifiedCount > 0 ? String(root.modifiedCount) : ""
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.family: Appearance.font.family.numbers
+                font.variableAxes: Appearance.font.variableAxes.numbers
+                color: root.selected ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colPrimary
+                Accessible.ignored: true
+            }
+
+            // The title in its selected weight: selecting a page never
+            // changes the width the list needs.
+            TextMetrics {
+                id: titleMetrics
+                font.family: Appearance.font.family.main
+                font.pixelSize: Appearance?.font.pixelSize.small ?? 15
+                font.variableAxes: Appearance.font.variableAxes.main
+                font.weight: Font.DemiBold
+                text: root.title
+            }
+
+            // Two digits in the count's own font: the widest count shown.
+            TextMetrics {
+                id: countMetrics
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.family: Appearance.font.family.numbers
+                font.variableAxes: Appearance.font.variableAxes.numbers
+                text: "99"
             }
         }
     }

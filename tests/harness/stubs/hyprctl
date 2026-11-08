@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Fake hyprctl for the settings harness (scripts/settings-harness/run.sh --hyprland-stub).
+
+Serves read queries from fixtures and accepts every mutating command, so the
+Hyprland-backed pages render available without a compositor. It never talks
+to a real Hyprland.
+
+Environment:
+  HYPRCTL_FIXTURES      directory with hyprland-options.json, hyprctl-devices.json,
+                        hyprctl-monitors-all.json and hyprctl-animations.json
+                        (default: tests/fixtures of this repository)
+  HYPRCTL_LOG           append each call's argv, space-joined, one line per call
+  HYPRCTL_FAIL_MATCH    regex; `eval EXPR` whose EXPR matches it fails like
+                        Hyprland does (stderr message, exit 7)
+  HYPRCTL_CONFIGERRORS  file served as `-j configerrors` (default: [""], no errors)
+
+Answers: `-j descriptions` (from the options fixture, current = default),
+`-j devices`, `-j monitors [all]`, `-j animations`, `-j configerrors`,
+`getoption NAME` (default value), empty JSON for the other `-j` queries the
+shell makes (binds, clients, workspaces, layers, ...), and `ok` for eval,
+reload, dispatch, keyword and anything else.
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+# Flags taking no value, accepted anywhere before or after the command.
+FLAGS = {"-j", "-r", "-q", "--json", "--quiet"}
+# Flags taking a value (instance signature, batch).
+VALUE_FLAGS = {"-i", "--instance"}
+EMPTY_LISTS = {"binds", "clients", "workspaces", "workspacerules", "globalshortcuts", "layouts"}
+EMPTY_OBJECTS = {"layers", "activewindow", "activeworkspace", "cursorpos", "version", "splash"}
+
+
+def fixture_dir() -> Path:
+    configured = os.environ.get("HYPRCTL_FIXTURES")
+    if configured:
+        return Path(configured)
+    return Path(__file__).resolve().parents[2] / "fixtures"
+
+
+def load(name: str) -> Any:
+    return json.loads((fixture_dir() / name).read_text(encoding="utf-8"))
+
+
+def options() -> dict[str, dict[str, Any]]:
+    return {name: data for name, data in load("hyprland-options.json").items() if not name.startswith("_")}
+
+
+def descriptions() -> list[dict[str, Any]]:
+    # Shape of `hyprctl -j descriptions` (HyprlandLogic.parseDescriptions reads
+    # name, current and default); min/max/map only when the option has them.
+    out = []
+    for name, data in sorted(options().items()):
+        item: dict[str, Any] = {"name": name, "description": "", "default": data["default"], "current": data["default"]}
+        for field in ("min", "max", "map"):
+            if data.get(field) is not None:
+                item[field] = data[field]
+        out.append(item)
+    return out
+
+
+def getoption(name: str, as_json: bool) -> str:
+    data = options().get(name)
+    if data is None:
+        return "no such option"
+    value = data["default"]
+    kind = {"bool": "bool", "int": "int", "float": "float"}.get(data["type"], "str")
+    if name in ("general:gaps_in", "general:gaps_out"):
+        kind = "css"
+    if as_json:
+        return json.dumps({"option": name, kind: value, "set": False})
+    text = json.dumps(value) if isinstance(value, bool) else value
+    return f"{kind}: {text}\nset: false"
+
+
+def split(argv: list[str]) -> tuple[bool, list[str]]:
+    as_json = False
+    rest: list[str] = []
+    skip_value = False
+    command_seen = False
+    for arg in argv:
+        if skip_value:
+            skip_value = False
+            continue
+        # eval keeps its expression verbatim, even if it looks like a flag.
+        if command_seen and rest[0] == "eval":
+            rest.append(arg)
+            continue
+        if arg in FLAGS:
+            as_json = as_json or arg in ("-j", "--json")
+            continue
+        if arg in VALUE_FLAGS:
+            skip_value = True
+            continue
+        rest.append(arg)
+        command_seen = True
+    return as_json, rest
+
+
+def main(argv: list[str]) -> int:
+    log = os.environ.get("HYPRCTL_LOG")
+    if log:
+        with open(log, "a", encoding="utf-8") as handle:
+            handle.write(" ".join(argv) + "\n")
+    as_json, rest = split(argv)
+    command = rest[0] if rest else ""
+    args = rest[1:]
+
+    if command == "eval":
+        expr = " ".join(args)
+        pattern = os.environ.get("HYPRCTL_FAIL_MATCH")
+        if pattern and re.search(pattern, expr):
+            print(f"error: stub failure for {expr}", file=sys.stderr)
+            return 7
+        print("ok")
+        return 0
+    if command == "getoption" and args:
+        print(getoption(args[0], as_json))
+        return 0
+    if as_json:
+        if command == "descriptions":
+            print(json.dumps(descriptions()))
+        elif command == "devices":
+            print(json.dumps(load("hyprctl-devices.json")))
+        elif command == "monitors":
+            monitors = load("hyprctl-monitors-all.json")
+            if "all" not in args:
+                monitors = [m for m in monitors if not m.get("disabled")]
+            print(json.dumps(monitors))
+        elif command == "animations":
+            print(json.dumps(load("hyprctl-animations.json")))
+        elif command == "configerrors":
+            errors = os.environ.get("HYPRCTL_CONFIGERRORS")
+            print(Path(errors).read_text(encoding="utf-8").strip() if errors else json.dumps([""]))
+        elif command in EMPTY_LISTS:
+            print("[]")
+        elif command in EMPTY_OBJECTS:
+            print("{}")
+        else:
+            print("ok")
+        return 0
+    # reload, dispatch, keyword and everything else.
+    print("ok")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

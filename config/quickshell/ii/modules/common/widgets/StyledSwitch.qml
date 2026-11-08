@@ -44,21 +44,21 @@ Switch {
 
         Behavior on anchors.leftMargin {
             NumberAnimation {
-                duration: Appearance.animationCurves.expressiveFastSpatialDuration
+                duration: Appearance.animation.elementMoveSmall.duration
                 easing.type: Easing.BezierSpline
                 easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
             }
         }
         Behavior on width {
             NumberAnimation {
-                duration: Appearance.animationCurves.expressiveFastSpatialDuration
+                duration: Appearance.animation.elementMoveSmall.duration
                 easing.type: Easing.BezierSpline
                 easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
             }
         }
         Behavior on height {
             NumberAnimation {
-                duration: Appearance.animationCurves.expressiveFastSpatialDuration
+                duration: Appearance.animation.elementMoveSmall.duration
                 easing.type: Easing.BezierSpline
                 easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
             }

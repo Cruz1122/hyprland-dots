@@ -157,7 +157,7 @@ SettingsPage {
                     id: bindsOut
                     onStreamFinished: {
                         try {
-                            shortcuts.binds = HL.parseBinds(bindsOut.text);
+                            shortcuts.binds = HL.parseBinds(bindsOut.text, Translation.tr("Any key"));
                         } catch (error) {
                             console.warn(`[InputPage] cannot read hyprctl -j binds: ${error}`);
                             shortcuts.problem = Translation.tr("Could not read the shortcuts.");

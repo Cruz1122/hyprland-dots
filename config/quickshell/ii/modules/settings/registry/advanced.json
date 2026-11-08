@@ -2,33 +2,43 @@
   "id": "advanced",
   "title": "Advanced",
   "icon": "construction",
-  "description": "Configuration file, workarounds, work safety and diagnostics.",
+  "description": "Configuration file, workarounds, privacy on public networks and diagnostics.",
   "sections": [
     {
       "id": "configFile",
       "title": "Configuration file",
-      "icon": "description"
+      "icon": "description",
+      "description": "The shell's own settings file; Diagnostics below shows where the rest is saved."
     },
     {
       "id": "workarounds",
       "title": "Workarounds",
-      "icon": "build"
+      "icon": "build",
+      "description": "Fixes for specific hardware or timing problems; leave them alone unless something misbehaves."
     },
     {
       "id": "workSafety",
-      "title": "Work safety",
+      "title": "Privacy on public networks",
       "icon": "work",
-      "description": "Hide sensitive wallpapers and clipboard entries on public networks."
+      "description": "Hide sensitive wallpapers and blur sensitive clipboard images while you are on a public Wi-Fi."
+    },
+    {
+      "id": "hyprland",
+      "title": "Hyprland notices",
+      "icon": "campaign",
+      "description": "Windows that Hyprland opens by itself; both are shown by default."
     },
     {
       "id": "diagnostics",
       "title": "Diagnostics",
-      "icon": "troubleshoot"
+      "icon": "troubleshoot",
+      "description": "Where each kind of setting is saved, whether it can be applied now, and Hyprland's own errors."
     },
     {
       "id": "reset",
       "title": "Reset",
-      "icon": "restart_alt"
+      "icon": "restart_alt",
+      "description": "Return the shell to its default look and behavior."
     }
   ],
   "entries": [
@@ -69,8 +79,8 @@
     {
       "key": "hacks.arbitraryRaceConditionDelay",
       "section": "workarounds",
-      "label": "Race condition delay",
-      "description": "Wait used by a few panels before reading state that is not ready yet.",
+      "label": "Startup wait for panels",
+      "description": "Extra wait before some panels read system state; raise it only if a panel shows empty or wrong data right after opening.",
       "icon": "hourglass",
       "backend": "config",
       "type": "int",
@@ -81,12 +91,16 @@
       "unit": "ms",
       "consumers": [
         "services/Cliphist.qml"
+      ],
+      "keywords": [
+        "Race condition delay",
+        "Retraso anticarrera"
       ]
     },
     {
       "key": "interactions.deadPixelWorkaround.enable",
       "section": "workarounds",
-      "label": "Dead pixel workaround",
+      "label": "Fix 1-pixel gap at the edge",
       "description": "Extend the bar and screen corners one pixel past the edge to hide a gap on some screens.",
       "icon": "grid_on",
       "backend": "config",
@@ -94,13 +108,17 @@
       "widget": "switch",
       "consumers": [
         "modules/ii/bar/Bar.qml"
+      ],
+      "keywords": [
+        "Dead pixel workaround",
+        "Solución para píxel muerto"
       ]
     },
     {
       "key": "networking.userAgent",
       "section": "workarounds",
-      "label": "User agent",
-      "description": "Browser identification sent when the shell downloads images and icons.",
+      "label": "Browser identity for downloads",
+      "description": "Some sites block downloads without a browser-like identity; change it only if wallpapers or icons fail to load.",
       "icon": "public",
       "backend": "config",
       "type": "string",
@@ -110,6 +128,10 @@
       },
       "consumers": [
         "modules/common/utils/ImageDownloaderProcess.qml"
+      ],
+      "keywords": [
+        "User agent",
+        "Agente de usuario"
       ]
     },
     {
@@ -129,7 +151,14 @@
       "key": "workSafety.enable.wallpaper",
       "section": "workSafety",
       "label": "Hide sensitive wallpapers",
-      "description": "Blur wallpapers whose file name looks sensitive while on a public network.",
+      "description": "On a public Wi-Fi, a wallpaper whose path contains a keyword below is replaced by a plain color.",
+      "keywords": [
+        "Blur wallpapers",
+        "desenfocar fondos",
+        "work safety",
+        "seguridad"
+      ],
+      "help": "The words are matched against the whole path, folders included.",
       "icon": "wallpaper",
       "backend": "config",
       "type": "bool",
@@ -141,8 +170,13 @@
     {
       "key": "workSafety.enable.clipboard",
       "section": "workSafety",
-      "label": "Hide sensitive clipboard entries",
-      "description": "Hide clipboard entries with sensitive links while on a public network.",
+      "label": "Blur sensitive clipboard images",
+      "description": "On a public Wi-Fi, the launcher blurs clipboard images listed next to a link with a keyword below.",
+      "help": "Only images are blurred, and only when the entry just above or below is such a link; the links stay visible.",
+      "keywords": [
+        "Hide sensitive clipboard entries",
+        "Ocultar entradas sensibles del portapapeles"
+      ],
       "icon": "content_paste_off",
       "backend": "config",
       "type": "bool",
@@ -154,21 +188,26 @@
     {
       "key": "workSafety.triggerCondition.networkNameKeywords",
       "section": "workSafety",
-      "label": "Public network keywords",
-      "description": "A network whose name contains one of these words counts as public.",
+      "label": "Public Wi-Fi name words",
+      "description": "A Wi-Fi whose name contains one of these words counts as public, e.g. cafe, guest, eduroam.",
       "icon": "wifi",
       "backend": "config",
       "type": "list",
       "widget": "list",
       "consumers": [
         "modules/ii/background/Background.qml"
+      ],
+      "help": "Both switches above need a match here before they do anything.",
+      "keywords": [
+        "Public network keywords",
+        "Palabras de red pública"
       ]
     },
     {
       "key": "workSafety.triggerCondition.fileKeywords",
       "section": "workSafety",
       "label": "Sensitive file keywords",
-      "description": "Wallpaper file names containing these words are hidden.",
+      "description": "A wallpaper whose file path contains one of these words counts as sensitive.",
       "icon": "image",
       "backend": "config",
       "type": "list",
@@ -185,7 +224,7 @@
       "key": "workSafety.triggerCondition.linkKeywords",
       "section": "workSafety",
       "label": "Sensitive link keywords",
-      "description": "Clipboard entries with links containing these words are hidden.",
+      "description": "A clipboard image listed next to a link containing one of these words is blurred.",
       "icon": "link_off",
       "backend": "config",
       "type": "list",
@@ -199,14 +238,68 @@
       ]
     },
     {
-      "key": "info.advanced.diagnostics",
+      "key": "hyprland.ecosystem.no_update_news",
+      "section": "hyprland",
+      "label": "Hide the news after updating Hyprland",
+      "description": "Hyprland stops opening its what's-new window the first time it starts after an update.",
+      "keywords": [
+        "update news",
+        "novedades",
+        "ecosystem"
+      ],
+      "icon": "newspaper",
+      "backend": "hyprland",
+      "path": "ecosystem.no_update_news",
+      "option": "ecosystem:no_update_news",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.ecosystem.no_donation_nag",
+      "section": "hyprland",
+      "label": "Hide Hyprland's donation request",
+      "description": "Hyprland stops showing the window that asks for a donation twice a year.",
+      "keywords": [
+        "donation",
+        "donación",
+        "nag",
+        "ecosystem"
+      ],
+      "icon": "volunteer_activism",
+      "backend": "hyprland",
+      "path": "ecosystem.no_donation_nag",
+      "option": "ecosystem:no_donation_nag",
+      "type": "bool"
+    },
+    {
+      "key": "info.advanced.hyprlandErrors",
       "section": "diagnostics",
-      "label": "Backends and paths",
-      "description": "Where settings are stored and which backends can apply them right now.",
-      "icon": "troubleshoot",
+      "label": "Hyprland configuration errors",
+      "description": "Problems Hyprland found while loading its configuration, checked when this page opens.",
+      "keywords": [
+        "configerrors",
+        "errores",
+        "errors",
+        "lua"
+      ],
+      "icon": "error",
       "backend": "readonly",
       "type": "custom",
       "widget": "custom"
+    },
+    {
+      "key": "info.advanced.diagnostics",
+      "section": "diagnostics",
+      "label": "Where settings are saved",
+      "description": "Where each kind of setting is stored, and which parts can be changed right now.",
+      "icon": "troubleshoot",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom",
+      "keywords": [
+        "Backends and paths",
+        "Backends y rutas",
+        "backends"
+      ]
     },
     {
       "key": "info.advanced.resetAll",

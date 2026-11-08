@@ -14,6 +14,7 @@ SettingsRow {
     readonly property int stored: Math.round((typeof row.value === "number" ? row.value : (row.entry?.min ?? 0)) * row.uiScale)
 
     focusVisible: control.activeFocus
+    needsValue: true
     interactHandler: () => false
 
     onRejected: control.value = row.stored
