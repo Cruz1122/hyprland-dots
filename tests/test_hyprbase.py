@@ -1,6 +1,7 @@
 """hyprbase.py: the dotfiles' Hyprland base values, read by running hyprland.lua sandboxed."""
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import shutil
@@ -9,12 +10,18 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "config/quickshell/ii/scripts/settings/hyprbase.py"
 OPTIONS = ROOT / "tests/fixtures/hyprland-options.json"
 SAMPLE = ROOT / "tests/fixtures/hyprbase-sample.json"
+
+spec = importlib.util.spec_from_file_location("hyprbase", SCRIPT)
+hyprbase = importlib.util.module_from_spec(spec)
+assert spec.loader is not None
+spec.loader.exec_module(hyprbase)
 
 CURVES = {
     "expressiveFastSpatial": [0.42, 1.67, 0.21, 0.90],
@@ -193,6 +200,59 @@ class HyprbaseTest(unittest.TestCase):
         self.assertLess(time.monotonic() - started, 15)
         self.assertEqual(code, 1)
         self.assertFalse(data["ok"])
+
+    def test_non_finite_numbers_are_not_literal(self) -> None:
+        # JSON has no NaN or infinity: they would reach `config` as null, which
+        # hides the compiled default (or the earlier value) of the option.
+        self.write("custom/general.lua",
+                   "hl.config({general={gaps_in=0/0, gaps_out=1/0, border_size=-1/0}})\n"
+                   'hl.animation({leaf="border", enabled=true, speed=1/0, bezier="default"})\n')
+        code, data, _ = run(self.dir)
+        self.assertEqual(code, 0, data)
+        # The call is ignored, so general.lua's earlier value stays the base.
+        for name, value in (("general:gaps_in", 4), ("general:gaps_out", 5), ("general:border_size", 1)):
+            with self.subTest(option=name):
+                self.assertEqual(data["config"][name], value)
+                self.assertIn(f"hl.config: non-literal value for '{name}'", data["errors"])
+        self.assertNotIn("speed", data["animations"]["border"])
+        check_schema(self, data)
+
+    def test_blocking_read_is_killed_by_the_wall_clock_timeout(self) -> None:
+        # Reading a FIFO without a writer blocks without using CPU, so only
+        # the wall-clock timeout (not RLIMIT_CPU) ends it.
+        os.mkfifo(self.dir / "pipe")
+        self.write("custom/general.lua", 'local f = io.open(os.getenv("HOME") .. "/.config/hypr/pipe")\n'
+                                         "if f then f:read('a') end\n")
+        started = time.monotonic()
+        code, data, _ = run(self.dir)
+        self.assertLess(time.monotonic() - started, 10)
+        self.assertEqual(code, 1)
+        self.assertFalse(data["ok"])
+        self.assertIn(f"timed out after {hyprbase.TIMEOUT_S} s", data["errors"])
+
+    @unittest.skipUnless(os.access(hyprbase.LUA, os.X_OK), f"{hyprbase.LUA} is not installed")
+    def test_resource_limits_stop_a_file_from_growing(self) -> None:
+        # The sandbox blocks every write API; RLIMIT_FSIZE is the second
+        # line, so it is tested on its own with the real interpreter.
+        target = self.tmp / "grown.txt"
+        target.write_bytes(b"")
+        subprocess.run([hyprbase.LUA, "-e", f'local f = io.open("{target}", "a"); f:write(("x"):rep(4096)); f:close()'],
+                       capture_output=True, timeout=30, preexec_fn=hyprbase.limit_resources)
+        self.assertEqual(target.stat().st_size, 0)
+        # Control: without the limits the same write grows the file.
+        subprocess.run([hyprbase.LUA, "-e", f'local f = io.open("{target}", "a"); f:write("x"); f:close()'],
+                       capture_output=True, timeout=30)
+        self.assertEqual(target.stat().st_size, 1)
+
+    def test_read_base_runs_lua_with_the_resource_limits(self) -> None:
+        # Pins the real call: without preexec_fn the limits above (and
+        # RLIMIT_CPU / RLIMIT_AS) would never reach the dotfiles' Lua.
+        with mock.patch.object(hyprbase.subprocess, "run", wraps=subprocess.run) as spy:
+            data = hyprbase.read_base(self.dir, str(self.tmp))
+        self.assertTrue(data["ok"], data)
+        lua_calls = [c for c in spy.call_args_list if c.args and c.args[0][0] == hyprbase.LUA]
+        self.assertEqual(len(lua_calls), 1, spy.call_args_list)
+        self.assertIs(lua_calls[0].kwargs.get("preexec_fn"), hyprbase.limit_resources)
 
     def test_missing_module_is_noted_not_fatal(self) -> None:
         shutil.rmtree(self.dir / "hyprland/services")

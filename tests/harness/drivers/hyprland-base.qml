@@ -145,8 +145,16 @@ ShellRoot {
         check("normal write accepted", root.store.write("hyprland.general.gaps_in", 7), true);
         root.waitFor(() => /gaps_in=7\b/.test(root.text(root.settingsFile)) && b.overrides["general:gaps_in"] === 7, 8000, ok => {
             check("write persisted to shell-settings.lua", ok, true);
-            check("read after the write", b.read(gapsIn), 7);
-            root.pausedPreview();
+            // Until Hyprland's reload the row shows the optimistic value; after
+            // it, read() must come from shell-settings.lua, not the live value.
+            root.reloaded();
+            root.waitFor(() => !(gapsIn.key in b._optimistic) && !b.descriptionsProc.running && !b.listProc.running,
+                8000, settled => {
+                check("optimistic value dropped after the reload", settled, true);
+                check("read after the write is the stored override", b.read(gapsIn), 7);
+                check("live gaps_in stays Game Mode's", b.values["general:gaps_in"], 0);
+                root.pausedPreview();
+            });
         });
     }
 
@@ -232,8 +240,60 @@ ShellRoot {
                 check("read rounding unchanged when Game Mode starts", root.backend.read(rounding), 0);
                 check("succeeded rounding when Game Mode starts", root.announced.includes(rounding.key), true);
                 check("succeeded animations.enabled when Game Mode starts", root.announced.includes(animations.key), true);
-                root.report({ type: "done" });
-                quitTimer.start();
+                root.previewBeforeGameMode();
+            });
+        });
+    }
+
+    // A preview of an option that Game Mode starts to override during the
+    // confirmation must not cover Game Mode's live value: no eval on the
+    // reloads that follow, none on restore.
+    function previewBeforeGameMode() {
+        const b = root.backend;
+        const gapsOut = root.entry("hyprland.general.gaps_out");
+        const keys = [];
+        for (let i = 1; i < root.gameModeArgs.length; i += 3)
+            keys.push("--reset", root.gameModeArgs[i]);
+        root.run(["python3", root.configurator, "--file", root.overridesFile].concat(keys), () => {
+            root.reloaded();
+            root.waitFor(() => !b.gameMode && !b.busy, 8000, off => {
+                check("Game Mode off before the preview", off, true);
+                const snap = b.snapshot([gapsOut]);
+                const before = root.evalCalls();
+                check("preview of an option outside Game Mode accepted", b.preview(gapsOut, 9), true);
+                root.waitFor(() => root.evalCalls() === before + 1 && !b.busy, 8000, evaluated => {
+                    check("the preview is evaluated live", evaluated, true);
+                    // Outside Game Mode a reload re-applies the preview once,
+                    // after Game Mode's file has been read again.
+                    root.reloaded();
+                    root.waitFor(() => root.evalCalls() === before + 2 && !b.busy, 8000, () => root.waitFor(() => false, 300, () => {
+                    check("a reload with Game Mode off re-applies the preview once", root.evalCalls() - before, 2);
+                    root.run(["python3", root.configurator, "--file", root.overridesFile].concat(root.gameModeArgs), code => {
+                        if (code !== 0)
+                            return root.fatal(`could not seed Game Mode for the preview (${code})`);
+                        // Taken before Game Mode's own reload: that reload
+                        // must not re-apply the preview either, although the
+                        // overrides are read only after it.
+                        const mark = root.evalCalls();
+                        root.reloaded();
+                        root.waitFor(() => b.gameMode && "general:gaps_out" in b.gameModeOverrides && !b.busy, 8000, on => {
+                            check("Game Mode overrides the previewed option", on && b.statusNote(gapsOut) === "Paused by Game Mode", true);
+                            check("no eval of the preview on Game Mode's own reload", root.evalCalls() - mark, 0);
+                            root.reloaded();
+                            root.waitFor(() => false, 300, () => root.waitFor(() => !b.busy, 8000, () => {
+                                check("no eval of the preview on a reload while Game Mode overrides it", root.evalCalls() - mark, 0);
+                                b.restore(snap);
+                                root.waitFor(() => false, 300, () => root.waitFor(() => !b.busy, 8000, () => {
+                                    check("no eval on restore while Game Mode overrides it", root.evalCalls() - mark, 0);
+                                    check("read after restore is the stored override", b.read(gapsOut), 8);
+                                    root.report({ type: "done" });
+                                    quitTimer.start();
+                                }));
+                            }));
+                        });
+                    });
+                    }));
+                });
             });
         });
     }

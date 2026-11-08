@@ -23,7 +23,8 @@ Output: one JSON object, also on failure:
      "curves": {name: {"type": "bezier", "points": [x1, y1, x2, y2]} | {"type": "spring", ...}},
      "animations": {leaf: {"enabled", "speed", "bezier" | "spring", "style"}}}
 Later calls override earlier ones, as in Hyprland. `errors` lists non-fatal
-problems too (missing modules, blocked calls, non-literal values and, with
+problems too (missing modules, blocked calls, non-literal values such as NaN or
+infinite numbers and, with
 --options, option names Hyprland does not know).
 
 --options FILE: getoption names to check the recorded names against, as a JSON
@@ -60,7 +61,7 @@ for i = 3, #arg do SKIP[arg[i]] = true end
 local real_open, real_loadfile, iotype, stdout = io.open, loadfile, io.type, io.stdout
 local sformat, sgsub, smatch, ssub, sbyte, sfind = string.format, string.gsub, string.match, string.sub, string.byte, string.find
 local sgmatch = string.gmatch
-local mtype, tconcat, tsort = math.type, table.concat, table.sort
+local mtype, tconcat, tsort, HUGE = math.type, table.concat, table.sort, math.huge
 local pairs, ipairs, type, tostring, rawlen, select = pairs, ipairs, type, tostring, rawlen, select
 local setmetatable, getmetatable, pcall, xpcall, error = setmetatable, getmetatable, pcall, xpcall, error
 
@@ -79,9 +80,11 @@ local dummy_mt = {
 }
 dummy = setmetatable({}, dummy_mt)
 
+-- NaN and the infinities (0/0, 1/0) have no JSON form: not literal values.
 local function is_literal(v)
   local t = type(v)
-  return t == "boolean" or t == "number" or t == "string"
+  if t == "number" then return v == v and v ~= HUGE and v ~= -HUGE end
+  return t == "boolean" or t == "string"
 end
 
 -- Array of literals (a vec2 such as shadow.offset = {0, 2}).

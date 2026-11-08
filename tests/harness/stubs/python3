@@ -10,10 +10,14 @@ Environment:
   PYTHON3_SHIM_FAIL   file holding an exit code; the next animationsgen.py --apply-json call
                       exits with it (printing a generator-like JSON error) instead of running,
                       and the file is removed, so it fails exactly once
+  PYTHON3_SHIM_DELAY  file holding seconds; the next animationsgen.py --apply-json call waits
+                      that long before it runs (the file is removed, so it applies once), to
+                      hold a write in flight while a driver sends events
 """
 import json
 import os
 import sys
+import time
 
 REAL = "/usr/bin/python3"
 
@@ -34,6 +38,12 @@ def main() -> None:
         print(json.dumps({"ok": False, "changed": False, "written": False, "evalOk": None, "reloaded": False,
                           "errors": [f"python3 shim: forced exit {code}"], "cards": {}}))
         sys.exit(code)
+    delay = os.environ.get("PYTHON3_SHIM_DELAY")
+    if delay and is_apply and os.path.isfile(delay):
+        with open(delay, encoding="utf-8") as handle:
+            seconds = float(handle.read().strip() or "1")
+        os.unlink(delay)
+        time.sleep(seconds)
     os.execv(REAL, [REAL] + args)
 
 

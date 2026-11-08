@@ -57,12 +57,16 @@ class HyprlandBaseTest(unittest.TestCase):
                   for line in log.splitlines() if MARKER in line]
         self.assertFalse([e for e in events if e.get("type") == "fatal"], log[-3000:])
         checks = [e for e in events if e.get("type") == "check"]
-        self.assertEqual(len(checks), 38, result.stdout + log[-3000:])
+        self.assertEqual(len(checks), 49, result.stdout + log[-3000:])
         for check in checks:
             with self.subTest(check=check["name"]):
                 self.assertEqual(check["actual"], check["expected"], check)
         self.assertTrue(any(e.get("type") == "done" for e in events), log[-3000:])
-        self.assertFalse([c for c in calls.splitlines() if c.startswith("eval")], calls)
+        # The only live evals are the preview made while Game Mode was off and
+        # its one re-apply on a reload while Game Mode was still off; none on
+        # Game Mode's own reload, later reloads or the restore.
+        evals = [c for c in calls.splitlines() if c.startswith("eval")]
+        self.assertEqual(evals, ["eval hl.config({ general = { gaps_out = 9 } })"] * 2, calls)
         # --strict: no QML warning, including when the base cannot be read.
         self.assertEqual(result.returncode, 0, result.stdout + log[-3000:])
 

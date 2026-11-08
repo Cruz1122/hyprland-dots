@@ -98,14 +98,29 @@ var STYLE_LABELS = {
     slidefade: "Slide and fade",
     slidefadevert: "Slide vertically and fade"
 };
+// By family: Hyprland animates a window or a panel (layer) on its own, but
+// moves the whole workspace (src/animation/WorkspaceAnimationController.cpp:
+// a slide shifts it by the screen width or height, a special workspace also
+// fades), and the app offers no side for workspaces.
 var STYLE_DESCRIPTIONS = {
-    popin: "Changes size from a smaller one with a fade; at 100% it only fades.",
-    slide: "Moves in or out through a screen edge: the nearest one unless you pick a side.",
-    gnomed: "Unfolds from a line across the middle, as in GNOME.",
-    fade: "Appears or disappears in place, without moving.",
-    slidevert: "Moves up or down instead of sideways.",
-    slidefade: "Moves sideways part of the way while it fades.",
-    slidefadevert: "Moves up or down part of the way while it fades."
+    windows: {
+        slide: "Moves in or out through a screen edge: the nearest one unless you pick a side.",
+        popin: "Changes size from a smaller one with a fade; at 100% it only fades.",
+        gnomed: "Unfolds from a line across the middle, as in GNOME."
+    },
+    layers: {
+        fade: "Appears or disappears in place, without moving.",
+        slide: "Moves in or out through a screen edge: the nearest one unless you pick a side.",
+        popin: "Changes size from a smaller one with a fade; at 100% it only fades."
+    },
+    workspaces: {
+        slide: "The whole workspace moves sideways, as far as the screen is wide.",
+        slidevert: "The whole workspace moves up or down, as far as the screen is tall.",
+        fade: "The workspace fades in or out in place, without moving.",
+        slidefade: "The workspace moves sideways part of the way while it fades.",
+        slidefadevert: "The workspace moves up or down part of the way while it fades."
+    },
+    none: {}
 };
 
 // Absolute presets (contracts §1): fields not listed keep the card's base
@@ -311,7 +326,7 @@ function styleOptions(cardId) {
         return {
             kind: kind,
             label: STYLE_LABELS[kind],
-            description: STYLE_DESCRIPTIONS[kind],
+            description: STYLE_DESCRIPTIONS[family][kind],
             percent: PERCENT_KINDS[family].indexOf(kind) >= 0,
             directions: DIRECTION_KINDS[family].indexOf(kind) >= 0 ? DIRECTIONS.slice() : []
         };
@@ -587,13 +602,7 @@ function summaryParts(cardId, value, catalog) {
 // does not show the written tuple: Hyprland did not load the generated file.
 // Speeds are compared at hyprctl's 2-decimal precision.
 function loadedMismatches(text, managed, catalog) {
-    var list;
-    try {
-        var parsed = JSON.parse(String(text || ""));
-        list = Array.isArray(parsed) && Array.isArray(parsed[0]) ? parsed[0] : null;
-    } catch (error) {
-        list = null;
-    }
+    var list = animationList(text);
     if (!list)
         return Object.keys(managed || {});
     var byName = {};
@@ -614,7 +623,72 @@ function loadedMismatches(text, managed, catalog) {
     });
 }
 
-// True when hyprland.lua requires custom.shell-animations.
+// The animation list of `hyprctl -j animations` ([animations, beziers]), or
+// null when the text is not that shape (a failed or cut-off read).
+function animationList(text) {
+    try {
+        var parsed = JSON.parse(String(text || ""));
+        return Array.isArray(parsed) && Array.isArray(parsed[0]) ? parsed[0] : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+// Lua source without its comments (`-- line` and `--[==[ block ]==]`).
+// Strings are kept as they are, so a "--" inside one is not a comment.
+function stripLuaComments(text) {
+    text = String(text || "");
+    var out = "";
+    var i = 0;
+    var n = text.length;
+    // Level of a long bracket `[==[` starting at `at`, or -1.
+    function longLevel(at) {
+        if (text[at] !== "[")
+            return -1;
+        var k = at + 1;
+        while (text[k] === "=")
+            k++;
+        return text[k] === "[" ? k - at - 1 : -1;
+    }
+    while (i < n) {
+        var c = text[i];
+        if (c === "-" && text[i + 1] === "-") {
+            var level = longLevel(i + 2);
+            if (level >= 0) {
+                var close = "]" + "=".repeat(level) + "]";
+                var end = text.indexOf(close, i + 4 + level);
+                i = end < 0 ? n : end + close.length;
+                out += " ";
+            } else {
+                var eol = text.indexOf("\n", i);
+                i = eol < 0 ? n : eol;
+            }
+            continue;
+        }
+        if (c === "\"" || c === "'") {
+            var j = i + 1;
+            while (j < n && text[j] !== c && text[j] !== "\n")
+                j += text[j] === "\\" ? 2 : 1;
+            out += text.slice(i, j + 1);
+            i = j + 1;
+            continue;
+        }
+        var strLevel = longLevel(i);
+        if (strLevel >= 0) {
+            var strClose = "]" + "=".repeat(strLevel) + "]";
+            var strEnd = text.indexOf(strClose, i + 2 + strLevel);
+            var stop = strEnd < 0 ? n : strEnd + strClose.length;
+            out += text.slice(i, stop);
+            i = stop;
+            continue;
+        }
+        out += c;
+        i++;
+    }
+    return out;
+}
+
+// True when hyprland.lua requires custom.shell-animations outside a comment.
 function requiresAnimations(text) {
-    return /\brequire\b[^\n]*["']custom\.shell-animations["']/.test(String(text || ""));
+    return /\brequire\b[^\n]*["']custom\.shell-animations["']/.test(stripLuaComments(text));
 }

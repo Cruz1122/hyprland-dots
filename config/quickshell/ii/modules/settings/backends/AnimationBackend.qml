@@ -84,8 +84,15 @@ QtObject {
 
     // Changes waiting for the debounce: { cards: {id: value|null}, curves: {name: desc|null}, removeAll, keys }.
     property var _pending: root._emptyChanges()
-    // Change set being applied, shown until the managed state is read again.
+    // Change set being applied, shown until a managed-state read that
+    // started after the generator finished (_listRun > _inflightListedAfter):
+    // a read started earlier, for example by a configreloaded while the
+    // generator still runs, sees the old file. -1 while the generator runs.
     property var _inflight: null
+    property int _inflightListedAfter: -1
+    // Managed-state reads started so far, and the number of the running one.
+    property int _listRuns: 0
+    property int _listRun: 0
     property bool _flushAfter: false
     // Serial queue of commands: [{ argv, stdin, done(code, stdout, stderr, startedAt) }].
     property var _jobs: []
@@ -397,6 +404,7 @@ QtObject {
         const change = root._pending;
         root._pending = root._emptyChanges();
         root._inflight = change;
+        root._inflightListedAfter = -1;
         const payload = { cards: change.cards, curves: change.curves, removeAllAnimations: change.removeAll };
         if (root.base)
             payload.base = root.base;
@@ -423,6 +431,7 @@ QtObject {
             }
             for (const key of change.keys)
                 root.succeeded(key);
+            root._inflightListedAfter = root._listRuns;
             root._list();
             return;
         }
@@ -469,6 +478,7 @@ QtObject {
             root._relist = true;
             return;
         }
+        root._listRun = ++root._listRuns;
         root.listProc.running = true;
     }
 
@@ -482,10 +492,15 @@ QtObject {
         root.base = parsed && parsed.ok !== false && typeof parsed.animations === "object" ? parsed : null;
     }
 
+    // Everything a row shows: rows learn about changes only through
+    // succeeded(key), also when only the default (the base arrived) or the
+    // status note (Game Mode) changed.
     function _readAll() {
         const out = {};
-        for (const key in root._seen)
-            out[key] = JSON.stringify([root.read(root._seen[key]), root.isModified(root._seen[key])]);
+        for (const key in root._seen) {
+            const entry = root._seen[key];
+            out[key] = JSON.stringify([root.read(entry), root.isModified(entry), root.defaultValue(entry), root.statusNote(entry)]);
+        }
         return out;
     }
 
@@ -496,6 +511,19 @@ QtObject {
             if (before[key] !== now[key])
                 root.succeeded(key);
         }
+    }
+
+    // Game Mode changes only the status notes; nothing else announces them.
+    function _setGameMode(active) {
+        const before = root._readAll();
+        root.gameMode = active;
+        root._announce(before);
+    }
+
+    function _setRequiresFile(requires) {
+        const before = root._readAll();
+        root.requiresFile = requires;
+        root._announce(before);
     }
 
     // A reload happened (Hyprland's event, or our fallback finished): check
@@ -590,13 +618,15 @@ QtObject {
                 console.warn(`[AnimationBackend] cannot list ${root.animationsFile}: ${error} ${listErr.text.trim()}`);
                 root.loadError = String(error);
             }
-            // The written change is now part of the managed state.
-            root._inflight = null;
+            // The written change is part of the managed state once a read
+            // that started after the write ends.
+            if (root._inflight !== null && root._inflightListedAfter >= 0 && root._listRun > root._inflightListedAfter)
+                root._inflight = null;
             root._announce(before);
             if (root._relist) {
                 root._relist = false;
                 root._list();
-            } else if (root._flushAfter) {
+            } else if (root._flushAfter && root._inflight === null) {
                 root._flushAfter = false;
                 if (!root.flushTimer.running)
                     root._flush();
@@ -618,10 +648,15 @@ QtObject {
                 root._checkLoaded();
                 return;
             }
+            // Only a parsed answer can show that Hyprland ignored the file; a
+            // failed read is tried again after the next reload.
+            if (exitCode !== 0 || AL.animationList(animationsOut.text) === null) {
+                console.warn(`[AnimationBackend] cannot read hyprctl -j animations (${exitCode}); checking again after the next reload`);
+                return;
+            }
             root._confirmed = true;
             root._confirm = null;
-            const mismatches = exitCode === 0 ? AL.loadedMismatches(animationsOut.text, confirm.cards, root._catalog())
-                : Object.keys(confirm.cards);
+            const mismatches = AL.loadedMismatches(animationsOut.text, confirm.cards, root._catalog());
             if (mismatches.length === 0)
                 return;
             console.warn(`[AnimationBackend] Hyprland does not report the written animations: ${mismatches.join(", ")}`);
@@ -653,8 +688,11 @@ QtObject {
             root._announce(before);
         }
         onLoadFailed: {
-            if (root.baseFixture.length > 0)
-                root.base = null;
+            if (root.baseFixture.length === 0)
+                return;
+            const before = root._readAll();
+            root.base = null;
+            root._announce(before);
         }
     }
 
@@ -663,8 +701,8 @@ QtObject {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.requiresFile = AL.requiresAnimations(text())
-        onLoadFailed: root.requiresFile = false
+        onLoaded: root._setRequiresFile(AL.requiresAnimations(text()))
+        onLoadFailed: root._setRequiresFile(false)
     }
 
     readonly property FileView gameModeFile: FileView {
@@ -672,8 +710,8 @@ QtObject {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.gameMode = HL.isGameModeActive(text())
-        onLoadFailed: root.gameMode = false
+        onLoaded: root._setGameMode(HL.isGameModeActive(text()))
+        onLoadFailed: root._setGameMode(false)
     }
 
     readonly property Connections hyprlandEvents: Connections {

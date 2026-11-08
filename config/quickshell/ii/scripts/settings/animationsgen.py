@@ -271,7 +271,12 @@ def check_curve(name: object, desc: object) -> dict[str, Any]:
 # --------------------------------------------------------------------- base
 
 def check_base(base: object) -> dict[str, Any] | None:
-    """Validated {curves, animations} of a hyprbase.py result, or None when absent."""
+    """Validated {curves, animations, errors} of a hyprbase.py result, or None when absent.
+
+    A dotfiles curve whose name is not a Lua identifier cannot be written to
+    the file, so it is left out (and reported in `errors`) instead of
+    rejecting the whole base, which would block every card write. A base
+    animation that uses such a curve is left out the same way."""
     if base is None:
         return None
     if not isinstance(base, dict):
@@ -281,8 +286,12 @@ def check_base(base: object) -> dict[str, Any] | None:
     if not isinstance(curves, dict) or not isinstance(animations, dict):
         raise Invalid('base.curves and base.animations must be objects')
     out_curves: dict[str, dict] = {}
+    errors: list[str] = []
     for name, desc in curves.items():
-        if not IDENT_RE.fullmatch(name) or not isinstance(desc, dict) or desc.get('type') not in ('bezier', 'spring'):
+        if not IDENT_RE.fullmatch(name):
+            errors.append(f'base.curves.{name} is not a Lua identifier; it is ignored')
+            continue
+        if not isinstance(desc, dict) or desc.get('type') not in ('bezier', 'spring'):
             raise Invalid(f'base.curves.{name} is not a valid curve')
         out_curves[name] = {'type': desc['type']}
     out_anims: dict[str, dict] = {}
@@ -295,14 +304,18 @@ def check_base(base: object) -> dict[str, Any] | None:
             out_anims[leaf] = {'enabled': False, 'speed': 1, 'curve': 'default', 'style': ''}
             continue
         curve = item.get('bezier', item.get('spring'))
-        if not is_number(item.get('speed')) or not 0 < item['speed'] <= 100 \
-                or not isinstance(curve, str) or not IDENT_RE.fullmatch(curve):
+        if not is_number(item.get('speed')) or not 0 < item['speed'] <= 100 or not isinstance(curve, str):
             raise Invalid(f'base.animations.{leaf} is not a valid animation')
+        if not IDENT_RE.fullmatch(curve):
+            # Uses an ignored curve: resolve() falls back to the parent or
+            # Hyprland's compiled tuple for this leaf.
+            errors.append(f'base.animations.{leaf} uses the ignored curve {curve}; it is ignored')
+            continue
         style = item.get('style', '')
         if not isinstance(style, str):
             raise Invalid(f'base.animations.{leaf}.style must be text')
         out_anims[leaf] = {'enabled': item['enabled'], 'speed': item['speed'], 'curve': curve, 'style': style}
-    return {'curves': out_curves, 'animations': out_anims}
+    return {'curves': out_curves, 'animations': out_anims, 'errors': errors}
 
 
 def resolve(base: dict | None, leaf: str) -> dict[str, Any]:
@@ -477,8 +490,8 @@ def check_changes(raw: object) -> dict[str, Any]:
     return {'cards': cards, 'curves': curves, 'removeAll': remove_all, 'base': check_base(raw.get('base'))}
 
 
-def apply(state: dict[str, Any], raw: object) -> tuple[dict[str, dict], dict[str, dict], dict[str, dict]]:
-    """New (user curves, leaves, known curves) after a change set; raises Invalid."""
+def apply(state: dict[str, Any], raw: object) -> tuple[dict[str, dict], dict[str, dict], dict[str, dict], list[str]]:
+    """New (user curves, leaves, known curves, non-fatal errors) after a change set; raises Invalid."""
     changes = check_changes(raw)
     base = changes['base']
     user = dict(state['curves'])
@@ -517,7 +530,7 @@ def apply(state: dict[str, Any], raw: object) -> tuple[dict[str, dict], dict[str
         check_speed(value['speed'], where)
         check_curve_name(value['curve'], known, where)
         check_style(LEAF_FAMILY[leaf], value['style'], where)
-    return user, leaves, known
+    return user, leaves, known, list(base['errors']) if base else []
 
 
 def statements(text: str) -> list[str]:
@@ -572,13 +585,15 @@ def cmd_apply(path: Path, source: str, do_eval: bool) -> int:
         result['errors'] = [f'cannot read {path}: {error}']
         return emit(result, EXIT_IO)
     try:
-        user, leaves, known = apply(state, raw)
+        user, leaves, known, warnings = apply(state, raw)
         text = render(user, leaves, known)
     except Invalid as error:
         result['errors'] = [str(error)]
         result['cards'] = cards_of(state['leaves'])
         return emit(result, EXIT_INVALID)
     result['cards'] = cards_of(leaves)
+    # Non-fatal problems (ignored base curves); replaced by the error on a failure below.
+    result['errors'] = warnings
     if text == old_text:
         result['ok'] = True
         return emit(result, 0)

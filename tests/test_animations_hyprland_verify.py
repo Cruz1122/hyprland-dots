@@ -49,6 +49,16 @@ def loader_block() -> str:
     return match.group(0)
 
 
+class LoaderBlockTest(unittest.TestCase):
+    def test_the_loader_uses_pcall(self) -> None:
+        # `Hyprland --verify-config` alone cannot show that the pcall matters:
+        # Hyprland 0.57 continues after a failing require (it records the
+        # error and runs the rest of hyprland.lua), so the broken-file test
+        # below passes with or without it. The pcall is the documented guard
+        # for Game Mode's overrides that follow, so it is pinned in the text.
+        self.assertIn('pcall(require, "custom.shell-animations")', loader_block())
+
+
 @unittest.skipIf(HYPRLAND is None, "Hyprland is not installed: cannot run --verify-config")
 class HyprlandVerifyConfigTest(unittest.TestCase):
     def setUp(self) -> None:

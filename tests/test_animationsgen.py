@@ -223,7 +223,7 @@ class GeneratorTest(unittest.TestCase):
         code, data, _ = self.run_gen("--apply-json", "-", stdin="{not json")
         self.assertEqual((code, data["ok"]), (2, False))
         for bad in ([], {"cards": {"nope": None}}, {"cards": []}, {"removeAllAnimations": "yes"}, {"extra": 1},
-                    {"base": "x"}, {"base": {"curves": {"a b": {"type": "bezier"}}}}):
+                    {"base": "x"}, {"base": {"curves": {"ok": {"type": "nope"}}}}):
             with self.subTest(changes=bad):
                 code, data, _ = self.run_gen("--apply-json", "-", stdin=bad)
                 self.assertEqual(code, 2, data)
@@ -352,6 +352,55 @@ class GeneratorTest(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("base", data["errors"][0])
 
+    def test_a_dotfiles_curve_that_is_not_an_identifier_is_ignored(self) -> None:
+        # One odd name must not reject the whole base (every card write would
+        # fail with exit 2): that curve is left out and reported.
+        base = json.loads(json.dumps(BASE))
+        base["curves"]["my curve"] = {"type": "bezier", "points": [0, 0, 1, 1]}
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="")}})
+        self.assertEqual(code, 0, data)
+        self.assertEqual(data["errors"], ["base.curves.my curve is not a Lua identifier; it is ignored"])
+        self.assertEqual(data["cards"]["border"], self.value(style=""))
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="", curve="my curve")}})
+        self.assertEqual(code, 2, data)
+        checked = gen.check_base(base)
+        self.assertNotIn("my curve", checked["curves"])
+        self.assertIn("emphasizedDecel", checked["curves"])
+
+    def test_a_base_animation_using_an_ignored_curve_is_ignored(self) -> None:
+        # The realistic case: the dotfiles define the odd curve to use it.
+        # That animation is left out (its parent or Hyprland's compiled tuple
+        # applies) and an unrelated card write still succeeds.
+        base = json.loads(json.dumps(BASE))
+        base["curves"]["my-curve"] = {"type": "bezier", "points": [0, 0, 1, 1]}
+        base["animations"]["windowsMove"] = {"enabled": True, "speed": 3, "bezier": "my-curve"}
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="")}})
+        self.assertEqual(code, 0, data)
+        self.assertEqual(data["errors"], [
+            "base.curves.my-curve is not a Lua identifier; it is ignored",
+            "base.animations.windowsMove uses the ignored curve my-curve; it is ignored",
+        ])
+        self.assertEqual(data["cards"]["border"], self.value(style=""))
+        checked = gen.check_base(base)
+        self.assertNotIn("windowsMove", checked["animations"])
+        self.assertEqual(gen.resolve(checked, "windowsMove"), gen.resolve(checked, "windows"))
+        # A malformed animation still rejects the base.
+        base["animations"]["windowsMove"] = {"enabled": True, "speed": 3, "bezier": 7}
+        self.assertEqual(self.apply({"base": base, "cards": {"border": self.value(style="")}})[0], 2)
+
+    def test_carried_over_lines_are_validated_again(self) -> None:
+        # The file regex accepts styles the allowlist does not (a side on
+        # workspaces), so lines carried over from the file are checked again.
+        self.assertEqual(self.apply({"cards": {"border": self.value(style="")}})[0], 0)
+        with self.file.open("a", encoding="utf-8") as handle:
+            handle.write('hl.animation({ leaf = "workspaces", enabled = true, speed = 3, bezier = "menu_decel", '
+                         'style = "slide top" })\n')
+        before = self.file.read_bytes()
+        code, data = self.apply({"cards": {"border": self.value(style="", speed=4)}})
+        self.assertEqual(code, 2, data)
+        self.assertIn("leaf workspaces", data["errors"][0])
+        self.assertEqual(self.file.read_bytes(), before)
+
     def test_unknown_lines_are_reported_and_dropped(self) -> None:
         self.assertEqual(self.apply({"cards": {"border": self.value(style="")}})[0], 0)
         with self.file.open("a", encoding="utf-8") as handle:
@@ -412,6 +461,24 @@ class GeneratorTest(unittest.TestCase):
         self.assertTrue(calls[0].startswith("eval "))
         self.assertEqual(calls[1], "reload config-only")
         self.assertEqual(self.file.read_bytes(), before)
+
+    def test_eval_error_text_with_exit_0_counts_as_a_failure(self) -> None:
+        # Hyprland reports binding errors as "error: ..." with exit 0.
+        bin_dir = self.dir / "bin"
+        (bin_dir / "hyprctl").write_text(
+            "#!/bin/sh\n"
+            f'printf "%s\\n" "$*" >> "{self.log}"\n'
+            'if [ "$1" = eval ]; then echo "error: no such bezier"; else echo ok; fi\n', encoding="utf-8")
+        before_exists = self.file.exists()
+        code, data = self.apply({"cards": {"border": self.value(style="")}}, "--eval")
+        self.assertEqual(code, 4, data)
+        self.assertEqual((data["ok"], data["evalOk"], data["reloaded"], data["written"]), (False, False, True, False))
+        self.assertEqual(data["errors"], ["error: no such bezier"])
+        calls = self.calls()
+        self.assertEqual(len(calls), 2, calls)
+        self.assertTrue(calls[0].startswith("eval "), calls)
+        self.assertEqual(calls[1], "reload config-only")
+        self.assertEqual(self.file.exists(), before_exists)
 
     def test_eval_success_applies_changed_statements_once_curves_first(self) -> None:
         curve = {"type": "bezier", "points": [0.3, 0.1, 0.2, 1], "label": "Mine"}

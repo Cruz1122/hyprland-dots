@@ -55,6 +55,9 @@ QtObject {
     property bool gameMode: false
     // Override key -> value in shellOverrides/main.lua while Game Mode is on.
     property var gameModeOverrides: ({})
+    // A configreloaded dropped the live previews; they are applied again once
+    // Game Mode's state is known (see _reapplyIfDue).
+    property bool _reapplyDue: false
     readonly property var capabilities: {
         const caps = [];
         if (root.touchpad)
@@ -316,7 +319,9 @@ QtObject {
         for (const item of snap) {
             const e = item.entry;
             const wasReset = (e.key + "\u0000reset") in live;
-            const paused = item.paused || !!live[e.key]?.paused;
+            // Paused now or when the preview started: either way Game Mode's
+            // live value must not be covered.
+            const paused = item.paused || !!live[e.key]?.paused || root._paused(e);
             delete live[e.key];
             delete live[e.key + "\u0000reset"];
             root._setOptimistic(e.key, undefined);
@@ -331,11 +336,22 @@ QtObject {
     }
 
     // Live previews are runtime state: a reload (another write, Game Mode)
-    // drops them, so they are applied again while the confirmation lasts.
+    // drops them, so they are applied again while the confirmation lasts,
+    // unless Game Mode overrides the option now (it may have started after
+    // the preview). A reload re-applies only once Game Mode's file and
+    // overrides are read again (_reapplyIfDue): the reload Game Mode itself
+    // triggers must not see the overrides from before it started.
+    function _reapplyIfDue() {
+        if (!root._reapplyDue)
+            return;
+        root._reapplyDue = false;
+        root._reapplyLive();
+    }
+
     function _reapplyLive() {
         for (const k in root._live) {
             const item = root._live[k];
-            if (!item.reset && !item.paused)
+            if (!item.reset && !item.paused && !root._paused(item.entry))
                 root._eval(item.entry, item.value, item.entry.key);
         }
     }
@@ -374,6 +390,9 @@ QtObject {
             root.gameModeOverrides = {};
         }
         root._announce(before);
+        // With Game Mode on, gameModeProc re-applies once its overrides are in.
+        if (!active)
+            root._reapplyIfDue();
     }
 
     // Starts a read; one already running is restarted when it ends, so the
@@ -531,6 +550,7 @@ QtObject {
                 root.gameModeOverrides = {};
             }
             root._announce(before);
+            root._reapplyIfDue();
         }
     }
 
@@ -576,11 +596,12 @@ QtObject {
                 return;
             root._lastReloadAt = Date.now();
             root.reloadFallback.stop();
+            // Set before the reload: the file may load synchronously.
+            root._reapplyDue = true;
             // Game Mode replaces its file atomically and Hyprland reloads
             // right after, so the reload also refreshes the watch.
             root.gameModeFile.reload();
             root.refresh();
-            root._reapplyLive();
         }
     }
 }

@@ -1622,7 +1622,6 @@
   "Gaps, borders, blur, shadows and window behavior.": "Espacios, bordes, desenfoque, sombras y comportamiento de las ventanas.",
   "Hyprland does not load the animation settings yet: update the dotfiles": "Hyprland todavía no carga los ajustes de animación: actualiza los dotfiles",
   "No connected display supports variable refresh rate (FreeSync/G-Sync)": "Ninguna pantalla conectada admite frecuencia variable (FreeSync/G-Sync)",
-  "Animation settings are not available yet": "Los ajustes de animación todavía no están disponibles",
   "Reading the animation settings…": "Leyendo los ajustes de animación…",
   "Could not read the animation settings": "No se pudieron leer los ajustes de animación",
   "custom/shell-animations.lua was not created by Settings, so it is left alone": "Configuración no creó custom/shell-animations.lua, así que no lo modifica",
@@ -1672,9 +1671,6 @@
   "Moves in or out through a screen edge: the nearest one unless you pick a side.": "Entra o sale por un borde de la pantalla: el más cercano, salvo que elijas un lado.",
   "Unfolds from a line across the middle, as in GNOME.": "Se despliega desde una línea en el centro, como en GNOME.",
   "Appears or disappears in place, without moving.": "Aparece o desaparece en su sitio, sin moverse.",
-  "Moves up or down instead of sideways.": "Se mueve hacia arriba o hacia abajo en lugar de hacia los lados.",
-  "Moves sideways part of the way while it fades.": "Se desplaza de lado parte del recorrido mientras se funde.",
-  "Moves up or down part of the way while it fades.": "Se desplaza en vertical parte del recorrido mientras se funde.",
   "Agile": "Ágil",
   "Smooth": "Suave",
   "Bouncy": "Con rebote",
@@ -2046,5 +2042,10 @@
   "Changes how long switches, sliders and the transitions inside the shell's panels take.": "Cambia la duración de los interruptores, los controles deslizantes y las transiciones dentro de los paneles de la interfaz.",
   "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed, and some effects ignore it, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions.": "No cambia cómo Hyprland abre las ventanas ni los paneles de la interfaz; eso está en el resto de esta página. Los indicadores de carga mantienen su velocidad, y algunos efectos no la siguen, como las ondas de los botones, el fundido del texto, la barra de desplazamiento, la pantalla de bloqueo y el cambio de página de Configuración.",
   "Switches, sliders, menus and the transitions inside the shell's panels end instantly.": "Los interruptores, los controles deslizantes, los menús y las transiciones dentro de los paneles de la interfaz terminan al instante.",
-  "Some effects still animate, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions; loading spinners keep turning and the speed above has no effect. For the desktop itself, use the Minimal preset at the top of this page.": "Algunos efectos siguen animándose, como las ondas de los botones, el fundido del texto, la barra de desplazamiento, la pantalla de bloqueo y el cambio de página de Configuración; los indicadores de carga siguen girando y la velocidad de arriba no tiene efecto. Para el escritorio, usa el preajuste Mínimo al principio de esta página."
+  "Some effects still animate, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions; loading spinners keep turning and the speed above has no effect. For the desktop itself, use the Minimal preset at the top of this page.": "Algunos efectos siguen animándose, como las ondas de los botones, el fundido del texto, la barra de desplazamiento, la pantalla de bloqueo y el cambio de página de Configuración; los indicadores de carga siguen girando y la velocidad de arriba no tiene efecto. Para el escritorio, usa el preajuste Mínimo al principio de esta página.",
+  "The whole workspace moves sideways, as far as the screen is wide.": "Todo el espacio de trabajo se desplaza de lado, a lo ancho de la pantalla.",
+  "The whole workspace moves up or down, as far as the screen is tall.": "Todo el espacio de trabajo se desplaza hacia arriba o hacia abajo, a lo alto de la pantalla.",
+  "The workspace fades in or out in place, without moving.": "El espacio de trabajo aparece o desaparece con un fundido, sin moverse.",
+  "The workspace moves sideways part of the way while it fades.": "El espacio de trabajo se desplaza de lado una parte del recorrido mientras se funde.",
+  "The workspace moves up or down part of the way while it fades.": "El espacio de trabajo se desplaza en vertical una parte del recorrido mientras se funde."
 }
