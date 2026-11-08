@@ -143,8 +143,9 @@ explicitly labeled advanced/unreliable; an expired session cookie or OAuth code
 is not a substitute for the browser flow.
 
 The extension has host permissions only for Cursor/Zed origins and permissions
-for native messaging, isolated script execution, alarms, and session storage for
-IDs of its own temporary tabs. It requests neither `cookies` nor `debugger`.
+for native messaging, isolated script execution, alarms, and session storage. It
+stores no page content, tab IDs or credentials and requests neither `cookies` nor
+`debugger`.
 It reads known usage fields (and a hashed Cursor identity) in the browser, sends
 only sanitized quota data over Native Messaging, and never exports a session store.
 The host accepts only its fixed extension origin and bounded 1 MiB framed messages.
@@ -162,8 +163,9 @@ identity is best-effort: a failing `/api/auth/me` leaves the reading as
 **identity unverified** instead of forcing a reconnect while `/api/usage-summary`
 still answers. No browser Preferences, personal profiles or existing browser
 credentials are read or rewritten. Background refresh is normally every 180 seconds;
-the extension checks for work with a 30-second alarm. It removes only its own
-inactive temporary tabs, not user-owned or activated tabs.
+the extension checks for work with a 30-second alarm. Background reads never open
+provider pages: they only reuse an already-open dashboard tab. A tab is opened only
+by an explicit login requested from the panel.
 
 Native installation is opt-in, Linux x86_64 only, and never happens on hover or
 background polling. `guided.py` pins official agy 1.4.2 (SHA-512) and Claude Code
