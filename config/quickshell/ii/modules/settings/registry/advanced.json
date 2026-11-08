@@ -3,6 +3,221 @@
   "title": "Advanced",
   "icon": "construction",
   "description": "Configuration file, workarounds, work safety and diagnostics.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "configFile",
+      "title": "Configuration file",
+      "icon": "description"
+    },
+    {
+      "id": "workarounds",
+      "title": "Workarounds",
+      "icon": "build"
+    },
+    {
+      "id": "workSafety",
+      "title": "Work safety",
+      "icon": "work",
+      "description": "Hide sensitive wallpapers and clipboard entries on public networks."
+    },
+    {
+      "id": "diagnostics",
+      "title": "Diagnostics",
+      "icon": "troubleshoot"
+    },
+    {
+      "id": "reset",
+      "title": "Reset",
+      "icon": "restart_alt"
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.advanced.configPath",
+      "section": "configFile",
+      "label": "Location",
+      "description": "File that stores the shell settings.",
+      "icon": "description",
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "action.advanced.openConfig",
+      "section": "configFile",
+      "label": "Open the file",
+      "description": "Open the configuration file in the default editor.",
+      "icon": "edit_document",
+      "backend": "action",
+      "type": "action",
+      "action": "openConfig",
+      "actionLabel": "Open",
+      "actionIcon": "open_in_new"
+    },
+    {
+      "key": "action.advanced.copyConfigPath",
+      "section": "configFile",
+      "label": "Copy the path",
+      "description": "Copy the location of the configuration file.",
+      "icon": "content_copy",
+      "backend": "action",
+      "type": "action",
+      "action": "copyConfigPath",
+      "actionLabel": "Copy",
+      "actionIcon": "content_copy"
+    },
+    {
+      "key": "hacks.arbitraryRaceConditionDelay",
+      "section": "workarounds",
+      "label": "Race condition delay",
+      "description": "Wait used by a few panels before reading state that is not ready yet.",
+      "icon": "hourglass",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "unit": "ms",
+      "consumers": [
+        "services/Cliphist.qml"
+      ]
+    },
+    {
+      "key": "interactions.deadPixelWorkaround.enable",
+      "section": "workarounds",
+      "label": "Dead pixel workaround",
+      "description": "Extend the bar and screen corners one pixel past the edge to hide a gap on some screens.",
+      "icon": "grid_on",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/bar/Bar.qml"
+      ]
+    },
+    {
+      "key": "networking.userAgent",
+      "section": "workarounds",
+      "label": "User agent",
+      "description": "Browser identification sent when the shell downloads images and icons.",
+      "icon": "public",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true
+      },
+      "consumers": [
+        "modules/common/utils/ImageDownloaderProcess.qml"
+      ]
+    },
+    {
+      "key": "tray.showItemId",
+      "section": "workarounds",
+      "label": "Show tray item ids",
+      "description": "Add each tray icon's id to its tooltip, useful to hide or pin it.",
+      "icon": "tag",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/TrayService.qml"
+      ]
+    },
+    {
+      "key": "workSafety.enable.wallpaper",
+      "section": "workSafety",
+      "label": "Hide sensitive wallpapers",
+      "description": "Blur wallpapers whose file name looks sensitive while on a public network.",
+      "icon": "wallpaper",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "workSafety.enable.clipboard",
+      "section": "workSafety",
+      "label": "Hide sensitive clipboard entries",
+      "description": "Hide clipboard entries with sensitive links while on a public network.",
+      "icon": "content_paste_off",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "workSafety.triggerCondition.networkNameKeywords",
+      "section": "workSafety",
+      "label": "Public network keywords",
+      "description": "A network whose name contains one of these words counts as public.",
+      "icon": "wifi",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "workSafety.triggerCondition.fileKeywords",
+      "section": "workSafety",
+      "label": "Sensitive file keywords",
+      "description": "Wallpaper file names containing these words are hidden.",
+      "icon": "image",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "enabledWhen": {
+        "key": "workSafety.enable.wallpaper",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "workSafety.triggerCondition.linkKeywords",
+      "section": "workSafety",
+      "label": "Sensitive link keywords",
+      "description": "Clipboard entries with links containing these words are hidden.",
+      "icon": "link_off",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "enabledWhen": {
+        "key": "workSafety.enable.clipboard",
+        "equals": true
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "info.advanced.diagnostics",
+      "section": "diagnostics",
+      "label": "Backends and paths",
+      "description": "Where settings are stored and which backends can apply them right now.",
+      "icon": "troubleshoot",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
+      "key": "info.advanced.resetAll",
+      "section": "reset",
+      "label": "Reset every shell setting",
+      "description": "Back up the configuration file, then restore every shell setting shown in this app to its default.",
+      "note": "Hyprland, display, idle and default app settings are not changed.",
+      "icon": "restart_alt",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    }
+  ]
 }

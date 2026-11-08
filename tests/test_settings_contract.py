@@ -33,7 +33,6 @@ LEGACY = {
     SETTINGS / "QuickConfig.qml",
     SETTINGS / "ScreenRecordingConfig.qml",
     SETTINGS / "ServicesConfig.qml",
-    COMPONENTS / "AiQuotaSettings.qml",
 }
 
 PAGE_IDS = [

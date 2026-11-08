@@ -87,6 +87,32 @@ class ScreenRecordingContractTest(unittest.TestCase):
         self.assertNotIn("[Directories.recordScriptPath, \"--fullscreen\", \"--sound\"]", util_buttons_qml)
         self.assertIn('title: Translation.tr("Screen record")', util_buttons_qml)
 
+    def test_screen_recording_page_exposes_actions_and_bar_customization(self) -> None:
+        capture = json.loads(read("config/quickshell/ii/modules/settings/registry/capture.json"))
+        entries = {e["key"]: e for e in capture["entries"]}
+        page_qml = read("config/quickshell/ii/modules/settings/pages/CapturePage.qml")
+        expected_actions = {
+            "action.capture.recordScreen": ("recordScreen", '[Directories.recordScriptPath, "--fullscreen"]'),
+            "action.capture.recordRegion": ("recordRegion", '"regionRecord"'),
+            "action.capture.pauseRecording": ("pauseRecording", '[Directories.recordScriptPath, "--pause"]'),
+            "action.capture.stopRecording": ("stopRecording", '[Directories.recordScriptPath, "--stop"]'),
+        }
+        for key, (action, call) in expected_actions.items():
+            with self.subTest(key=key):
+                self.assertEqual(entries[key]["type"], "action")
+                self.assertEqual(entries[key]["action"], action)
+                self.assertIn(f"{action}: entry =>", page_qml)
+                self.assertIn(call, page_qml)
+        self.assertEqual(entries["action.capture.recordRegion"]["enabledWhen"], {"capability": "ipc:regionRecord"})
+        bar_button = entries["screenRecord.barButtonAction"]
+        self.assertEqual(bar_button["section"], "recordingActions")
+        self.assertIn("left sidebar", bar_button["label"].lower())
+        for key in ("screenRecord.recordAudioByDefault", "screenRecord.audioSource", "screenRecord.fps",
+                    "screenRecord.fileFormat", "screenRecord.pixelFormat", "screenRecord.savePath",
+                    "screenRecord.fullscreenUsesFocusedMonitor", "screenRecord.micDevice", "screenRecord.systemAudioDevice"):
+            self.assertIn(key, entries)
+        self.assertNotIn("bash", page_qml)
+
     def test_registry_declares_bar_button_action_enum(self) -> None:
         capture = json.loads(read("config/quickshell/ii/modules/settings/registry/capture.json"))
         entry = next(e for e in capture["entries"] if e.get("key") == "screenRecord.barButtonAction")
