@@ -122,6 +122,12 @@ def capability_reasons() -> dict[str, str]:
     return dict(re.findall(r'"([^"]+)":\s*"([^"]+)"', block.group(1))) if block else {}
 
 
+def chip_labels(name: str) -> dict[str, str]:
+    source = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
+    block = re.search(rf"var {name} = \{{(.*?)\}};", source, re.S)
+    return dict(re.findall(r'"([^"]+)":\s*"([^"]+)"', block.group(1))) if block else {}
+
+
 def condition_capabilities(cond: Any) -> list[str]:
     if isinstance(cond, dict):
         found = [cond["capability"]] if "capability" in cond else []
@@ -372,8 +378,31 @@ class SettingsContractTest(unittest.TestCase):
         for path in [SETTINGS / "core/SettingsLogic.js", SETTINGS / "core/SettingsStoreImpl.qml", *sorted((SETTINGS / "backends").glob("*.qml"))]:
             needed |= set(message.findall(path.read_text(encoding="utf-8")))
         needed |= set(capability_reasons().values())
+        logic = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
+        # Row texts built in SettingsLogic.js with tr("…") and the chip labels.
+        needed |= set(re.findall(r'\btr\("((?:\\.|[^"\\])*)"\)', logic))
+        needed |= set(chip_labels("APPLIES_LABELS").values()) | set(chip_labels("COST_LABELS").values())
         missing = sorted(text for text in needed if text and text not in self.translations)
         self.assertEqual(missing, [], "add these to translations/es_MX.json")
+
+    def test_every_applies_and_cost_value_has_a_chip(self) -> None:
+        self.assertEqual(set(chip_labels("APPLIES_LABELS")), APPLIES)
+        self.assertEqual(set(chip_labels("COST_LABELS")), COSTS)
+
+    def test_banner_widget_renders_and_game_mode_banners(self) -> None:
+        page = (COMPONENTS / "SettingsPage.qml").read_text(encoding="utf-8")
+        self.assertIn('"banner": "SettingsBannerRow.qml"', page)
+        self.assertTrue((COMPONENTS / "SettingsBannerRow.qml").is_file())
+        windows = self.docs["windows"]
+        first = windows["entries"][0]
+        self.assertEqual(first["key"], "info.windows.gameMode")
+        self.assertEqual(first["section"], windows["sections"][0]["id"])
+        for key in ["info.windows.gameMode", "info.animations.gameMode"]:
+            _, entry = self.by_key[key]
+            with self.subTest(key=key):
+                self.assertEqual((entry["backend"], entry["type"], entry.get("widget")), ("readonly", "info", "banner"))
+                self.assertEqual(entry.get("visibleWhen"), {"capability": "gameMode"})
+        self.assertEqual(self.translations.get("Paused by Game Mode"), "Pausado por el Modo Juego")
 
     def test_disabling_capabilities_explain_why(self) -> None:
         # A row disabled by a missing capability shows Logic.capabilityReason;

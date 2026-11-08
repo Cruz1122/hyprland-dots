@@ -26,6 +26,8 @@ Singleton {
     function isEnabled(key) { return impl.isEnabled(key); }
     function isVisible(key) { return impl.isVisible(key); }
     function blockingCondition(key) { return impl.blockingCondition(key); }
+    // English source string from the backend about the row's state, or "".
+    function statusNote(key) { void impl.revision; return impl.statusNote(key); }
     // Backend-provided choices (devices, applications); falls back to the entry options.
     function choices(key) {
         const e = impl.entry(key);

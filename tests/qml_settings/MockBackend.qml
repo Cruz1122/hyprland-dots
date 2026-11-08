@@ -26,6 +26,9 @@ QtObject {
     property int flushCount: 0
     property var _restoreSnap: null
 
+    // Optional statusNote(entry) hook: null means the backend has none.
+    property var statusNoteFor: null
+
     function flush() { root.flushCount++; }
 
     readonly property Timer _restoreTimer: Timer {
@@ -41,6 +44,7 @@ QtObject {
     signal succeeded(string key)
     signal failed(string key, string message)
 
+    function statusNote(entry) { return typeof root.statusNoteFor === "function" ? root.statusNoteFor(entry) : ""; }
     function read(entry) { return root.values[entry.key]; }
     function defaultValue(entry) { return root.defaults[entry.key]; }
     function isModified(entry) { return !Logic.deepEqual(root.values[entry.key], root.defaults[entry.key]); }

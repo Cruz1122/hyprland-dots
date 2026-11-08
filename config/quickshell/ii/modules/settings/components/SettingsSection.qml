@@ -4,6 +4,8 @@ import qs.modules.common
 import qs.modules.common.widgets
 
 // Section title above a rounded card that holds the rows (default children).
+// `bannerText` (translated) shows one notice at the top of the card, for
+// example why every row of the section is unavailable.
 ColumnLayout {
     id: root
 
@@ -11,6 +13,7 @@ ColumnLayout {
     property string title: ""
     property string icon: ""
     property string description: ""
+    property string bannerText: ""
     default property alias content: card.data
 
     objectName: "section:" + root.sectionId
@@ -66,6 +69,14 @@ ColumnLayout {
                 margins: SettingsMetrics.cardPadding
             }
             spacing: 2
+
+            SettingsBannerRow {
+                objectName: "sectionBanner:" + root.sectionId
+                visible: root.bannerText.length > 0
+                Layout.fillWidth: true
+                iconName: "info"
+                text: root.bannerText
+            }
         }
     }
 }

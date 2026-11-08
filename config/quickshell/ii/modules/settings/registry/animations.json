@@ -62,6 +62,7 @@
       "icon": "sports_esports",
       "backend": "readonly",
       "type": "info",
+      "widget": "banner",
       "visibleWhen": {
         "capability": "gameMode"
       }

@@ -39,7 +39,7 @@ EXCLUDED_PARTS = {"waffle"}
 # that must not scale with `// motion-ok: <reason>`, lower this number to the
 # new count printed by the failure message. Never raise it: route new motion
 # through Appearance instead.
-MAX_UNMIGRATED = 58
+MAX_UNMIGRATED = 55
 
 MARKER = "motion-ok:"
 SCALED = re.compile(r"\bAppearance\s*\??\.|\bMotionScale\s*\.|\bscaled(?:Velocity|Interval)?\s*\(")

@@ -132,7 +132,11 @@
       "key": "battery.automaticSuspend",
       "section": "battery",
       "label": "Suspend on low battery",
-      "description": "Suspend the system automatically when the battery runs out.",
+      "description": "Suspend the system when the battery drops to the level below and it is not charging.",
+      "keywords": [
+        "battery runs out",
+        "batería se agota"
+      ],
       "icon": "bedtime",
       "backend": "config",
       "type": "bool",

@@ -12,6 +12,8 @@ QtObject {
     readonly property real rowHorizontalPadding: 16
     readonly property real rowVerticalPadding: 12
     readonly property real rowStackWidth: 520
+    // Left indent of a row that depends on another row of its section.
+    readonly property real dependentIndent: 20
     readonly property real controlHeight: 36
     readonly property real controlRadius: 12
     // Drop-downs share one width so a section's controls line up; long

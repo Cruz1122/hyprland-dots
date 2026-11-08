@@ -55,10 +55,11 @@
       "key": "info.windows.gameMode",
       "section": "gameMode",
       "label": "Game Mode is on",
-      "description": "While it is on, Game Mode overrides gaps, borders, rounding, blur, shadows and animations; your values return when you turn it off.",
+      "description": "Game Mode turns off blur, shadows, gaps and rounding while it is on; your values are kept and come back when you turn it off.",
       "icon": "sports_esports",
       "backend": "readonly",
       "type": "info",
+      "widget": "banner",
       "visibleWhen": {
         "capability": "gameMode"
       }
@@ -68,6 +69,7 @@
       "section": "spacing",
       "label": "Gaps between windows",
       "description": "Space between tiled windows, in pixels.",
+      "help": "Screen edges have their own gap (next setting). The same value is used on all four sides; separate values per side cannot be set here.",
       "icon": "space_bar",
       "backend": "hyprland",
       "path": "general.gaps_in",
@@ -75,14 +77,14 @@
       "type": "int",
       "min": 0,
       "max": 40,
-      "unit": "px",
-      "note": "Applies the same gap to every side."
+      "unit": "px"
     },
     {
       "key": "hyprland.general.gaps_out",
       "section": "spacing",
       "label": "Gaps at the screen edges",
       "description": "Space between windows and the edges of the monitor, in pixels.",
+      "help": "The same value is used on all four edges; separate values per edge cannot be set here.",
       "icon": "fit_screen",
       "backend": "hyprland",
       "path": "general.gaps_out",
@@ -90,8 +92,7 @@
       "type": "int",
       "min": 0,
       "max": 60,
-      "unit": "px",
-      "note": "Applies the same gap to every side."
+      "unit": "px"
     },
     {
       "key": "hyprland.general.border_size",
@@ -456,8 +457,16 @@
     {
       "key": "hyprland.general.allow_tearing",
       "section": "behavior",
-      "label": "Allow tearing",
-      "description": "Let games that request it present frames immediately, which lowers latency but can show tearing.",
+      "label": "Allow tearing in games",
+      "description": "Games marked for it show each frame as soon as it is ready: less delay, but a horizontal tear can appear.",
+      "keywords": [
+        "Allow tearing",
+        "Permitir tearing",
+        "tearing",
+        "desgarro",
+        "immediate"
+      ],
+      "help": "Only applies to windows with the immediate rule (Steam games, .exe titles and Minecraft in rules.lua).",
       "icon": "bolt",
       "backend": "hyprland",
       "path": "general.allow_tearing",

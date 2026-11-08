@@ -16,11 +16,14 @@ SettingsRow {
     readonly property var options: row.rawOptions.map(o => ({
         value: o.value,
         label: o.translate === false ? String(o.label ?? o.value) : Translation.tr(String(o.label ?? o.value)),
-        icon: o.icon ?? ""
+        icon: o.icon ?? "",
+        description: o.description ? Translation.tr(o.description) : ""
     }))
     readonly property int currentIndex: row.options.findIndex(o => Logic.deepEqual(o.value, row.value))
 
     focusVisible: control.visualFocus
+    needsValue: true
+    optionNote: row.currentIndex >= 0 && row.options[row.currentIndex].description ? Translation.tr("Now: %1").arg(row.options[row.currentIndex].description) : ""
     activateHandler: () => control.popup.open()
     interactHandler: () => {
         if (row.options.length < 2)

@@ -217,6 +217,141 @@ TestCase {
         compare(Logic.search(docs, "appearance", 10)[0].kind, "page");
     }
 
+    // Search also reads help texts and option labels/descriptions, English
+    // and translated, accent-insensitive, and says which field matched.
+    function test_search_matches_help_and_options() {
+        const model = Logic.buildRegistry(
+            { groups: [{ id: "g", title: "G", pages: ["w"] }], footer: [] },
+            { w: { id: "w", title: "Windows", sections: [{ id: "s", title: "Spacing" }], entries: [
+                { key: "w.gap", section: "s", label: "Gap", backend: "hyprland", type: "int",
+                  help: "Inactive windows keep their dimming." },
+                { key: "w.style", section: "s", label: "Style", backend: "hyprland", type: "enum",
+                  options: [{ value: "popin", label: "Pop in", description: "The window grows from its center." },
+                            { value: "slide", label: "Slide" }] }
+            ] } },
+            { retired: [], managedElsewhere: [] });
+        const es = {
+            "Inactive windows keep their dimming.": "Las ventanas inactivas conservan su atenuación.",
+            "Pop in": "Emerger",
+            "The window grows from its center.": "La ventana crece desde el centro."
+        };
+        const tr = t => es[t] ?? t;
+        const docs = Logic.searchDocuments(model, tr);
+        for (const q of ["atenuacion", "atenuación", "ATENUACIÓN", "dimming"]) {
+            const r = Logic.search(docs, q, 10);
+            compare(r.length, 1, q);
+            compare(r[0].key, "w.gap", q);
+            compare(r[0].fields, ["help"], q);
+            verify(r[0].helpMatched, q);
+        }
+        const option = Logic.search(docs, "emerger", 10);
+        compare(option[0].key, "w.style");
+        compare(option[0].fields, ["option"]);
+        verify(!option[0].helpMatched);
+        compare(Logic.search(docs, "pop", 10)[0].key, "w.style", "English option label");
+        compare(Logic.search(docs, "centro", 10)[0].key, "w.style", "translated option description");
+        const label = Logic.search(docs, "gap", 10);
+        compare(label[0].fields, ["label"]);
+        verify(!label[0].helpMatched);
+        const mixed = Logic.search(docs, "gap atenuacion", 10);
+        compare(mixed[0].fields, ["label", "help"]);
+        verify(mixed[0].helpMatched, "one word found only in the help opens it");
+        verify(Logic.scoreToken(docs.find(d => d.key === "w.style"), "emerger") > Logic.scoreToken(docs.find(d => d.key === "w.gap"), "atenuacion"),
+            "option labels rank above help text");
+    }
+
+    function test_chips_priority_and_limit() {
+        const ids = chips => chips.map(c => c.id);
+        compare(Logic.rowChips({ key: "a" }, null), []);
+        compare(ids(Logic.rowChips({ key: "a", cost: "gpu" }, null)), ["gpu"]);
+        compare(ids(Logic.rowChips({ key: "a", applies: "newWindows", cost: "gpu" }, null)), ["newWindows", "gpu"]);
+        compare(ids(Logic.rowChips({ key: "a", applies: "onSave", cost: "battery" }, { key: "b", text: "Requires “B”" })),
+            ["requires", "onSave"], "at most 2, the dependency first");
+        compare(ids(Logic.rowChips({ key: "a", risky: true, cost: "gpu" }, null)), ["confirm", "gpu"], "risky entries ask for confirmation");
+        compare(ids(Logic.rowChips({ key: "a", risky: true, applies: "nextStart" }, null)), ["nextStart"], "an explicit applies wins");
+        compare(ids(Logic.rowChips({ key: "a", applies: "confirm", cost: "gpu" }, { key: "b", text: "Requires “B”" })), ["requires", "confirm"]);
+        compare(ids(Logic.rowChips({ key: "a", applies: "bogus", cost: "bogus" }, null)), [], "unknown values never render");
+        const req = Logic.rowChips({ key: "a" }, { key: "b", text: "Requires “B”" })[0];
+        compare(req.kind, "requires");
+        compare(req.target, "b");
+        compare(req.label, "Requires “B”");
+        compare(Logic.rowChips({ key: "a", applies: "nextLogin" }, null)[0].label, "At next login");
+        for (const id in Logic.APPLIES_LABELS)
+            verify(Logic.CHIP_RANK[id] !== undefined, id);
+        for (const id in Logic.COST_LABELS)
+            verify(Logic.CHIP_RANK[id] !== undefined, id);
+    }
+
+    function test_dependency_wording() {
+        const tr = t => t;
+        const flag = { key: "f", label: "Blur", type: "bool" };
+        const style = { key: "s", label: "Clock style", type: "enum",
+            options: [{ value: "cookie", label: "Cookie" }, { value: "digital", label: "Digital" }, { value: "numbers", label: "Numbers" }] };
+        compare(Logic.dependencyText({ key: "f", equals: true }, flag, tr), "Requires “Blur”");
+        compare(Logic.dependencyText({ key: "f" }, flag, tr), "Requires “Blur”", "truthy leaf");
+        compare(Logic.dependencyText({ key: "f", equals: false }, flag, tr), "Requires “Blur” off");
+        compare(Logic.dependencyText({ key: "f", notEquals: true }, flag, tr), "Requires “Blur” off");
+        compare(Logic.dependencyText({ key: "f", notEquals: false }, flag, tr), "Requires “Blur”");
+        compare(Logic.dependencyText({ not: { key: "f", equals: true } }, flag, tr), "Requires “Blur” off");
+        compare(Logic.dependencyText({ not: { key: "f" } }, flag, tr), "Requires “Blur” off");
+        compare(Logic.dependencyText({ key: "s", equals: "cookie" }, style, tr), "Requires “Clock style”: Cookie");
+        compare(Logic.dependencyText({ key: "s", in: ["cookie"] }, style, tr), "Requires “Clock style”: Cookie");
+        compare(Logic.dependencyText({ key: "s", in: ["cookie", "digital"] }, style, tr), "Requires “Clock style”: Cookie or Digital");
+        compare(Logic.dependencyText({ key: "s", in: ["cookie", "digital", "numbers"] }, style, tr), "Requires “Clock style”: Cookie, Digital or Numbers");
+        compare(Logic.dependencyText({ key: "s", notEquals: "numbers" }, style, tr), "Requires “Clock style” not set to Numbers");
+        compare(Logic.dependencyText({ not: { key: "s", equals: "numbers" } }, style, tr), "Requires “Clock style” not set to Numbers");
+        compare(Logic.dependencyText({ key: "x", equals: 1 }, null, tr), "Requires “x”: 1", "unknown target falls back to the key");
+        compare(Logic.dependencyText({ capability: "touchpad" }, null, tr), "", "capabilities have their own reasons");
+        const es = { "Requires “%1”: %2": "Requiere “%1”: %2", "Clock style": "Estilo del reloj", "Cookie": "Galleta", "Digital": "Digital", "%1 or %2": "%1 o %2" };
+        compare(Logic.dependencyText({ key: "s", in: ["cookie", "digital"] }, style, t => es[t] ?? t), "Requiere “Estilo del reloj”: Galleta o Digital");
+    }
+
+    function test_value_formatting_and_reset_text() {
+        const tr = t => t;
+        const percent = { key: "o", type: "real", widget: "slider", unit: "%", uiScale: 100, decimals: 2 };
+        compare(Logic.formatValue(percent, 0.5, tr), "50%", "percentages have no decimals");
+        compare(Logic.displayDecimals(percent), 0);
+        const px = { key: "g", type: "int", widget: "slider", unit: "px" };
+        compare(Logic.formatValue(px, 4, tr), "4px");
+        const power = { key: "r", type: "real", widget: "slider", decimals: 1 };
+        compare(Logic.formatValue(power, 2, tr), "2.0");
+        const minutes = { key: "m", type: "int", widget: "spin", unit: "min", uiScale: 1 / 60 };
+        compare(Logic.formatValue(minutes, 1500, tr), "25 min");
+        compare(Logic.formatValue({ key: "b", type: "bool" }, true, tr), "On");
+        compare(Logic.formatValue({ key: "e", type: "enum", options: [{ value: 1, label: "One" }] }, 1, tr), "One");
+        compare(Logic.formatValue({ key: "t", type: "string" }, "intl", tr), "“intl”");
+        compare(Logic.formatValue({ key: "t", type: "string" }, "intl", t => t === "“%1”" ? "«%1»" : t), "«intl»", "quotes follow the language");
+        compare(Logic.formatValue({ key: "t", type: "string" }, "", tr), "");
+        compare(Logic.formatValue({ key: "l", type: "list" }, ["a"], tr), "");
+        compare(Logic.resetText(px, 4, tr), "Reset to 4px");
+        compare(Logic.resetText(percent, 1, tr), "Reset to 100%");
+        compare(Logic.resetText(px, undefined, tr), "Reset", "unknown default: no value text");
+        compare(Logic.resetText({ key: "l", type: "list" }, ["a"], tr), "Reset to default");
+        compare(Logic.resetText({ key: "t", type: "string" }, "", tr), "Reset to default");
+        compare(Logic.fmt("%1 of %2", "a", 3), "a of 3");
+    }
+
+    function test_section_banner_reason() {
+        const down = { visible: true, writable: true, available: false, reason: "Hyprland is not running" };
+        compare(Logic.sectionBannerReason([down, down]), "Hyprland is not running");
+        compare(Logic.sectionBannerReason([down, { visible: true, writable: false, available: true, reason: "" }]), "Hyprland is not running",
+            "read-only rows do not break the banner");
+        compare(Logic.sectionBannerReason([down, { visible: false, writable: true, available: true, reason: "" }]), "Hyprland is not running",
+            "hidden rows do not count");
+        compare(Logic.sectionBannerReason([down, { visible: true, writable: true, available: true, reason: "" }]), "", "one row works");
+        compare(Logic.sectionBannerReason([down, { visible: true, writable: true, available: false, reason: "Other" }]), "", "different reasons");
+        compare(Logic.sectionBannerReason([]), "");
+    }
+
+    function test_section_dependencies() {
+        const entry = { key: "b", enabledWhen: { all: [{ key: "a", equals: true }, { key: "elsewhere", equals: 1 }, { key: "a" }] } };
+        compare(Logic.sectionDependencies(entry, ["a", "b"]), ["a"]);
+        compare(Logic.sectionDependencies({ key: "a" }, ["a", "b"]), []);
+        compare(Logic.sectionDependencies({ key: "a", enabledWhen: { key: "a" } }, ["a"]), [], "never itself");
+        compare(Logic.sectionDependencies({ key: "c", visibleWhen: { key: "a", equals: "x" } }, ["a", "c"]), ["a"], "visibleWhen too");
+        compare(Logic.sectionDependencies({ key: "c", visibleWhen: { capability: "touchpad" } }, ["a", "c"]), []);
+    }
+
     function test_confirmation_batch() {
         let p = Logic.joinBatch(null, ["a"], 15);
         compare(p.secondsLeft, 15);

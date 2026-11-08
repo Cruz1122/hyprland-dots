@@ -130,22 +130,22 @@ Entry fields:
 | `key` | Globally unique id. For `config` it is the config path. Other backends use a prefix: `hyprland.<lua path>`, `animation.<x>`, `display.<field>`, `mime.<role>`, `audio.<x>`, `power.<x>`, `ipc.<x>`, `action.<page>.<name>`, `info.<page>.<name>`. |
 | `section` | Section id of the same page. |
 | `label`, `description` | English source strings, translated with `Translation.tr`. Description is one sentence. |
-| `note` | Optional English hint shown under the description (for example "Applies to new windows"). |
-| `help` | Optional English longer explanation (1–3 sentences: what it does, when to use it, what to watch out for), shown on demand; never repeats the description. |
-| `applies` | Optional: when a change takes effect, shown as a chip. One of `newWindows`, `nextStart` (next shell start), `nextLogin`, `confirm` (keep-or-revert), `onSave`. Instant changes have none. |
-| `cost` | Optional resource the setting costs while on: `gpu` or `battery`. |
-| `minLabel`, `maxLabel` | Optional English captions for the two ends of a slider without a unit ("Subtle" … "Strong"). |
+| `note` | Optional English hint shown in italics under the description. Do not use it for what a chip already says. |
+| `help` | Optional English longer explanation (1–3 sentences: what it does, when to use it, what to watch out for); never repeats the description. Rendered as a "?" toggle after the label (keyboard focusable, accessible name "Help: <label>") that opens the text inline in the row, collapsed by default; it stays open for the session (per key) and opens by itself when a search result matched only through the help. |
+| `applies` | Optional: when a change takes effect, shown as a chip on the label line. One of `newWindows` ("New windows only"), `nextStart` ("When the shell restarts"), `nextLogin` ("At next login"), `confirm` ("Asks for confirmation"), `onSave` ("When saved"). Instant changes have none. `risky` entries without `applies` show `confirm`. |
+| `cost` | Optional resource the setting costs while on, shown as a chip: `gpu` ("Uses more GPU") or `battery` ("Uses battery"). |
+| `minLabel`, `maxLabel` | Optional English captions for the two ends of a slider without a unit ("Subtle" … "Strong"), shown under the track (slider rows only). |
 | `keywords` | Optional extra search terms (any language). |
 | `icon` | Optional Material Symbols name. |
 | `backend` | `config`, `hyprland`, `animation`, `idle`, `display`, `mime`, `audio`, `power`, `ipc`, `action`, `readonly`. |
 | `path` | Backend address. Defaults to `key` for `config`. Hyprland: Lua path such as `input.touchpad.tap_to_click`. |
 | `option` | Hyprland only: `hyprctl getoption` name, such as `input:touchpad:tap-to-click`. Lua keys use `_`, option names may use `-`. |
 | `type` | `bool`, `int`, `real`, `enum`, `string`, `path`, `font`, `color`, `list`, `time`, `url`, `action`, `info`, `custom`. |
-| `widget` | Optional rendering hint: `switch`, `slider`, `spin`, `segmented`, `select`, `text`, `textarea`, `path`, `font`, `color`, `list`, `time`, `device`, `action`, `info`, `custom`, `animation`, `animationPreset`, `curveLibrary`, `banner`. A widget without a row file in `SettingsPage.rowSources` renders as `SettingsCustomRow`. |
+| `widget` | Optional rendering hint: `switch`, `slider`, `spin`, `segmented`, `select`, `text`, `textarea`, `path`, `font`, `color`, `list`, `time`, `device`, `action`, `info`, `custom`, `animation`, `animationPreset`, `curveLibrary`, `banner`. A widget without a row file in `SettingsPage.rowSources` renders as `SettingsCustomRow`. `banner` (for `readonly`/`info` notices such as "Game Mode is on") renders `SettingsBannerRow`: a tinted notice with the icon, label and description. |
 | `min`, `max`, `step`, `unit`, `uiScale`, `decimals` | Numeric range and display. `uiScale` multiplies the stored value for display (0.5 shown as 50 with `unit: "%"`); `min`/`max`/`step` stay in stored units. Spin boxes round the displayed value and write it divided back and rounded (seconds shown as minutes with `uiScale: 1/60`). |
-| `options` | Enum values: `[{ "value": <json>, "label": "English", "icon": "optional", "description": "Optional English sentence" }]`; no other option fields. |
+| `options` | Enum values: `[{ "value": <json>, "label": "English", "icon": "optional", "description": "Optional English sentence" }]`; no other option fields. Select and segmented rows show the selected option's description as "Now: <description>" in the text column. |
 | `validate` | `{ "regex": "...", "maxLength": n, "nonEmpty": true, "unique": "<group>" }`. |
-| `enabledWhen`, `visibleWhen` | Conditions, below. |
+| `enabledWhen`, `visibleWhen` | Conditions, below. While another setting's value disables a row, the row shows a "Requires …" chip (below); a row whose `enabledWhen` names another row of its own section is indented under it with a guide line. |
 | `risky` | Needs the 15 s keep-or-revert confirmation. |
 | `action` | For `type: "action"`: handler name provided by the page. |
 | `consumers` | Files (relative to `config/quickshell/ii`, or repo-relative when starting with `config/`/`scripts/`) that read the setting. Required for `config`; each must contain the leaf key name. |
@@ -588,8 +588,18 @@ appear only on hover (`StyledToolTip` needs `parent.hovered === true` or
 | `entry`, `page` | Canonical entry; the rendering `SettingsPage` (for `actions`, `customDelegates`, `infoValues`). |
 | `label`, `description`, `note`, `iconName` | Translated registry texts. |
 | `value`, `defaultValue`, `modified`, `writable` | From the store (track `revision`). |
-| `rowEnabled`, `disabledReason` | `isEnabled` plus `extraEnabled`; the reason line shows the backend reason, `Depends on “<label>”` or the capability's reason. |
+| `rowEnabled`, `disabledReason` | `isEnabled` plus `extraEnabled`; the reason line shows the backend reason or the capability's reason. A row disabled by another setting shows the `requires` chip instead of a line. |
+| `available` | `SettingsStore.isAvailable`. |
+| `requires` | `{ key, text }` while another setting's value disables the row (first failing leaf of `enabledWhen`), else `null`. `text` is `Logic.dependencyText`: "Requires “X”" (bool on, or a truthy leaf), "Requires “X” off" (`equals: false`, `notEquals: true`, `not`), "Requires “X”: A" or "…: A or B" (`equals`/`in` with the option labels), "Requires “X” not set to A" (`notEquals`). |
+| `chips` | `Logic.rowChips(entry, requires)`: at most 2 chips on the label line, priority requires > `confirm` > `nextStart`/`nextLogin`/`newWindows`/`onSave` > `cost`. The requires chip is a link (Enter, Space or click): it scrolls to and highlights the target row on this page, or asks `SettingsSession.requestReveal(key)`, which `SettingsShell` forwards to `settings.qml` `reveal()` (another page). |
+| `help`, `helpOpen`, `toggleHelp()` | Translated `entry.help`; the "?" toggle (`objectName: "helpToggle"`) and the inline text (`"helpText"`). Open state lives in `SettingsSession` for the session. |
+| `optionNote` | "Now: <description>" of the selected option (select and segmented rows). |
+| `statusNote` | Translated `SettingsStore.statusNote(key)`, an italic status line. |
+| `showPlaceholder`, `needsValue`, `placeholderWhenUnavailable` | A writable row whose backend is unavailable (or, with `needsValue`, whose value is `undefined`) shows "—" (`"valuePlaceholder"`) instead of its control, never a made-up checked, unchecked or minimum value. Switch, slider, spin, select and segmented rows set `needsValue`. |
+| `reasonInBanner` | The section banner already shows this row's unavailable reason, so the row has no lock line. |
+| `resetText` | Reset button tooltip and accessible name: "Reset to <formatted default>" (`Logic.formatValue`: units, option labels, On/Off, percentages without decimals), "Reset to default" when the default has no short form, "Reset" when it is unknown. |
 | `highlighted`, `pulse()` | Search reveal highlight. |
+| `Accessible.description` | Description, help, "Now: …", chip texts, status note, disabled reason and error, translated, as one text. |
 | `busy`, `errorText` | `errorText` follows `SettingsStore.failed` for this key and clears on `committed`. |
 | `hovered` | `HoverHandler`. |
 | `stacked`, `controlFillsWidth`, `controlPreferredWidth` | Layout: the control goes below the text when `stacked`, the row is narrower than 520 px, or the control needs more than 55% of the width. Drop-downs share `SettingsMetrics.selectWidth` so a section's controls line up; long labels elide. |
@@ -600,7 +610,9 @@ appear only on hover (`StyledToolTip` needs `parent.hovered === true` or
 | default children | The control, placed in a `RowLayout` on the right. |
 
 Variants (all take `settingKey`): `SettingsSwitchRow`, `SettingsSliderRow`
-(`uiScale`, `unit`, `decimals`; writes on release or keyboard step),
+(`uiScale`, `unit`, `decimals`, percentages always without decimals; writes
+on release or keyboard step; under the track `minLabel`/`maxLabel` and a tick
+at the default value when it is known),
 `SettingsSpinRow` (integers; typed text commits on Enter/focus loss),
 `SettingsSelectRow`, `SettingsSegmentedRow`, `SettingsTextRow`
 (Enter/focus loss commits, Esc restores), `SettingsTextAreaRow` (commits on
@@ -609,7 +621,9 @@ focus loss), `SettingsPathRow` (folder/file picker), `SettingsFontRow`
 automatic), `SettingsListRow` (chips plus add field), `SettingsTimeRow`
 (zero-padded hour and minute spin boxes), `SettingsDeviceRow` (select over
 `SettingsStore.choices`), `SettingsActionRow`, `SettingsInfoRow`,
-`SettingsCustomRow`. Rows show the stored value through `Binding {
+`SettingsCustomRow`, `SettingsBannerRow` (widget `banner`; not a
+`SettingsRow`: no control, `interact()` returns false, `pulse()` works). Rows
+show the stored value through `Binding {
 restoreMode: Binding.RestoreNone }` and write only on interaction.
 
 `SettingsPage { pageId }` (a `StyledFlickable`) renders the header (icon,
@@ -623,15 +637,52 @@ registry order, choosing the row file by `widget`. Members:
 | `actions` | `{ actionName: function(entry) }` for `action` entries; a missing handler disables the row. |
 | `infoValues` | `{ entryKey: text }` shown by `info` rows (falls back to the store value). |
 | `scrollTo(key)`, `scrollToSection(sectionId)` | Reveal (and for rows, pulse-highlight); return `false` when absent or hidden. |
+| `sectionBannerReason(sectionId)` | English reason when every visible, writable row of the section is unavailable for the same reason (`Logic.sectionBannerReason`), else `""`. The section then shows one `SettingsBannerRow` with it at the top of its card (`objectName: "sectionBanner:<id>"`) and those rows drop their lock line. |
 
 A page file is just `SettingsPage { pageId: "<id>"; ... }`; pages with no
 entries show an empty state. Sections render as `SettingsSection`
-(`sectionId`, `title`, `icon`, `description`, rows as default children,
-`objectName: "section:" + id`).
+(`sectionId`, `title`, `icon`, `description`, `bannerText`, rows as default
+children, `objectName: "section:" + id`). Rows whose `enabledWhen` names
+another row of the same section (`Logic.sectionDependencies`) are indented by
+`SettingsMetrics.dependentIndent` with a guide line.
+
+`SettingsChip` (`label`, `iconName`, `interactive`, `maximumWidth`, `clicked`)
+is the pill used on label lines; only interactive chips take focus, and a
+chip cut short shows its whole text as a hover tooltip.
+`SettingsSession` (singleton) keeps session-only UI state: `isHelpOpen(key)`,
+`setHelpOpen(key, open)` and `requestReveal(key)`.
+
+What rows rely on outside `components/`:
+
+- `SettingsRegistry.search` also matches help texts and option labels and
+  descriptions (English and translated, folded like the other fields; option
+  texts score 30, between section/page titles and descriptions, and help
+  texts 15, last). Each result carries `fields` (the field each query word
+  matched: `label`, `keyword`, `context`, `option`, `description`, `help`)
+  and `helpMatched` (a word matched only through the help);
+  `SettingsShell` opens that row's help before revealing it.
+- `SettingsStore.statusNote(key)` passes through the backend's optional
+  `statusNote(entry)` hook: an English source string such as "Paused by Game
+  Mode", or `""` when the backend has no hook, is unavailable or the entry is
+  read-only.
+- `SettingsStore.defaultValue(key)` may be `undefined` (unknown): the row then
+  hides the default tick and the reset button says "Reset".
+- Tests: `tst_SettingsLogic` (chips, dependency wording, value formatting, the
+  banner rule, search fields), `tst_SettingsStore` (`statusNote`, unknown
+  defaults, unavailable backends) and `tests/test_settings_comprehension.py`,
+  which runs `tests/harness/drivers/comprehension.qml` with and without
+  `--hyprland-stub`: a word found only in a help text reveals its row with
+  the help open, the "?" toggle works by keyboard, a "Requires …" chip is a
+  keyboard link to its target (also on another page), rows show at most 2
+  chips, "Now: …" and the slider captions render, and without Hyprland every
+  Hyprland section shows one banner and "—" instead of values.
 
 Shell components: `SettingsShell` (titlebar honoring `windows.showTitlebar`
 and `windows.centerTitle`, navigation, page host, confirm bar, error toast),
-`SettingsNavigation` (group headers and footer pages from `pages.json`; search
+`SettingsNavigation` (group headers and footer pages from `pages.json`; each
+item shows `SettingsStore.modifiedCount(pageId)` after its title, hidden at 0
+with its width reserved, as its accessible description "Changed
+settings: <n>", and as a dot on the icon when collapsed; search
 field with results showing the label and "Page › Section"; Ctrl+F focuses it,
 Up/Down/Enter pick a result, Esc clears; collapses to icons below 900 px with
 a menu button override that resets when the window crosses the threshold;
@@ -715,7 +766,7 @@ monitor writes), the reload popup timeout, and the raw
 must use Hyprland's own milliseconds and carry the marker too. The settings
 search highlight pulse (`SettingsRow.qml`) is not scaled either.
 
-About 58 hardcoded durations elsewhere (bar widgets, lock screen, clock
+About 55 hardcoded durations elsewhere (bar widgets, lock screen, clock
 hands, ripples, the settings app's own page transitions) still ignore both
 keys; migrating them is deferred. `tests/test_motion_contract.py` scans
 `config/quickshell/ii/**/*.qml` (waffle excluded) for duration bindings and

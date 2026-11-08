@@ -93,6 +93,7 @@ TestCase {
             b.flushCount = 0;
         }
         store.revert();
+        config.statusNoteFor = null;
         const defaults = { flag: false, count: 3, mode: "a", city: "", dep: false, slotA: "x", slotB: "y", hidden: false };
         config.defaults = defaults;
         config.values = Object.assign({}, defaults);
@@ -130,6 +131,49 @@ TestCase {
         config.rejectWrites = true;
         verify(!store.write("flag", true));
         compare(store.value("flag"), false);
+    }
+
+    // statusNote(entry) is an optional backend hook; the store passes the
+    // English text through and returns "" without it.
+    function test_status_note_passthrough() {
+        compare(store.statusNote("flag"), "", "the hook has nothing to say");
+        config.statusNoteFor = e => e.key === "flag" ? "Paused by Game Mode" : "";
+        compare(store.statusNote("flag"), "Paused by Game Mode");
+        compare(store.statusNote("count"), "");
+        config.statusNoteFor = () => 42;
+        compare(store.statusNote("flag"), "", "only strings pass");
+        config.statusNoteFor = null;
+        off.statusNoteFor = () => "Paused by Game Mode";
+        compare(store.statusNote("gone"), "", "unavailable backend");
+        off.statusNoteFor = null;
+        compare(store.statusNote("info"), "", "read-only entries");
+        compare(store.statusNote("unknown.key"), "");
+    }
+
+    // A backend may not know a default (Hyprland before the base config is
+    // read): defaultValue stays undefined instead of a made-up value.
+    function test_unknown_default_stays_undefined() {
+        config.defaults = Object.assign({}, config.defaults, { count: undefined });
+        compare(store.defaultValue("count"), undefined);
+        compare(Logic.resetText(store.entry("count"), store.defaultValue("count"), t => t), "Reset");
+        compare(store.defaultValue("gone"), undefined, "unavailable backend");
+        compare(Logic.resetText(store.entry("flag"), store.defaultValue("flag"), t => t), "Reset to Off");
+    }
+
+    // With the backend down the store reports no value, no modification and
+    // the backend's reason, so rows render "—" and the section banner.
+    function test_unavailable_backend_has_no_value() {
+        off.values = { gone: true };
+        off.defaults = { gone: false };
+        compare(store.isAvailable("gone"), false);
+        compare(store.isEnabled("gone"), false);
+        compare(store.isModified("gone"), false, "no modified dot or reset button");
+        compare(store.unavailableReason("gone"), "Not implemented yet");
+        verify(!store.write("gone", false), "writes are refused");
+        verify(!store.reset("gone"));
+        compare(off.values.gone, true, "the backend is not touched");
+        off.values = ({});
+        off.defaults = ({});
     }
 
     function test_unchanged_value_does_not_write() {
