@@ -12,7 +12,10 @@ import "HyprlandLogic.js" as HL
 // every `configreloaded`. Overrides live in ~/.config/hypr/custom/shell-settings.lua
 // and are written only through scripts/hyprland/hyprconfigurator.py (argv,
 // typed values); writing that file makes Hyprland autoreload, which in turn
-// refreshes the effective values. Never `hyprctl reload` or `keyword`.
+// refreshes the effective values. Hyprland only watches the file once its
+// config has loaded it (hyprland.lua requires it only if it exists), so a
+// write that no `configreloaded` follows within reloadGraceMs ends with one
+// `hyprctl reload config-only` (monitors untouched). Never `keyword`.
 //
 // Risky entries preview with `hyprctl eval 'hl.config({...})'` and persist on
 // confirm. While the store holds a confirmation (`deferWrites`), normal file
@@ -60,8 +63,12 @@ QtObject {
     property var _queue: ({})
     // key -> { entry, value } applied live with hyprctl eval, not yet persisted.
     property var _live: ({})
-    // Serial queue of mutating commands: [{ argv, done(code, stderr) }].
+    // Serial queue of mutating commands: [{ argv, done(code, stderr, startedAt) }].
     property var _jobs: []
+    // Date.now() of the last `configreloaded`.
+    property real _lastReloadAt: 0
+    // Autoreload follows a write in well under a second (0.6 s measured).
+    property int reloadGraceMs: 2000
 
     function _note(entry) {
         if (!root._seen[entry.key])
@@ -161,7 +168,10 @@ QtObject {
             done?.(true);
             return;
         }
-        root._run(root._configuratorArgs(ops), (code, err) => {
+        root._run(root._configuratorArgs(ops), (code, err, startedAt) => {
+            // No reload since the write started: the file may not be watched.
+            if (code === 0 && root._lastReloadAt < startedAt)
+                root.reloadFallback.restart();
             if (code !== 0) {
                 console.warn(`[HyprlandBackend] hyprconfigurator failed (${code}): ${err.trim()}`);
                 for (const op of ops) {
@@ -289,6 +299,7 @@ QtObject {
         const job = root._jobs[0];
         root._jobs = root._jobs.slice(1);
         root.runner.done = job.done;
+        root.runner.startedAt = Date.now();
         root.runner.command = job.argv;
         root.runner.running = true;
     }
@@ -335,13 +346,22 @@ QtObject {
 
     readonly property Process runner: Process {
         property var done: null
+        property real startedAt: 0
         stderr: StdioCollector { id: runnerErr }
         onExited: (exitCode, exitStatus) => {
             const done = root.runner.done;
             root.runner.done = null;
-            done?.(exitCode, runnerErr.text);
+            done?.(exitCode, runnerErr.text, root.runner.startedAt);
             root._next();
         }
+    }
+
+    readonly property Timer reloadFallback: Timer {
+        interval: root.reloadGraceMs
+        onTriggered: root._run(["hyprctl", "reload", "config-only"], (code, err) => {
+            if (code !== 0)
+                console.warn(`[HyprlandBackend] hyprctl reload failed (${code}): ${err.trim()}`);
+        })
     }
 
     readonly property Process descriptionsProc: Process {
@@ -428,6 +448,8 @@ QtObject {
         function onRawEvent(event) {
             if (event.name !== "configreloaded")
                 return;
+            root._lastReloadAt = Date.now();
+            root.reloadFallback.stop();
             // Game Mode replaces its file atomically and Hyprland reloads
             // right after, so the reload also refreshes the watch.
             root.gameModeFile.reload();
