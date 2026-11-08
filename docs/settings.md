@@ -427,7 +427,9 @@ startup. Closing the window hides it at once and quits after
 writes and restores finish first, since backends apply them through
 asynchronous commands (quitting right away left an idle or display preview
 applied and dropped writes still in their debounce). Any IPC call shows the
-window again and cancels the quit.
+window again and cancels the quit. `SUPER+I` runs the launcher with the
+session's `XDG_CURRENT_DESKTOP` (no `gnome` override), which the app's
+helpers follow, e.g. `default-apps.py` for `<desktop>-mimeapps.list`.
 
 Translations: `services/Translation.qml` tries the exact locale file, then
 same-language files (`es` prefers `es_MX`, then `<lang>_<LANG>`, then any

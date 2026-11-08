@@ -182,11 +182,14 @@ class LaunchSitesTest(unittest.TestCase):
             # hl.dsp.exec_cmd runs the string through sh with Hyprland's env (qsConfig from hl.env).
             result = subprocess.run(
                 ["sh", "-c", match.group(1)],
-                env={"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin"), "qsConfig": "ii"},
+                env={"HOME": str(home), "PATH": os.environ.get("PATH", "/usr/bin:/bin"), "qsConfig": "ii",
+                     "XDG_CURRENT_DESKTOP": "Hyprland"},
                 capture_output=True, text=True, timeout=10,
             )
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(log.read_text(encoding="utf-8"), "gnome|0\n")
+            # The session's desktop reaches the app: default-apps.py reads
+            # <desktop>-mimeapps.list by it (a forced "gnome" read the wrong one).
+            self.assertEqual(log.read_text(encoding="utf-8"), "Hyprland|0\n")
 
     def test_sidebar_button_runs_the_launcher_for_its_own_shell(self) -> None:
         sidebar = (REPO_ROOT / "config/quickshell/ii/modules/ii/sidebarRight/SidebarRightContent.qml").read_text(
