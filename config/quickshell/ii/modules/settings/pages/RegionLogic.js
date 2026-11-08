@@ -1,19 +1,10 @@
 .pragma library
+.import "../../common/functions/TimeFormat.js" as TimeFormat
 
-// Mirrors services/DateTime.qml so the preview matches the shell clock:
-// "h:mm" is a 12-hour clock without an AM/PM marker, which Qt formats would
-// render as a 24-hour hour, so it is built by hand there too.
+// The shell clock's own rule (services/DateTime.qml uses the same
+// function), so the preview always matches what the bar shows.
 function formatTime(date, format, seconds, formatter) {
-    if (format === "h:mm") {
-        var hours = date.getHours() % 12;
-        if (hours === 0)
-            hours = 12;
-        var text = hours + ":" + String(date.getMinutes()).padStart(2, "0");
-        if (seconds)
-            text += ":" + String(date.getSeconds()).padStart(2, "0");
-        return text;
-    }
-    return formatter(date, format);
+    return TimeFormat.formatTime(date, format, seconds, false, formatter);
 }
 
 // hyprlock has $TIME (24-hour) and $TIME12; only "hh:mm" is 24-hour among

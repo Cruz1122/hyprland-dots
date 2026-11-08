@@ -40,7 +40,9 @@ TestCase {
         compare(RegionLogic.formatTime(date, "h:mm", false, fmt), "12:05");
         compare(RegionLogic.formatTime(date, "h:mm", true, fmt), "12:05:09");
         compare(RegionLogic.formatTime(new Date(2026, 0, 2, 13, 0, 0), "h:mm", false, fmt), "1:00");
-        compare(RegionLogic.formatTime(date, "hh:mm", true, fmt), "Q:hh:mm");
+        compare(RegionLogic.formatTime(date, "hh:mm", true, fmt), "Q:hh:mm:ss");
+        compare(RegionLogic.formatTime(date, "h:mm ap", true, fmt), "Q:h:mm:ss ap");
+        compare(RegionLogic.formatTime(date, "hh:mm", false, fmt), "Q:hh:mm");
         compare(RegionLogic.hyprlockMode("hh:mm"), "24h");
         compare(RegionLogic.hyprlockMode("h:mm ap"), "12h");
         compare(RegionLogic.hyprlockMode("h:mm"), "12h");
