@@ -1,0 +1,106 @@
+[
+ {
+  "id": 0,
+  "name": "eDP-1",
+  "description": "Chimei Innolux Corporation 0x1521",
+  "make": "Chimei Innolux Corporation",
+  "model": "0x1521",
+  "width": 1920,
+  "height": 1080,
+  "refreshRate": 144.00301,
+  "x": 0,
+  "y": 0,
+  "scale": 1,
+  "transform": 0,
+  "focused": true,
+  "vrr": false,
+  "disabled": false,
+  "currentFormat": "XRGB8888",
+  "mirrorOf": "none",
+  "availableModes": [
+   "1920x1080@144.00Hz",
+   "1920x1080@60.00Hz"
+  ],
+  "hardwareDetails": {
+   "backend": "drm",
+   "hdr": false,
+   "chroma": true,
+   "bt2020": false,
+   "vrrCapable": false
+  }
+ },
+ {
+  "id": 1,
+  "name": "HDMI-A-1",
+  "description": "UTV MONITOR 0x00000001",
+  "make": "UTV",
+  "model": "MONITOR",
+  "width": 1920,
+  "height": 1080,
+  "refreshRate": 60.0,
+  "x": 1920,
+  "y": 0,
+  "scale": 1,
+  "transform": 0,
+  "focused": false,
+  "vrr": false,
+  "disabled": false,
+  "currentFormat": "XRGB8888",
+  "mirrorOf": "none",
+  "availableModes": [
+   "1920x1080@60.00Hz",
+   "1920x1080@59.94Hz",
+   "1920x1080@50.00Hz",
+   "1920x1080@29.97Hz",
+   "1920x1080@25.00Hz",
+   "1920x1080@23.98Hz",
+   "1280x1024@60.02Hz",
+   "1280x960@60.00Hz",
+   "1360x768@59.80Hz",
+   "1280x720@60.00Hz",
+   "1280x720@59.94Hz",
+   "1280x720@50.00Hz",
+   "1024x768@60.00Hz",
+   "800x600@60.32Hz",
+   "720x576@50.00Hz",
+   "720x480@59.94Hz",
+   "640x480@59.94Hz",
+   "640x480@59.93Hz",
+   "525x480@77.57Hz"
+  ],
+  "hardwareDetails": {
+   "backend": "drm",
+   "hdr": false,
+   "chroma": true,
+   "bt2020": false,
+   "vrrCapable": false
+  }
+ },
+ {
+  "id": 2,
+  "name": "DP-2",
+  "description": "Test 10-bit panel",
+  "make": "Test",
+  "model": "P",
+  "width": 2560,
+  "height": 1440,
+  "refreshRate": 165.0,
+  "x": 0,
+  "y": 0,
+  "scale": 1.25,
+  "transform": 0,
+  "focused": false,
+  "vrr": true,
+  "disabled": true,
+  "currentFormat": "XRGB2101010",
+  "mirrorOf": "none",
+  "availableModes": [
+   "2560x1440@165.00Hz",
+   "2560x1440@59.95Hz",
+   "1920x1080@60.00Hz"
+  ],
+  "hardwareDetails": {
+   "vrrCapable": true
+  }
+ }
+]
