@@ -20,6 +20,7 @@ SettingsPage {
 
         RowLayout {
             id: picker
+            readonly property bool inlineControl: true
             property var row: null
             readonly property string stored: picker.row?.value ?? ""
             readonly property var names: {
@@ -31,8 +32,7 @@ SettingsPage {
 
             StyledComboBox {
                 id: combo
-                Layout.preferredWidth: 280
-                Layout.maximumWidth: 360
+                Layout.preferredWidth: SettingsMetrics.selectWidth
                 enabled: picker.row?.rowEnabled ?? false
                 model: picker.names
                 Accessible.name: picker.row?.label ?? ""
@@ -50,10 +50,6 @@ SettingsPage {
                 property: "currentIndex"
                 value: picker.names.indexOf(picker.stored)
                 restoreMode: Binding.RestoreNone
-            }
-
-            Item {
-                Layout.fillWidth: true
             }
         }
     }

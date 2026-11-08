@@ -30,6 +30,7 @@ SettingsRow {
 
     StyledSpinBox {
         id: hours
+        minimumDigits: 2
         from: 0
         to: 23
         Accessible.name: row.label
@@ -43,6 +44,7 @@ SettingsRow {
 
     StyledSpinBox {
         id: minutes
+        minimumDigits: 2
         from: 0
         to: 59
         stepSize: row.entry?.step ?? 1

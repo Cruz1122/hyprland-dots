@@ -244,6 +244,35 @@ function blockingCondition(cond, valueOf, hasCapability) {
     return cond;
 }
 
+// Why an entry is disabled while { capability } fails (English source
+// strings for Translation.tr). Only capabilities used in enabledWhen need a
+// text: visibleWhen hides the row instead.
+var CAPABILITY_REASONS = {
+    "satty": "Requires satty, which is not installed",
+    "checkupdates": "Requires checkupdates (pacman-contrib), which is not installed",
+    "pipewire": "PipeWire is not running",
+    "touchpad": "No touchpad detected"
+};
+
+function capabilityReason(name) {
+    if (Object.prototype.hasOwnProperty.call(CAPABILITY_REASONS, name))
+        return CAPABILITY_REASONS[name];
+    // "ipc:<target>" exists while the main shell runs and offers that target.
+    if (String(name).indexOf("ipc:") === 0)
+        return "The main shell is not running or is out of date";
+    return "Not supported on this system";
+}
+
+// Options of a device row from backend choices. Labels are device or
+// application names unless the backend marks them as English source strings
+// (translate: true, e.g. idle timeouts or power profiles). Choice icons are
+// application icon names, not Material Symbols, so they are dropped.
+function deviceChoices(choices) {
+    return Array.from(choices || []).map(function (o) {
+        return { value: o.value, label: o.label, translate: o.translate === true, icon: "" };
+    });
+}
+
 function conditionKeys(cond, acc) {
     acc = acc || [];
     if (!cond)

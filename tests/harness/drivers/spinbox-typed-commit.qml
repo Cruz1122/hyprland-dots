@@ -62,6 +62,19 @@ ShellRoot {
                 actual: { value: root.spin.value, modified: root.modifiedCount, text: input.text }
             });
         }
+        // Zero padding (the minutes of SettingsTimeRow): the text shows the
+        // padded value and typed text is still read as a number.
+        root.spin.minimumDigits = 2;
+        root.report({ type: "spin", step: "padded display", expected: "01", actual: input.text });
+        input.forceActiveFocus();
+        input.text = "7";
+        input.editingFinished();
+        root.report({
+            type: "spin",
+            step: "padded typed value",
+            expected: { value: 7, text: "07" },
+            actual: { value: root.spin.value, text: input.text }
+        });
         root.report({ type: "done" });
         quitTimer.start();
     }

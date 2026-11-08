@@ -1,11 +1,10 @@
 import QtQuick
 import qs.modules.settings.core
+import "../core/SettingsLogic.js" as Logic
 
 // Device or application picker: a select row over the backend's choices
-// (SettingsStore.choices). Choice labels are names, not English source
-// strings, so they are not translated; choice icons are application icon
-// names, not Material Symbols, so they are dropped.
+// (SettingsStore.choices, mapped by Logic.deviceChoices).
 SettingsSelectRow {
     id: row
-    rawOptions: (SettingsStore.revision, SettingsStore.choices(row.settingKey)).map(o => Object.assign({}, o, { translate: false, icon: "" }))
+    rawOptions: (SettingsStore.revision, Logic.deviceChoices(SettingsStore.choices(row.settingKey)))
 }

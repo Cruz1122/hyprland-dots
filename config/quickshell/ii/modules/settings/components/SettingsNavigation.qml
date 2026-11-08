@@ -110,6 +110,25 @@ ColumnLayout {
         return Translation.tr("Page");
     }
 
+    // Shades the edge of a scrolled list where more items continue, so they
+    // fade out instead of looking cut off at the search field or the footer.
+    component EdgeFade: Rectangle {
+        required property Flickable view
+        property bool atTop: false
+
+        parent: view
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: atTop ? parent.top : undefined
+        anchors.bottom: atTop ? undefined : parent.bottom
+        implicitHeight: 28
+        visible: atTop ? !view.atYBeginning : !view.atYEnd
+        gradient: Gradient {
+            GradientStop { position: 0; color: atTop ? Appearance.m3colors.m3background : "transparent" }
+            GradientStop { position: 1; color: atTop ? "transparent" : Appearance.m3colors.m3background }
+        }
+    }
+
     // Menu button and search
     GridLayout {
         Layout.fillWidth: true
@@ -250,6 +269,15 @@ ColumnLayout {
             }
         }
 
+        EdgeFade {
+            view: resultsView
+            atTop: true
+        }
+
+        EdgeFade {
+            view: resultsView
+        }
+
         StyledText {
             anchors.horizontalCenter: parent.horizontalCenter
             y: 16
@@ -270,18 +298,13 @@ ColumnLayout {
         boundsBehavior: Flickable.StopAtBounds
         ScrollBar.vertical: StyledScrollBar {}
 
-        // Hints that more pages follow below.
-        Rectangle {
-            parent: pagesView
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            implicitHeight: 28
-            visible: pagesView.contentY + pagesView.height < pagesView.contentHeight - 1
-            gradient: Gradient {
-                GradientStop { position: 0; color: "transparent" }
-                GradientStop { position: 1; color: Appearance.m3colors.m3background }
-            }
+        EdgeFade {
+            view: pagesView
+            atTop: true
+        }
+
+        EdgeFade {
+            view: pagesView
         }
 
         ColumnLayout {

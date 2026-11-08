@@ -28,7 +28,7 @@ class SpinBoxTypedCommitTest(unittest.TestCase):
                   for line in log.splitlines() if MARKER in line]
         self.assertFalse([e for e in events if e.get("type") == "fatal"], log[-2000:])
         steps = [event for event in events if event.get("type") == "spin"]
-        self.assertEqual(len(steps), 7, result.stdout + log[-2000:])
+        self.assertEqual(len(steps), 9, result.stdout + log[-2000:])
         for step in steps:
             self.assertEqual(step["actual"], step["expected"], step)
         self.assertEqual(result.returncode, 0, result.stdout + log[-2000:])

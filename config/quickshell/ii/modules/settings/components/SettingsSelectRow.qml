@@ -32,18 +32,10 @@ SettingsRow {
 
     onRejected: control.currentIndex = row.currentIndex
 
-    TextMetrics {
-        id: widest
-        font.family: Appearance.font.family.main
-        font.pixelSize: Appearance.font.pixelSize.small
-        text: row.options.reduce((a, o) => o.label.length > a.length ? o.label : a, "")
-    }
-
     StyledComboBox {
         id: control
         Layout.fillWidth: row.compact
-        Layout.preferredWidth: Math.min(360, Math.max(240, widest.width + 80))
-        Layout.maximumWidth: 360
+        Layout.preferredWidth: SettingsMetrics.selectWidth
         model: row.options
         textRole: "label"
         Accessible.name: row.label

@@ -4,6 +4,7 @@ import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
 import qs.modules.settings.core
+import "../core/SettingsLogic.js" as Logic
 
 // Base of every settings row: icon, label, description and state on the
 // left, the control (default children) on the right, or below the text when
@@ -76,7 +77,7 @@ Item {
             return Translation.tr(SettingsStore.unavailableReason(row.settingKey));
         const cond = SettingsStore.blockingCondition(row.settingKey);
         if (cond?.capability !== undefined)
-            return Translation.tr("Not supported on this system");
+            return Translation.tr(Logic.capabilityReason(cond.capability));
         if (cond?.key !== undefined) {
             const other = SettingsRegistry.entry(cond.key);
             return Translation.tr("Depends on “%1”").arg(Translation.tr(other?.label ?? cond.key));

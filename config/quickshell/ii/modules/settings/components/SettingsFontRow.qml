@@ -24,7 +24,7 @@ SettingsRow {
     StyledComboBox {
         id: control
         Layout.fillWidth: row.compact
-        Layout.preferredWidth: 260
+        Layout.preferredWidth: SettingsMetrics.selectWidth
         model: row.families
         Accessible.name: row.label
         onActivated: index => row.commit(row.families[index])

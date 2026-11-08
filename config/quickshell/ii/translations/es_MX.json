@@ -1694,5 +1694,9 @@
   "^steam_app_.*$": "^steam_app_.*$",
   "https://…": "https://…",
   "一": "一",
-  "󰖳": "󰖳"
+  "󰖳": "󰖳",
+  "Requires satty, which is not installed": "Requiere satty, que no está instalado",
+  "Requires checkupdates (pacman-contrib), which is not installed": "Requiere checkupdates (pacman-contrib), que no está instalado",
+  "No touchpad detected": "No se detectó ningún touchpad",
+  "The main shell is not running or is out of date": "El shell principal no se está ejecutando o está desactualizado"
 }

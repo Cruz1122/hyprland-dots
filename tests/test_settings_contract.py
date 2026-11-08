@@ -111,6 +111,21 @@ def qml_files(root: Path) -> list[Path]:
     return sorted(root.rglob("*.qml"))
 
 
+def capability_reasons() -> dict[str, str]:
+    source = (SETTINGS / "core/SettingsLogic.js").read_text(encoding="utf-8")
+    block = re.search(r"var CAPABILITY_REASONS = \{(.*?)\};", source, re.S)
+    return dict(re.findall(r'"([^"]+)":\s*"([^"]+)"', block.group(1))) if block else {}
+
+
+def condition_capabilities(cond: Any) -> list[str]:
+    if isinstance(cond, dict):
+        found = [cond["capability"]] if "capability" in cond else []
+        return found + [c for value in cond.values() for c in condition_capabilities(value)]
+    if isinstance(cond, list):
+        return [c for item in cond for c in condition_capabilities(item)]
+    return []
+
+
 def page_source(page_id: str) -> Path:
     return PAGES_DIR / f"{page_id[0].upper()}{page_id[1:]}Page.qml"
 
@@ -337,8 +352,20 @@ class SettingsContractTest(unittest.TestCase):
         message = re.compile(r'(?:error: |_fail\([\w.]+, |failed\([\w.]+, |unavailableReason: .*?|return )"([A-Z][^"]+)"')
         for path in [SETTINGS / "core/SettingsLogic.js", SETTINGS / "core/SettingsStoreImpl.qml", *sorted((SETTINGS / "backends").glob("*.qml"))]:
             needed |= set(message.findall(path.read_text(encoding="utf-8")))
+        needed |= set(capability_reasons().values())
         missing = sorted(text for text in needed if text and text not in self.translations)
         self.assertEqual(missing, [], "add these to translations/es_MX.json")
+
+    def test_disabling_capabilities_explain_why(self) -> None:
+        # A row disabled by a missing capability shows Logic.capabilityReason;
+        # each capability needs its own text, not the generic fallback.
+        reasons = capability_reasons()
+        self.assertIn("satty", reasons)
+        for doc in self.docs.values():
+            for entry in doc["entries"]:
+                for capability in condition_capabilities(entry.get("enabledWhen")):
+                    with self.subTest(entry=entry.get("key"), capability=capability):
+                        self.assertTrue(capability in reasons or capability.startswith("ipc:"))
 
     # ------------------------------------------------------------- hygiene
 

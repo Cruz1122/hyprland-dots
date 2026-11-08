@@ -12,6 +12,8 @@ SpinBox {
     property real baseHeight: 35
     property real radius: Appearance.rounding.small
     property real innerButtonRadius: Appearance.rounding.unsharpen
+    // Zero-pads the shown number to this many digits (clock minutes: 05).
+    property int minimumDigits: 0
     editable: true
 
     opacity: root.enabled ? 1 : 0.4
@@ -19,6 +21,10 @@ SpinBox {
     background: Rectangle {
         color: Appearance.colors.colLayer2
         radius: root.radius
+    }
+
+    function formatValue(value) {
+        return String(value).padStart(root.minimumDigits, "0");
     }
 
     // Typed text is applied once, on Enter or focus loss: clamped to the range,
@@ -34,7 +40,7 @@ SpinBox {
                 root.valueModified();
             }
         }
-        labelText.text = Qt.binding(() => String(root.value));
+        labelText.text = Qt.binding(() => root.formatValue(root.value));
     }
 
     contentItem: Item {
@@ -44,7 +50,7 @@ SpinBox {
         StyledTextInput {
             id: labelText
             anchors.centerIn: parent
-            text: String(root.value) // displayText would make the numbers weird like 1,000 instead of 1000
+            text: root.formatValue(root.value) // displayText would make the numbers weird like 1,000 instead of 1000
             color: Appearance.colors.colOnLayer2
             font.family: Appearance.font.family.numbers
             font.variableAxes: Appearance.font.variableAxes.numbers
@@ -53,7 +59,7 @@ SpinBox {
             validator: RegularExpressionValidator { regularExpression: /-?[0-9]*/ }
             inputMethodHints: Qt.ImhFormattedNumbersOnly
             onEditingFinished: root.commitTypedText()
-            Keys.onEscapePressed: labelText.text = Qt.binding(() => String(root.value))
+            Keys.onEscapePressed: labelText.text = Qt.binding(() => root.formatValue(root.value))
         }
     }
 

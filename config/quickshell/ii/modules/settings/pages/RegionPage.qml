@@ -54,6 +54,7 @@ SettingsPage {
 
         RowLayout {
             id: picker
+            readonly property bool inlineControl: true
             property var row: null
             readonly property string stored: picker.row?.value ?? "auto"
             readonly property var options: RegionLogic.languageChoices(Translation.allAvailableLanguages, picker.stored, Translation.tr("Automatic (system language)"))
@@ -61,8 +62,7 @@ SettingsPage {
 
             StyledComboBox {
                 id: combo
-                Layout.preferredWidth: 280
-                Layout.maximumWidth: 360
+                Layout.preferredWidth: SettingsMetrics.selectWidth
                 enabled: picker.row?.rowEnabled ?? false
                 model: picker.options
                 textRole: "label"
@@ -82,10 +82,6 @@ SettingsPage {
                 property: "currentIndex"
                 value: picker.storedIndex
                 restoreMode: Binding.RestoreNone
-            }
-
-            Item {
-                Layout.fillWidth: true
             }
         }
     }

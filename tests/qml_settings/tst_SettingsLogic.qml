@@ -106,6 +106,29 @@ TestCase {
         return Logic.buildRegistry(pages, docs, { retired: ["ai"], managedElsewhere: [] });
     }
 
+    // Regression: device rows forced translate:false on every choice, so
+    // backend labels such as idle timeouts stayed in English.
+    function test_device_choices_translate_only_marked_labels() {
+        const mapped = Logic.deviceChoices([
+            { value: "alsa_output.pci", label: "Speakers", icon: "audio-card" },
+            { value: 0, label: "Never", translate: true },
+            { value: "firefox.desktop", label: "Firefox", translate: false }
+        ]);
+        compare(mapped.map(o => o.translate), [false, true, false]);
+        compare(mapped.map(o => o.icon), ["", "", ""]);
+        compare(mapped[1].value, 0);
+        compare(mapped[1].label, "Never");
+        compare(Logic.deviceChoices(undefined).length, 0);
+    }
+
+    function test_capability_reasons() {
+        compare(Logic.capabilityReason("satty"), "Requires satty, which is not installed");
+        compare(Logic.capabilityReason("touchpad"), "No touchpad detected");
+        compare(Logic.capabilityReason("ipc:regionRecord"), "The main shell is not running or is out of date");
+        compare(Logic.capabilityReason("unknown"), "Not supported on this system");
+        compare(Logic.capabilityReason("constructor"), "Not supported on this system");
+    }
+
     function test_registry_skips_broken_parts() {
         const model = registry();
         compare(model.pages.map(p => p.id), ["one", "two", "three"]);
