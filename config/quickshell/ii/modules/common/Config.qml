@@ -13,7 +13,11 @@ Singleton {
     readonly property ConfigOptions defaults: ConfigOptions {}
     property bool ready: false
     property int readWriteDelay: 50 // milliseconds
-    property bool blockWrites: false
+    // Synchronous writes (a few ms for this file). An async write re-applies the
+    // data it wrote to Config.options when it finishes, undoing any change made
+    // while it was in flight; the next write then sees no difference and the
+    // change is lost (tests/test_config_write_race.py).
+    property bool blockWrites: true
 
     function setNestedValue(nestedKey, value) {
         let keys = nestedKey.split(".");
@@ -50,7 +54,15 @@ Singleton {
         interval: root.readWriteDelay
         repeat: false
         onTriggered: {
-            configFileView.reload()
+            // A change still waiting for fileWriteTimer is newer than the file:
+            // reloading now would put the old value back and the write would
+            // then save that. That write brings the file up to date instead.
+            if (fileWriteTimer.running)
+                return;
+            configFileView.reload();
+            // Apply the file before returning, so a change cannot land between
+            // the read and the moment its result replaces Config.options.
+            configFileView.waitForJob();
         }
     }
 
