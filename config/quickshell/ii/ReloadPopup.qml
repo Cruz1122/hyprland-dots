@@ -116,7 +116,7 @@ Scope {
 						property: "width"
 						from: rect.width - bar.anchors.margins * 2
 						to: 0
-						duration: failed ? 10000 : 1000
+						duration: failed ? 10000 : 1000 // motion-ok: time the popup stays open, not a transition
 						onFinished: popupLoader.active = false
 
 						// Pause the animation when the mouse is hovering over the popup,

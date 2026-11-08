@@ -26,6 +26,7 @@ python -m py_compile config/quickshell/ii/scripts/grok-roster.py tests/test_grok
 python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
 python -m py_compile tests/test_settings_contract.py tests/test_settings_qml.py
 python -m py_compile config/quickshell/ii/scripts/settings/hyprbase.py tests/test_hyprbase.py tests/test_hyprland_base.py
+python -m py_compile tests/test_motion_contract.py tests/test_motion_scale.py
 python -m unittest discover -s tests -p 'test_*.py'
 if command -v node >/dev/null 2>&1 && test -f tests/browser-extension.test.mjs; then
     node --test tests/browser-extension.test.mjs tests/browser-extension-background.test.mjs

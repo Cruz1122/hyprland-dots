@@ -174,6 +174,89 @@
       "min": 0,
       "max": 100,
       "unit": "px"
+    },
+    {
+      "key": "appearance.animations.durationScale",
+      "section": "shellMotion",
+      "label": "Speed of menus and transitions",
+      "description": "How fast the menus, buttons and transitions drawn by the shell move.",
+      "help": "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed.",
+      "keywords": [
+        "Speed of the shell's motion",
+        "animation speed",
+        "shell animations",
+        "velocidad",
+        "velocidad de animaciones",
+        "animaciones",
+        "movimiento",
+        "rapidez",
+        "rápido",
+        "lento",
+        "transiciones",
+        "duration",
+        "duración"
+      ],
+      "icon": "speed",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": 0.5,
+          "label": "Very fast",
+          "description": "Transitions take half the usual time."
+        },
+        {
+          "value": 0.75,
+          "label": "Fast",
+          "description": "Transitions take three quarters of the usual time."
+        },
+        {
+          "value": 1,
+          "label": "Normal",
+          "description": "The speed the shell was designed with."
+        },
+        {
+          "value": 1.5,
+          "label": "Slow",
+          "description": "Transitions take one and a half times as long."
+        },
+        {
+          "value": 2,
+          "label": "Very slow",
+          "description": "Transitions take twice as long, so it is easier to follow what moves."
+        }
+      ],
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.animations.reduceMotion",
+      "section": "shellMotion",
+      "label": "Reduce motion in the shell",
+      "description": "Transitions inside the shell end instantly instead of animating.",
+      "help": "While it is on, the speed above has no effect and loading spinners keep turning. For the desktop itself, use the Minimal preset at the top of this page.",
+      "keywords": [
+        "reduce motion",
+        "reduced motion",
+        "reducir movimiento",
+        "menos movimiento",
+        "sin animaciones",
+        "quitar animaciones",
+        "accesibilidad",
+        "accessibility",
+        "mareo",
+        "motion sickness",
+        "animaciones",
+        "movimiento"
+      ],
+      "icon": "accessibility_new",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
     }
   ]
 }

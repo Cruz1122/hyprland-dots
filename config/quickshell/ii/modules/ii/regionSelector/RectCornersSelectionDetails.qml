@@ -57,8 +57,8 @@ Item {
         SequentialAnimation on opacity {
             running: root.breathingBorderOnly
             loops: Animation.Infinite
-            NumberAnimation { from: 0.9; to: 0.3; duration: 1200; easing.type: Easing.InOutQuad }
-            NumberAnimation { from: 0.3; to: 0.9; duration: 1200; easing.type: Easing.InOutQuad }
+            NumberAnimation { from: 0.9; to: 0.3; duration: 1200; easing.type: Easing.InOutQuad } // motion-ok: endless breathing pulse
+            NumberAnimation { from: 0.3; to: 0.9; duration: 1200; easing.type: Easing.InOutQuad } // motion-ok: endless breathing pulse
         }
     }
 

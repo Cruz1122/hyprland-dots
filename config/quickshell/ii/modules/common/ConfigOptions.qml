@@ -65,6 +65,10 @@ JsonAdapter {
             property string type: "auto" // Allowed: auto, scheme-content, scheme-expressive, scheme-fidelity, scheme-fruit-salad, scheme-monochrome, scheme-neutral, scheme-rainbow, scheme-tonal-spot
             property string accentColor: ""
         }
+        property JsonObject animations: JsonObject {
+            property real durationScale: 1.0 // Multiplies shell animation durations (0.5 = twice as fast); clamped to 0.25..3
+            property bool reduceMotion: false // Shell transitions end at once (1 ms); loops and spinners keep their speed
+        }
     }
 
     property JsonObject audio: JsonObject {

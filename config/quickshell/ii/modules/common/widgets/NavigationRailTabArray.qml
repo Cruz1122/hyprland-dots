@@ -27,7 +27,7 @@ Item {
 
         Behavior on anchors.topMargin {
             NumberAnimation {
-                duration: Appearance.animationCurves.expressiveFastSpatialDuration
+                duration: Appearance.animation.elementMoveSmall.duration
                 easing.type: Appearance.animation.elementMove.type
                 easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
             }

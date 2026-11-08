@@ -38,7 +38,7 @@ Rectangle {
 
     RotationAnimation on continuousRotation {
         running: root.loading
-        duration: 12000
+        duration: 12000 // motion-ok: endless spinner rotation keeps its speed
         easing.type: Easing.Linear
         loops: Animation.Infinite
         from: 0
@@ -58,7 +58,7 @@ Rectangle {
             direction: RotationAnimation.Shortest
             property: "leapRotation"
             to: (root.leapRotation + 90) % 360
-            duration: 350
+            duration: 350 // motion-ok: spinner shape step, paced by its 800 ms timer
             easing.type: Easing.InOutQuad
         }
         NumberAnimation {
@@ -66,7 +66,7 @@ Rectangle {
             property: "leapZoomProgress"
             from: 0
             to: 1
-            duration: 750
+            duration: 750 // motion-ok: spinner shape step, paced by its 800 ms timer
             easing.type: Easing.BezierSpline
             easing.bezierCurve: Appearance.animationCurves.standard
         }

@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.modules.common.functions
+import "functions/MotionScale.js" as MotionScale
 pragma Singleton
 pragma ComponentBehavior: Bound
 
@@ -14,6 +15,19 @@ Singleton {
     property QtObject font
     property QtObject sizes
     property string syntaxHighlightingTheme
+
+    // Shell motion (appearance.animations, Settings > Animations > Motion inside
+    // the shell). Every preset in `animation` below goes through scaled() and
+    // scaledVelocity(), so the factory-created animations and direct readers
+    // follow a change live. Loops, spinners and clock ticks never use these
+    // (they carry `// motion-ok:`; tests/test_motion_contract.py).
+    readonly property real animationFactor: MotionScale.factor(Config.options?.appearance?.animations?.durationScale, Config.options?.appearance?.animations?.reduceMotion)
+    function scaled(ms: real): int {
+        return MotionScale.duration(ms, root.animationFactor);
+    }
+    function scaledVelocity(velocity: real): real {
+        return MotionScale.velocity(velocity, root.animationFactor);
+    }
 
     // Transparency. The quadratic functions were derived from analysis of hand-picked transparency values.
     ColorQuantizer {
@@ -261,18 +275,18 @@ Singleton {
         readonly property list<real> standard: [0.2, 0, 0, 1, 1, 1]
         readonly property list<real> standardAccel: [0.3, 0, 1, 1, 1, 1]
         readonly property list<real> standardDecel: [0, 0, 0, 1, 1, 1]
-        readonly property real expressiveFastSpatialDuration: 350
-        readonly property real expressiveDefaultSpatialDuration: 500
-        readonly property real expressiveSlowSpatialDuration: 650
-        readonly property real expressiveEffectsDuration: 200
+        readonly property real expressiveFastSpatialDuration: 350 // motion-ok: raw base value; read the scaled animation.* preset instead
+        readonly property real expressiveDefaultSpatialDuration: 500 // motion-ok: raw base value; read the scaled animation.* preset instead
+        readonly property real expressiveSlowSpatialDuration: 650 // motion-ok: raw base value; read the scaled animation.* preset instead
+        readonly property real expressiveEffectsDuration: 200 // motion-ok: raw base value; read the scaled animation.* preset instead
     }
 
     animation: QtObject {
         property QtObject elementMove: QtObject {
-            property int duration: animationCurves.expressiveDefaultSpatialDuration
+            property int duration: root.scaled(animationCurves.expressiveDefaultSpatialDuration)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.expressiveDefaultSpatial
-            property int velocity: 650
+            property real velocity: root.scaledVelocity(650)
             property Component numberAnimation: Component {
                 NumberAnimation {
                     duration: root.animation.elementMove.duration
@@ -283,10 +297,10 @@ Singleton {
         }
 
         property QtObject elementMoveSmall: QtObject {
-            property int duration: animationCurves.expressiveFastSpatialDuration
+            property int duration: root.scaled(animationCurves.expressiveFastSpatialDuration)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.expressiveFastSpatial
-            property int velocity: 650
+            property real velocity: root.scaledVelocity(650)
             property Component numberAnimation: Component {
                 NumberAnimation {
                     duration: root.animation.elementMoveSmall.duration
@@ -297,10 +311,10 @@ Singleton {
         }
 
         property QtObject elementMoveEnter: QtObject {
-            property int duration: 400
+            property int duration: root.scaled(400)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.emphasizedDecel
-            property int velocity: 650
+            property real velocity: root.scaledVelocity(650)
             property Component numberAnimation: Component {
                 NumberAnimation {
                     alwaysRunToEnd: true
@@ -312,10 +326,10 @@ Singleton {
         }
 
         property QtObject elementMoveExit: QtObject {
-            property int duration: 200
+            property int duration: root.scaled(200)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.emphasizedAccel
-            property int velocity: 650
+            property real velocity: root.scaledVelocity(650)
             property Component numberAnimation: Component {
                 NumberAnimation {
                     alwaysRunToEnd: true
@@ -327,10 +341,10 @@ Singleton {
         }
 
         property QtObject elementMoveFast: QtObject {
-            property int duration: animationCurves.expressiveEffectsDuration
+            property int duration: root.scaled(animationCurves.expressiveEffectsDuration)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.expressiveEffects
-            property int velocity: 850
+            property real velocity: root.scaledVelocity(850)
             property Component colorAnimation: Component { ColorAnimation {
                 duration: root.animation.elementMoveFast.duration
                 easing.type: root.animation.elementMoveFast.type
@@ -345,10 +359,10 @@ Singleton {
         }
 
         property QtObject elementResize: QtObject {
-            property int duration: 300
+            property int duration: root.scaled(300)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.emphasized
-            property int velocity: 650
+            property real velocity: root.scaledVelocity(650)
             property Component numberAnimation: Component {
                 NumberAnimation {
                     alwaysRunToEnd: true
@@ -360,10 +374,10 @@ Singleton {
         }
 
         property QtObject clickBounce: QtObject {
-            property int duration: 400
+            property int duration: root.scaled(400)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: animationCurves.expressiveDefaultSpatial
-            property int velocity: 850
+            property real velocity: root.scaledVelocity(850)
             property Component numberAnimation: Component { NumberAnimation {
                 alwaysRunToEnd: true
                 duration: root.animation.clickBounce.duration
@@ -373,13 +387,13 @@ Singleton {
         }
         
         property QtObject scroll: QtObject {
-            property int duration: 200
+            property int duration: root.scaled(200)
             property int type: Easing.BezierSpline
             property list<real> bezierCurve: root.animationCurves.standardDecel
         }
 
         property QtObject menuDecel: QtObject {
-            property int duration: 350
+            property int duration: root.scaled(350)
             property int type: Easing.OutExpo
         }
     }

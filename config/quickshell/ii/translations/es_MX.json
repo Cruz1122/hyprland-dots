@@ -1792,5 +1792,20 @@
   "Everything a bit faster, without bounces.": "Todo un poco más rápido y sin rebotes.",
   "Slower and more fluid.": "Más lento y fluido.",
   "Windows and panels overshoot a little before they settle.": "Las ventanas y los paneles se pasan un poco antes de quedarse quietos.",
-  "Short fades with almost no movement.": "Fundidos breves, casi sin movimiento."
+  "Short fades with almost no movement.": "Fundidos breves, casi sin movimiento.",
+  "Speed of menus and transitions": "Velocidad de menús y transiciones",
+  "How fast the menus, buttons and transitions drawn by the shell move.": "Qué tan rápido se mueven los menús, botones y transiciones que dibuja la interfaz.",
+  "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed.": "No cambia cómo Hyprland abre las ventanas ni los paneles de la interfaz; eso está en el resto de esta página. Los indicadores de carga mantienen su velocidad.",
+  "Very fast": "Muy rápido",
+  "Transitions take half the usual time.": "Las transiciones duran la mitad de lo habitual.",
+  "Fast": "Rápido",
+  "Transitions take three quarters of the usual time.": "Las transiciones duran tres cuartas partes de lo habitual.",
+  "The speed the shell was designed with.": "La velocidad con la que se diseñó la interfaz.",
+  "Slow": "Lento",
+  "Transitions take one and a half times as long.": "Las transiciones duran una vez y media lo habitual.",
+  "Very slow": "Muy lento",
+  "Transitions take twice as long, so it is easier to follow what moves.": "Las transiciones duran el doble, así es más fácil seguir lo que se mueve.",
+  "Reduce motion in the shell": "Reducir el movimiento de la interfaz",
+  "Transitions inside the shell end instantly instead of animating.": "Las transiciones dentro de la interfaz terminan al instante, sin animación.",
+  "While it is on, the speed above has no effect and loading spinners keep turning. For the desktop itself, use the Minimal preset at the top of this page.": "Mientras está activado, la velocidad de arriba no tiene efecto y los indicadores de carga siguen girando. Para el escritorio, usa el preajuste Mínimo al principio de esta página."
 }

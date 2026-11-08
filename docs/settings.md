@@ -667,6 +667,74 @@ same-language files (`es` prefers `es_MX`, then `<lang>_<LANG>`, then any
 `<lang>_*`), then English source strings; a file whose JSON is not an object
 counts as `{}` (`services/TranslationFallback.js`).
 
+## Motion inside the shell
+
+Two `config` keys (Animations page, section "Motion inside the shell") change
+the motion that Quickshell draws itself: menus, buttons, switches, sliders and
+transitions inside panels. They do not touch Hyprland: how windows,
+workspaces and shell panels (sidebars, bar, dock, notification popup) open
+and close is Hyprland's `layersIn`/`layersOut` and the rest of that page.
+
+| Key | Values | Effect |
+|---|---|---|
+| `appearance.animations.durationScale` | `0.5`, `0.75`, `1` (default), `1.5`, `2` (segmented: Very fast … Very slow) | Multiplies durations; 0.5 is twice as fast. Velocities are divided by the same factor. |
+| `appearance.animations.reduceMotion` | `false` (default), `true` | Transitions end at once; the speed has no effect while it is on. |
+
+`modules/common/functions/MotionScale.js` (pure, `tests/qml_settings/tst_MotionScale.qml`):
+`factor(scale, reduce)` is 0 when `reduce` is `true`, otherwise `scale`
+clamped to 0.25..3 (a missing or malformed value counts as 1);
+`duration(ms, f)` is `max(1, round(ms × f))` and leaves 0, negative (`-1`)
+and infinite durations untouched; `velocity(v, f)` is `v / f`, or `1e6` when
+`f` is 0; `interval(ms, f)` follows the duration rule. The 1 ms floor is
+deliberate: Qt finishes a 0 ms animation inside `start()` (the driver below
+checks it), which would run `onFinished` handlers such as the notification
+discard re-entrantly; 1 ms finishes on the next animation tick.
+
+`Appearance.qml` exposes `animationFactor` (bound to both keys, so a change
+applies live in the main shell and in the settings app), `scaled(ms)` and
+`scaledVelocity(v)`. Every preset (`elementMove` 500, `elementMoveSmall` 350,
+`elementMoveEnter` 400, `elementMoveExit` 200, `elementMoveFast` 200,
+`elementResize` 300, `clickBounce` 400, `scroll` 200, `menuDecel` 350) and
+its `velocity` go through them, and the factory Components bind to the
+scaled values, so existing consumers follow. `animationCurves.*Duration` stay
+raw constants; read the preset of the same base value instead
+(`StyledSwitch`, `NavigationRailTabArray` use `elementMoveSmall`). Also
+scaled: the timers that wait for an animation (`Overlay.qml`,
+`BottomWidgetGroup.qml`, whose half duration keeps the 1 ms floor), the reveal
+floors of `Authenticator.qml` and `AiQuotaPanel.qml`, and the
+`SmoothedAnimation` velocities (`StyledSlider`, `CalendarHeaderButton`,
+`TodoItemActionButton` through their preset; waffle `WSlider` and
+`WProgressBar` through `Appearance.scaledVelocity`).
+
+Not scaled on purpose, each marked `// motion-ok: <reason>` on the duration
+line: endless loops and spinners (`MaterialLoadingIndicator`, the cookie
+clock rotation, the song recognition button, the region selector pulse), the
+clock second hand (real time), the brightness animation (it drives real
+monitor writes), the reload popup timeout, and the raw
+`animationCurves.*Duration` constants. Animation previews of Hyprland curves
+must use Hyprland's own milliseconds and carry the marker too. The settings
+search highlight pulse (`SettingsRow.qml`) is not scaled either.
+
+About 58 hardcoded durations elsewhere (bar widgets, lock screen, clock
+hands, ripples, the settings app's own page transitions) still ignore both
+keys; migrating them is deferred. `tests/test_motion_contract.py` scans
+`config/quickshell/ii/**/*.qml` (waffle excluded) for duration bindings and
+assignments with a nonzero literal that do not go through `Appearance` or
+`MotionScale` and lack `motion-ok`, and fails when the count exceeds
+`MAX_UNMIGRATED`. Lower that constant when you migrate or mark a site; never
+raise it. The same test rejects readers of `animationCurves.*Duration`
+outside `Appearance.qml` and scaled durations inside looping animations. It
+also requires a 1 ms floor (`Math.max(1, ...)` or `Appearance.scaled()`) on
+any arithmetic over a preset duration, `Appearance.scaled()` around the
+Authenticator and AI quota `revealAnimation.duration` (so their floors scale),
+and a preset velocity or `Appearance.scaledVelocity()` in every
+`SmoothedAnimation`, waffle included. These are static checks: no test loads
+those shell files. `tests/test_motion_scale.py` runs `tests/harness/drivers/motion-scale.qml`
+with a config seeded at 0.5 (elementMove 250 ms, velocities doubled), then
+`reduceMotion` (1 ms, and a preset factory animation emits `finished` after
+`start()` returns) and back to 1 (500 ms), and renders the Animations page in
+strict mode with the packaged config, which has neither key.
+
 ## Config schema version
 
 `scripts/settingsctl.py validate|migrate [--dry-run] <config.json>` is a
