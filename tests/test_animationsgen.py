@@ -388,6 +388,23 @@ class GeneratorTest(unittest.TestCase):
         base["animations"]["windowsMove"] = {"enabled": True, "speed": 3, "bezier": 7}
         self.assertEqual(self.apply({"base": base, "cards": {"border": self.value(style="")}})[0], 2)
 
+    def test_a_base_animation_without_a_speed_inherits(self) -> None:
+        # hyprbase.py drops a non-finite speed (`speed = 1/0`) and leaves the
+        # leaf without one. Hyprland rejects that call, so the leaf inherits
+        # from its parent; one such line must not refuse the whole base.
+        base = json.loads(json.dumps(BASE))
+        base["animations"]["windowsMove"] = {"enabled": True, "bezier": "default"}
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="")}})
+        self.assertEqual(code, 0, data)
+        self.assertEqual(data["errors"], ["base.animations.windowsMove has no speed; it is ignored"])
+        self.assertEqual(data["cards"]["border"], self.value(style=""))
+        checked = gen.check_base(base)
+        self.assertNotIn("windowsMove", checked["animations"])
+        self.assertEqual(gen.resolve(checked, "windowsMove"), gen.resolve(checked, "windows"))
+        # A speed that is present but out of range still rejects the base.
+        base["animations"]["windowsMove"] = {"enabled": True, "speed": 0, "bezier": "default"}
+        self.assertEqual(self.apply({"base": base, "cards": {"border": self.value(style="")}})[0], 2)
+
     def test_carried_over_lines_are_validated_again(self) -> None:
         # The file regex accepts styles the allowlist does not (a side on
         # workspaces), so lines carried over from the file are checked again.

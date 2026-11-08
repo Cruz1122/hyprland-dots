@@ -411,18 +411,27 @@ ShellRoot {
     function checkBallTrack() {
         const ball = root.findByName(editor, "curveBall");
         const track = root.findByName(editor, "curveTrack");
-        root.editorPoints = [0.5, 2, 0.5, 2];
-        let left = Infinity;
-        let right = -Infinity;
-        let peak = 0;
-        for (let i = 0; i <= 40; i++) {
-            editor.ballProgress = i / 40;
-            left = Math.min(left, ball.x);
-            right = Math.max(right, ball.x + ball.width);
-            peak = Math.max(peak, track.value);
-        }
-        root.check("editor: an overshooting curve keeps the ball inside the track", track.clip && peak > 1.5 && left >= 0 && right <= track.width,
-            { left: left, right: right, track: track.width, peak: peak, clip: track.clip });
+        const sweep = points => {
+            root.editorPoints = points;
+            let left = Infinity;
+            let right = -Infinity;
+            let low = Infinity;
+            let peak = -Infinity;
+            for (let i = 0; i <= 40; i++) {
+                editor.ballProgress = i / 40;
+                left = Math.min(left, ball.x);
+                right = Math.max(right, ball.x + ball.width);
+                low = Math.min(low, track.value);
+                peak = Math.max(peak, track.value);
+            }
+            return { left: left, right: right, low: low, peak: peak, track: track.width, clip: track.clip };
+        };
+        const over = sweep([0.5, 2, 0.5, 2]);
+        root.check("editor: an overshooting curve keeps the ball inside the track", track.clip && over.peak > 1.5 && over.left >= 0 && over.right <= track.width, over);
+        // Unclamped, this curve's low point (about -0.6) would put the ball
+        // left of the track (0.12 w - 0.6 * 0.66 w < 0): the left clamp.
+        const under = sweep([0.5, -1, 0.5, -1]);
+        root.check("editor: an undershooting curve keeps the ball inside the track", track.clip && under.low < -0.4 && under.left >= 0 && under.right <= track.width, under);
         editor.ballProgress = 1;
     }
 
@@ -573,6 +582,14 @@ ShellRoot {
             { progress: idleTarget.progress, value: idleTarget.value });
         root.check("preview: a disabled card shows the end state without play()", !disabledTarget.playing && disabledTarget.progress === 1,
             { progress: disabledTarget.progress });
+        // Changing the family (another card kind in the same preview) shows
+        // the new family's end state, not a frame of the old one.
+        idleTarget.seek(0.3);
+        const seeked = idleTarget.progress;
+        idleTarget.family = "windowsOut";
+        root.check("preview: a family change shows the end state", seeked < 1 && !idleTarget.playing && idleTarget.progress === 1,
+            { seeked: seeked, progress: idleTarget.progress, playing: idleTarget.playing });
+        idleTarget.family = "windowsIn";
         root.checkPreviewFrames();
         const preview = playTarget;
         preview.play();

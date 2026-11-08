@@ -14,6 +14,10 @@
 //                created yet: select and segmented rows show "Now: <the
 //                selected option's description>", a slider shows its
 //                minLabel/maxLabel under the track;
+//   option-notes rows with their own control show the selected option's
+//                registry description as «Ahora: …» too: the color scheme
+//                drop-down on Appearance (a custom delegate) and the power
+//                mode on Power (a device row over backend choices);
 //   help-search  a word found only in a help text: activating the result
 //                opens the row's page, highlights the row and opens its help;
 //   help-keys    the "?" toggle takes keyboard focus, is named "Help: <label>"
@@ -29,7 +33,8 @@
 //                translated line, gone again when Game Mode ends;
 //   navigation   the modified count of a page is hidden at 0 with its width
 //                reserved (same width on every item), shows the count above
-//                0 and says «Ajustes modificados: N» to screen readers; no
+//                0 and says «Ajustes modificados: N» to screen readers; the
+//                selected title is measured in its selected weight; no
 //                page title is elided at 1100 and 1600 px wide (nor at
 //                760 px with the list expanded), and the list keeps its
 //                width when a count appears or another page is selected.
@@ -194,6 +199,34 @@ ShellRoot {
                 resetText: row?.resetText ?? null });
             root.saveShot(row, "slider-captions", () => root.next());
         });
+    }
+
+    // ----------------------------------------------------------- option-notes
+
+    // Real registry texts on rows that do not use SettingsSelectRow's own
+    // control: [page, key].
+    readonly property var noteRows: [["appearance", "appearance.palette.type"], ["power", "power.profile"]]
+
+    function optionNotesStep() {
+        const run = index => {
+            if (index >= root.noteRows.length) {
+                root.next();
+                return;
+            }
+            const [pageId, key] = root.noteRows[index];
+            root.openPage(pageId, ready => {
+                const row = root.rowOn(pageId, key);
+                const option = row ? (SettingsRegistry.entry(key).options ?? []).find(o => JSON.stringify(o.value) === JSON.stringify(row.value)) : null;
+                const expected = option?.description ? Translation.tr("Now: %1").arg(Translation.tr(option.description)) : "";
+                const note = row ? root.findItem(row, "optionNote") : null;
+                root.check("option-notes: the selected option's registry description shows as «Ahora: …»", ready && !!expected
+                    && expected.startsWith("Ahora: ") && expected !== `Ahora: ${option.description}`
+                    && row.optionNote === expected && note?.visible === true && note.text === expected, {
+                    key: key, value: row?.value ?? null, optionNote: row?.optionNote ?? null, shown: note?.text ?? null, expected: expected });
+                root.saveShot(row, `option-note-${key}`, () => run(index + 1));
+            });
+        };
+        run(0);
     }
 
     // ------------------------------------------------------------ help-search
@@ -578,9 +611,19 @@ ShellRoot {
         root.check("navigation: the list is as wide as its longest title needs", nav.expandedWidth === Math.min(SettingsMetrics.navMaxExpandedWidth,
             Math.max(SettingsMetrics.navExpandedWidth, ...items.map(i => i.implicitWidth))) && nav.width === nav.expandedWidth, {
             width: nav.width, expandedWidth: nav.expandedWidth, longest: longest?.implicitWidth ?? null });
-        for (const p of probes)
-            p.destroy();
-        root.otherSizesStep(nav);
+        // The selected probe sits at its implicit width once laid out: its
+        // DemiBold title must fit the width the item reserves for it.
+        const selectedTitle = probes.length === 3 ? root.findItem(probes[2], "navTitle") : null;
+        root.waitFor(() => (selectedTitle?.width ?? 0) > 0 && probes[2].width === probes[2].implicitWidth, 2000, laidOut => {
+            root.check("navigation: the selected title fits at the item's implicit width", laidOut
+                && selectedTitle.font.weight === Font.DemiBold && selectedTitle.truncated === false
+                && selectedTitle.implicitWidth <= probes[2].titleWidth, {
+                title: longest?.title ?? null, implicitWidth: selectedTitle?.implicitWidth ?? null,
+                reserved: probes[2]?.titleWidth ?? null, width: selectedTitle?.width ?? null, truncated: selectedTitle?.truncated ?? null });
+            for (const p of probes)
+                p.destroy();
+            root.otherSizesStep(nav);
+        });
     }
 
     // The window is resized in place; the list follows its width once the
@@ -622,6 +665,8 @@ ShellRoot {
         root.report({ type: "visit", size: `${root.win.width}x${root.win.height}`, name: step });
         if (step === "option-texts")
             root.optionTextsStep();
+        else if (step === "option-notes")
+            root.optionNotesStep();
         else if (step === "help-search")
             root.helpSearchStep();
         else if (step === "help-keys")
@@ -641,7 +686,7 @@ ShellRoot {
     function start() {
         root.keys = Qt.createQmlObject("import QtQuick; import QtTest; TestCase { when: false }", root.win.contentItem, "harnessKeys");
         const hyprland = SettingsStore.isAvailable("hyprland.general.gaps_in");
-        root.steps = hyprland ? ["option-texts", "help-search", "help-keys", "requires", "chips", "status-note", "navigation"] : ["backend-down"];
+        root.steps = hyprland ? ["option-texts", "option-notes", "help-search", "help-keys", "requires", "chips", "status-note", "navigation"] : ["backend-down"];
         root.report({ type: "start", mode: hyprland ? "hyprland" : "backend-down", steps: root.steps });
         root.next();
     }

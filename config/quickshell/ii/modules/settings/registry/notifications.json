@@ -14,7 +14,7 @@
       "id": "placement",
       "title": "Placement",
       "icon": "monitor",
-      "description": "Which monitor shows the notification pop-ups."
+      "description": "Useful with several monitors: pop-ups can follow the focus or stay on one."
     },
     {
       "id": "conflicts",
@@ -47,7 +47,9 @@
       "description": "How long a popup stays when the app does not set its own timeout.",
       "keywords": [
         "timeout",
-        "duración"
+        "duración",
+        "ventanas emergentes",
+        "Duración de las ventanas emergentes"
       ],
       "icon": "timer",
       "backend": "config",

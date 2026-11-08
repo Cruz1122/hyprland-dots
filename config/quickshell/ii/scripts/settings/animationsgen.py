@@ -276,7 +276,9 @@ def check_base(base: object) -> dict[str, Any] | None:
     A dotfiles curve whose name is not a Lua identifier cannot be written to
     the file, so it is left out (and reported in `errors`) instead of
     rejecting the whole base, which would block every card write. A base
-    animation that uses such a curve is left out the same way."""
+    animation that uses such a curve is left out the same way, and so is an
+    enabled one without a speed (hyprbase.py drops a non-finite one such as
+    `speed = 1/0`): Hyprland rejects that line, so the leaf inherits."""
     if base is None:
         return None
     if not isinstance(base, dict):
@@ -302,6 +304,10 @@ def check_base(base: object) -> dict[str, Any] | None:
             raise Invalid(f'base.animations.{leaf} is not a valid animation')
         if not item['enabled'] and 'speed' not in item:
             out_anims[leaf] = {'enabled': False, 'speed': 1, 'curve': 'default', 'style': ''}
+            continue
+        if 'speed' not in item:
+            # resolve() falls back to the parent or the compiled tuple.
+            errors.append(f'base.animations.{leaf} has no speed; it is ignored')
             continue
         curve = item.get('bezier', item.get('spring'))
         if not is_number(item.get('speed')) or not 0 < item['speed'] <= 100 or not isinstance(curve, str):

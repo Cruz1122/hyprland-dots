@@ -95,6 +95,9 @@
       ],
       "consumers": [
         "modules/ii/sidebarRight/SidebarRightContent.qml"
+      ],
+      "keywords": [
+        "Interruptores rápidos"
       ]
     },
     {
@@ -184,7 +187,7 @@
       "key": "sidebar.cornerOpen.enable",
       "section": "cornerOpen",
       "label": "Active corners",
-      "description": "Clicking a top corner opens the sidebar on that side; it does not work over fullscreen windows.",
+      "description": "Clicking a corner opens the sidebar on that side; it does not work over fullscreen windows.",
       "keywords": [
         "Open from corners",
         "Abrir desde las esquinas"
@@ -260,7 +263,7 @@
       "key": "sidebar.cornerOpen.clicklessCornerVerticalOffset",
       "section": "cornerOpen",
       "label": "Ignored pixels next to the corner",
-      "description": "The edge opens the sidebar only this far from the corner, so sliding along the top or bottom does not.",
+      "description": "The edge opens the sidebar only farther than this from the corner, so sliding along the top or bottom does not.",
       "keywords": [
         "Corner offset",
         "Desplazamiento de la esquina"
@@ -465,7 +468,8 @@
       "description": "Thickness of the strip at the bottom edge that brings the hidden dock back.",
       "keywords": [
         "Reveal zone",
-        "Zona para mostrar"
+        "Zona para mostrar",
+        "Franja para mostrarlo"
       ],
       "icon": "border_bottom",
       "backend": "config",
@@ -809,7 +813,9 @@
       "keywords": [
         "Duration",
         "Duración",
-        "osd"
+        "osd",
+        "On-screen display",
+        "Visualización en pantalla"
       ],
       "icon": "timer",
       "backend": "config",
@@ -894,6 +900,11 @@
       "placeholder": "󰖳",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -906,6 +917,11 @@
       "type": "bool",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -918,6 +934,11 @@
       "type": "bool",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -930,6 +951,11 @@
       "type": "bool",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -942,6 +968,11 @@
       "type": "bool",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -958,6 +989,11 @@
       "unit": "px",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {
@@ -974,6 +1010,11 @@
       "unit": "px",
       "consumers": [
         "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ],
+      "keywords": [
+        "Shortcut cheat sheet",
+        "Chuleta de atajos",
+        "cheat sheet"
       ]
     },
     {

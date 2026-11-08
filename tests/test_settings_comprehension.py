@@ -1,11 +1,13 @@
 """Comprehension layer of the settings app in the sandboxed harness.
 
-tests/harness/drivers/comprehension.qml checks "Now: …" option notes and
+tests/harness/drivers/comprehension.qml checks "Now: …" option notes (also
+on the color scheme and power mode rows, which have their own controls) and
 slider captions, help search and the help toggle by keyboard, the
 "Requires …" link (said once to screen readers), the 2-chip limit, the
 italic status note of a row paused by Game Mode and the navigation (modified
-count reserved at 0 and described, no elided page title, a list width that
-counts and selection do not change), all with the fake hyprctl; without
+count reserved at 0 and described, the selected title measured in its
+selected weight, no elided page title, a list width that counts and
+selection do not change), all with the fake hyprctl; without
 Hyprland, on the Windows, Input and Animations pages, one banner per section
 that shares the reason and "—" with no live control instead of made-up
 values (Input covers list and text rows). See docs/settings.md "Rows and
@@ -65,6 +67,7 @@ class SettingsComprehensionTest(unittest.TestCase):
             "option-texts: the slider shows minLabel and maxLabel under the track",
             "option-texts: the default tick is drawn when the default is known",
             "option-texts: the reset text names the default",
+            "option-notes: the selected option's registry description shows as «Ahora: …»",
             "help-search: word found only in a help text",
             "help-search: reveal highlights the row and opens its help",
             "help-keys: the toggle takes keyboard focus",
@@ -95,6 +98,7 @@ class SettingsComprehensionTest(unittest.TestCase):
             "navigation: no page title is elided",
             "navigation: a count appearing or a selection keeps the item's width",
             "navigation: the list is as wide as its longest title needs",
+            "navigation: the selected title fits at the item's implicit width",
             "navigation: the window grew to 1600 px",
             "navigation: the list collapses at 760 px",
         ])

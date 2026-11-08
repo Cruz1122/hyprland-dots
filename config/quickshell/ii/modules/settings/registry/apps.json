@@ -20,7 +20,7 @@
       "id": "hyprland",
       "title": "Apps opened by shortcuts",
       "icon": "code",
-      "description": "Read-only: what each shortcut opens, from variables.lua; edit ~/.config/hypr/custom/variables.lua to change it."
+      "description": "Read-only, from variables.lua: when a shortcut lists several apps, the first one installed opens. Edit ~/.config/hypr/custom/variables.lua to change them."
     }
   ],
   "entries": [
@@ -200,7 +200,7 @@
       "key": "apps.network",
       "section": "commands",
       "label": "Network settings",
-      "description": "Opened by the Details button of the Wi-Fi dialog and by right-clicking the network toggle.",
+      "description": "Opened by the Details button of the Wi-Fi dialog; in the classic quick-toggle style, also by right-clicking the network toggle.",
       "icon": "wifi",
       "backend": "config",
       "type": "string",
@@ -237,7 +237,7 @@
       "key": "apps.bluetooth",
       "section": "commands",
       "label": "Bluetooth settings",
-      "description": "Opened by the Details button of the Bluetooth dialog and by right-clicking its toggle.",
+      "description": "Opened by the Details button of the Bluetooth dialog; in the classic quick-toggle style, also by right-clicking its toggle.",
       "icon": "bluetooth",
       "backend": "config",
       "type": "string",
@@ -311,7 +311,6 @@
       "key": "info.apps.terminal",
       "section": "hyprland",
       "label": "Terminal (Super+Enter)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -319,13 +318,13 @@
       ],
       "backend": "readonly",
       "type": "info",
-      "widget": "info"
+      "widget": "info",
+      "description": "Super+T and Ctrl+Alt+T open it too."
     },
     {
       "key": "info.apps.fileManager",
       "section": "hyprland",
       "label": "File manager (Super+E)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -341,7 +340,6 @@
       "key": "info.apps.browser",
       "section": "hyprland",
       "label": "Browser (Super+W)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -357,7 +355,6 @@
       "key": "info.apps.codeEditor",
       "section": "hyprland",
       "label": "Code editor (Super+C)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -373,7 +370,6 @@
       "key": "info.apps.textEditor",
       "section": "hyprland",
       "label": "Text editor (Super+X)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -389,7 +385,7 @@
       "key": "info.apps.officeSoftware",
       "section": "hyprland",
       "label": "Office suite",
-      "description": "Opens with Ctrl+Super+Shift+Alt+W; when several apps are listed, the first one installed opens.",
+      "description": "Opens with Ctrl+Super+Shift+Alt+W.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -403,7 +399,6 @@
       "key": "info.apps.volumeMixer",
       "section": "hyprland",
       "label": "Volume mixer (Ctrl+Super+V)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",
@@ -419,7 +414,6 @@
       "key": "info.apps.taskManager",
       "section": "hyprland",
       "label": "Task manager (Ctrl+Shift+Esc)",
-      "description": "When several apps are listed, the first one installed opens.",
       "keywords": [
         "hyprland",
         "variables.lua",

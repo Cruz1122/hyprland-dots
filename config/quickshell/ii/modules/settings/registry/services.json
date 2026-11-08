@@ -246,7 +246,7 @@
       "key": "resources.historyLength",
       "section": "resources",
       "label": "History length",
-      "description": "Measurements kept in the overlay's usage graphs (Super+G); at 3000 ms each, 60 cover 3 minutes.",
+      "description": "Samples kept in the overlay's usage graphs (Super+G); at 3000 ms each, 60 cover 3 minutes.",
       "icon": "show_chart",
       "backend": "config",
       "type": "int",

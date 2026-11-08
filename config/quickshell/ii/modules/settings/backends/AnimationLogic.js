@@ -103,10 +103,14 @@ var STYLE_LABELS = {
 // a slide shifts it by the screen width or height, a special workspace also
 // fades), and the app offers no side for workspaces.
 var STYLE_DESCRIPTIONS = {
+    // The windows family also serves windowsMove, and Hyprland reads the
+    // style only when a window opens or closes (the windowsIn/windowsOut
+    // config, desktop/view/animationControllers/WindowAnimationController.cpp
+    // in 0.57): a move never uses it, so the texts say so.
     windows: {
-        slide: "Moves in or out through a screen edge: the nearest one unless you pick a side.",
-        popin: "Changes size from a smaller one with a fade; at 100% it only fades.",
-        gnomed: "Unfolds from a line across the middle, as in GNOME."
+        slide: "A window opening or closing travels through a screen edge, the nearest unless you pick a side; moves ignore it.",
+        popin: "A window opening or closing changes size from a smaller one with a fade (at 100% it only fades); moves ignore it.",
+        gnomed: "A window opening or closing unfolds from a line across the middle, as in GNOME; moves ignore it."
     },
     layers: {
         fade: "Appears or disappears in place, without moving.",
@@ -114,8 +118,8 @@ var STYLE_DESCRIPTIONS = {
         popin: "Changes size from a smaller one with a fade; at 100% it only fades."
     },
     workspaces: {
-        slide: "The whole workspace moves sideways, as far as the screen is wide.",
-        slidevert: "The whole workspace moves up or down, as far as the screen is tall.",
+        slide: "The whole workspace moves sideways, as far as the screen is wide; the auxiliary workspace (Super+S) also fades.",
+        slidevert: "The whole workspace moves up or down, as far as the screen is tall; the auxiliary workspace (Super+S) also fades.",
         fade: "The workspace fades in or out in place, without moving.",
         slidefade: "The workspace moves sideways part of the way while it fades.",
         slidefadevert: "The workspace moves up or down part of the way while it fades."

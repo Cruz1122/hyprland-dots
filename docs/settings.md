@@ -512,9 +512,11 @@ reloaded, errors, cards }`. Every emitted value is re-validated (names
 `^[A-Za-z_][A-Za-z0-9_]*$` and known, styles from the allowlist, finite
 numbers in range), carried-over lines too. A dotfiles curve in `base` whose
 name is not a Lua identifier is left out (reported in `errors`, also on
-success), and so is a base animation that uses such a curve (its parent or
-Hyprland's compiled tuple applies), instead of rejecting the whole base; any
-other malformed curve or animation still rejects it. Deleting a curve a card uses fails
+success), and so is a base animation that uses such a curve or an enabled
+one without a speed (`hyprbase.py` drops a non-finite speed such as
+`speed = 1/0`); its parent or Hyprland's compiled tuple applies, instead of
+rejecting the whole base; any other malformed curve or animation still
+rejects it. Deleting a curve a card uses fails
 naming the cards; deleting a Hyprland, dotfiles or app curve fails. Card
 writes need `base`. With `--eval`, the new or changed statements (curves
 first) go to one `hyprctl eval` before the write; removed lines are applied by
@@ -599,8 +601,12 @@ wrapper that can fail one `-j animations` read, the `python3` shim of
 `tests/harness/stubs/` (it can fail or delay one generator call) and the base
 from `tests/fixtures/hyprbase-sample.json` through the `baseFixture` test
 seam; the driver also covers a reload while the generator runs, the base
-arriving late, Game Mode notes announced, a failed confirmation read and a
-`hyprland.lua` without the require).
+arriving late, Game Mode notes announced, a failed confirmation read, a
+`hyprland.lua` without the require, a write queued during an apply that waits
+for a fresh read of the file, and the base fixture going missing).
+Style texts (`STYLE_DESCRIPTIONS`) follow Hyprland 0.57: a window's style is
+read only when it opens or closes (so the `windowsMove` card's styles say a
+move ignores them), and a special workspace always fades as well.
 
 ## Rows and pages
 
@@ -623,7 +629,7 @@ appear only on hover (`StyledToolTip` needs `parent.hovered === true` or
 | `requires` | `{ key, text }` while another setting's value disables the row (first failing leaf of `enabledWhen`), else `null`. `text` is `Logic.dependencyText`: "Requires “X”" (bool on, or a truthy leaf), "Requires “X” off" (`equals: false`, `notEquals: true`, `not`), "Requires “X”: A" or "…: A or B" (`equals`/`in` with the option labels), "Requires “X” not set to A" (`notEquals`). |
 | `chips` | `Logic.rowChips(entry, requires)`: at most 2 chips on the label line, priority requires > `confirm` > `nextStart`/`nextLogin`/`newWindows`/`onSave` > `cost`. The requires chip is a link (Enter, Space or click): it scrolls to and highlights the target row on this page, or asks `SettingsSession.requestReveal(key)`, which `SettingsShell` forwards to `settings.qml` `reveal()` (another page). |
 | `help`, `helpOpen`, `toggleHelp()` | Translated `entry.help`; the "?" toggle (`objectName: "helpToggle"`) and the inline text (`"helpText"`). Open state lives in `SettingsSession` for the session. |
-| `optionNote` | "Now: <description>" of the selected option (select and segmented rows). |
+| `optionNote` | "Now: <description>" of the selected option: select and segmented rows; device rows when the registry entry's options describe the current value (`power.profile`); the color scheme delegate (`SettingsSchemeChoice`) sets it on its custom row. |
 | `statusNote` | Translated `SettingsStore.statusNote(key)`, an italic status line (`objectName: "statusNote"`, its text `"statusNoteText"`). |
 | `showPlaceholder`, `needsValue`, `placeholderWhenUnavailable` | A writable row whose backend is unavailable (or, with `needsValue`, whose value is `undefined`) shows "—" (`"valuePlaceholder"`) instead of its control, never a made-up checked, unchecked or minimum value. Switch, slider, spin, select and segmented rows set `needsValue`. |
 | `reasonInBanner` | The section banner already shows this row's unavailable reason, so the row has no lock line. |
@@ -706,12 +712,13 @@ What rows rely on outside `components/`:
   the help open, the "?" toggle works by keyboard, a "Requires …" chip is a
   keyboard link to its target (also on another page) said once to screen
   readers, rows show at most 2 chips, "Now: …" and the slider captions
-  render, a row paused by Game Mode shows its italic, translated status note
+  render (also on the color scheme and power mode rows), a row paused by Game Mode shows its italic, translated status note
   (the driver writes Game Mode's overrides file in the sandbox and delivers
   Hyprland's `configreloaded` through `SettingsStore.backends.hyprland`, a
   read-only map kept for drivers), the navigation count is hidden at 0 with
   its width reserved and described above 0, and no page title is elided at
-  1100 and 1600 px (or at 760 px expanded); without Hyprland, on the Windows,
+  1100 and 1600 px (or at 760 px expanded), and the selected title fits its
+  DemiBold width at the item's implicit width; without Hyprland, on the Windows,
   Input (list and text rows) and Animations pages, each section that shares
   the reason shows one banner and every Hyprland row shows "—" and no live
   control (`"rowControl"` hidden).
@@ -723,7 +730,8 @@ item shows `SettingsStore.modifiedCount(pageId)` after its title, hidden at 0
 with its width reserved, as its accessible description "Changed
 settings: <n>", and as a dot on the icon when collapsed; expanded, the list
 is as wide as its longest page title needs in the selected weight beside the
-reserved count (`SettingsMetrics.navExpandedWidth` 248 px at least,
+reserved count (two digits in the count's own font, with 6 px between icon,
+title and count; `SettingsMetrics.navExpandedWidth` 248 px at least,
 `navMaxExpandedWidth` 320 px at most, longer titles elide), so titles are
 never cut short and neither a count appearing nor a selection changes its
 width; search

@@ -5,6 +5,7 @@ import qs.modules.common
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../modules/common/functions/TimeFormat.js" as TimeFormat
 
 /**
  * A nice wrapper for date and time strings.
@@ -18,20 +19,9 @@ Singleton {
             return SystemClock.Minutes;
         }
     }
-    property string time: {
-        const format = Config.options?.time.format ?? "hh:mm";
-        if (format === "h:mm") {
-            let hours = clock.date.getHours() % 12;
-            if (hours === 0) hours = 12;
-            const minutes = String(clock.date.getMinutes()).padStart(2, "0");
-            let result = `${hours}:${minutes}`;
-            if (Config.options.time.secondPrecision || GlobalStates.screenLocked) {
-                result += `:${String(clock.date.getSeconds()).padStart(2, "0")}`;
-            }
-            return result;
-        }
-        return Qt.locale().toString(clock.date, format);
-    }
+    property string time: TimeFormat.formatTime(clock.date, Config.options?.time.format ?? "hh:mm",
+        Config.options?.time.secondPrecision === true, GlobalStates.screenLocked,
+        (date, format) => Qt.locale().toString(date, format))
     property string shortDate: Qt.locale().toString(clock.date, Config.options?.time.shortDateFormat ?? "dd/MM")
     property string date: Qt.locale().toString(clock.date, Config.options?.time.dateWithYearFormat ?? "dd/MM/yyyy")
     property string longDate: Qt.locale().toString(clock.date, Config.options?.time.dateFormat ?? "dddd, dd/MM")

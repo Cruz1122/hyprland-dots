@@ -94,8 +94,8 @@
       "key": "time.secondPrecision",
       "section": "time",
       "label": "Show seconds",
-      "description": "Adds seconds to the 12h clock and a second hand to the Cookie-style desktop clock.",
-      "help": "The other time formats keep hours and minutes only; with this on, clocks redraw every second.",
+      "description": "Adds seconds to every time format and a second hand to the analog desktop clock.",
+      "help": "The analog clock's rotating date also turns with the seconds, and clocks redraw every second. While locked, the 12h format shows seconds even with this off.",
       "keywords": [
         "segundos",
         "seconds"

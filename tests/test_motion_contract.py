@@ -306,7 +306,8 @@ class ScannerSelfTest(unittest.TestCase):
             "    width: 300",
             "    duration: 2 * root.rippleDuration",
             "    duration: Appearance.animation.elementMove.duration * 1.5",
-            "    readonly property int half: Math.max(1, Math.round(Appearance.animation.elementMove.duration / 2))",
+            # A real duration binding, so the 1 ms floor rule is exercised.
+            "    readonly property int halfDuration: Math.max(1, Math.round(Appearance.animation.elementMove.duration / 2))",
             "    duration: Appearance.scaled(Math.max(160, fullDuration * Math.abs(to - p)))",
             "    duration: MotionScale.duration(Math.max(300, base), f)",
             "    duration: Appearance.scaled(Appearance.animation.elementMove.duration / 2)",
@@ -326,8 +327,10 @@ class ScannerSelfTest(unittest.TestCase):
             "    revealAnimation.duration = Math.max(160, fullDuration * Math.abs(to - p));",
             "    duration: Math.min(10, root.rippleDuration)",
             "    duration: 300 * Appearance.animationFactor",
+            # The floor exempts only its own 1.
+            "    duration: Math.max(1, 300)",
         ])
-        self.assertEqual([n for n, _ in hardcoded_durations(text)], [1, 2, 3, 4, 5, 6, 7, 8])
+        self.assertEqual([n for n, _ in hardcoded_durations(text)], [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
     def test_literal_intervals(self) -> None:
         uses = "Item {\n    NumberAnimation { duration: Appearance.animation.elementMove.duration }\n"

@@ -6,13 +6,13 @@
   "sections": [
     {
       "id": "distro",
-      "title": "System",
+      "title": "Linux distribution",
       "icon": "box",
-      "description": "Links to the documentation and support of your Linux distribution."
+      "description": "Links to its documentation and support."
     },
     {
       "id": "dotfiles",
-      "title": "Desktop configuration",
+      "title": "Shell project",
       "icon": "folder_managed",
       "description": "Links to the documentation, issues, discussions and donations of illogical-impulse."
     }
@@ -25,7 +25,9 @@
       "description": "The distribution this shell is running on.",
       "keywords": [
         "distro",
-        "Distro"
+        "Distro",
+        "System",
+        "Sistema"
       ],
       "icon": "computer",
       "backend": "readonly",
@@ -39,7 +41,9 @@
       "description": "The Quickshell configuration these settings belong to.",
       "keywords": [
         "dotfiles",
-        "Dotfiles"
+        "Dotfiles",
+        "Desktop configuration",
+        "Configuración del escritorio"
       ],
       "icon": "folder_managed",
       "backend": "readonly",

@@ -14,7 +14,7 @@
       "id": "transparency",
       "title": "Transparency",
       "icon": "opacity",
-      "description": "See-through bar and panels; turn it off for the clearest text."
+      "description": "It only affects the shell, never app windows; turn it off for the clearest text."
     },
     {
       "id": "fonts",
@@ -335,11 +335,13 @@
     {
       "key": "appearance.fonts.expressive",
       "section": "fonts",
-      "label": "Display",
+      "label": "Display font",
       "description": "Large text such as the analog clock digits, the digital clock's date and quote, and the weather widget.",
       "keywords": [
         "Expressive",
-        "Expresivo"
+        "Expresivo",
+        "Display",
+        "Decorativa"
       ],
       "icon": "brush",
       "backend": "config",

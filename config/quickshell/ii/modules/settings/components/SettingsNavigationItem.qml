@@ -19,6 +19,8 @@ RippleButton {
     property bool expanded: true
     property bool selected: false
     readonly property string title: Translation.tr(root.page?.title ?? "")
+    // Width the title gets: the whole title in its selected weight.
+    readonly property real titleWidth: Math.ceil(titleMetrics.advanceWidth) + 1
     readonly property int modifiedCount: {
         void SettingsStore.revision;
         return root.page ? SettingsStore.modifiedCount(root.page.id) : 0;
@@ -26,7 +28,10 @@ RippleButton {
 
     objectName: "nav:" + (root.page?.id ?? "")
     implicitHeight: 40
-    implicitWidth: root.expanded ? content.implicitWidth + 32 : 44
+    // Basic-style horizontal padding (8 + 8): the icon starts and the
+    // reserved count ends 8 px inside the pill's round ends, clear of both.
+    // Every pixel here narrows the page at 1100 px.
+    implicitWidth: root.expanded ? content.implicitWidth + 16 : 44
     buttonRadius: height / 2
     toggled: root.selected
     colBackground: "transparent"
@@ -47,9 +52,9 @@ RippleButton {
         RowLayout {
             id: content
             anchors.verticalCenter: parent.verticalCenter
-            x: root.expanded ? 4 : (parent.width - width) / 2
-            width: root.expanded ? parent.width - 4 : implicitWidth // size-ok: content of a button, not in a layout
-            spacing: 14
+            x: root.expanded ? 0 : (parent.width - width) / 2
+            width: root.expanded ? parent.width : implicitWidth // size-ok: content of a button, not in a layout
+            spacing: 6
 
             Item {
                 implicitWidth: pageIcon.implicitWidth
@@ -83,7 +88,7 @@ RippleButton {
                 objectName: "navTitle"
                 visible: root.expanded
                 Layout.fillWidth: true
-                Layout.preferredWidth: Math.ceil(titleMetrics.advanceWidth) + 1
+                Layout.preferredWidth: root.titleWidth
                 text: root.title
                 elide: Text.ElideRight
                 font.weight: root.selected ? Font.DemiBold : Font.Normal
@@ -95,8 +100,7 @@ RippleButton {
                 objectName: "modifiedCount"
                 visible: root.expanded
                 opacity: root.modifiedCount > 0 ? 1 : 0
-                Layout.preferredWidth: countMetrics.width + 4
-                Layout.rightMargin: 8
+                Layout.preferredWidth: Math.ceil(countMetrics.advanceWidth)
                 horizontalAlignment: Text.AlignRight
                 text: root.modifiedCount > 0 ? String(root.modifiedCount) : ""
                 font.pixelSize: Appearance.font.pixelSize.smaller
@@ -117,10 +121,12 @@ RippleButton {
                 text: root.title
             }
 
+            // Two digits in the count's own font: the widest count shown.
             TextMetrics {
                 id: countMetrics
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.family: Appearance.font.family.numbers
+                font.variableAxes: Appearance.font.variableAxes.numbers
                 text: "99"
             }
         }

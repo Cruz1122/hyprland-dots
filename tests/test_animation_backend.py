@@ -10,7 +10,9 @@ against the last one; unchanged -> no generator call; preset -> one call and one
 eval; disable/enable keeps the tuple; Game Mode notes; a configreloaded while
 the generator runs keeps the shown value; succeeded() when only a default or
 a status note changes; the animationsLoaded confirmation (a failed read is
-retried, a parsed mismatch drops it) and the capability without the require.
+retried, a parsed mismatch drops it) and the capability without the require;
+a write queued during an apply starts only after a fresh read of the file;
+a missing base fixture drops the base and announces the unknown defaults.
 The live Hyprland session is never contacted.
 """
 from __future__ import annotations
@@ -31,7 +33,7 @@ FIXTURES = ROOT / "tests/fixtures"
 MARKER = "[harness:report] "
 EXPECTED = {"unwatched", "autoreload", "unchanged", "invalid", "rejected", "generatorFailure", "preset",
             "disableEnable", "defaultPreset", "gameMode", "reloadDuringApply", "baseArrives", "twoWritesInGrace",
-            "transientRead", "notLoaded", "noRequire"}
+            "transientRead", "notLoaded", "noRequire", "flushAfterApply", "baseFixtureMissing"}
 # Fails `hyprctl -j animations` once while $HYPRCTL_ANIMATIONS_FAIL exists, else runs the stub.
 HYPRCTL_WRAPPER = """#!/bin/sh
 if [ "$*" = "-j animations" ] && [ -n "$HYPRCTL_ANIMATIONS_FAIL" ] && [ -f "$HYPRCTL_ANIMATIONS_FAIL" ]; then
@@ -63,6 +65,7 @@ class AnimationBackendHarnessTest(unittest.TestCase):
             # Hyprland as it looks once it loaded the writes the later
             # confirmations compare (a confirmation checks every managed card):
             # windowsIn, border ("reloadDuringApply") and layersIn ("transientRead");
+            # "flushAfterApply" runs on the already confirmed main backend;
             # windowsOut keeps its old value for the "not loaded" scenario.
             animations = json.loads((fixtures / "hyprctl-animations.json").read_text(encoding="utf-8"))
             for item in animations[0]:

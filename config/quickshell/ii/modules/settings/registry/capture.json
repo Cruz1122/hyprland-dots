@@ -122,7 +122,7 @@
       "key": "regionSelector.targetRegions.windows",
       "section": "regionSelector",
       "label": "Pick windows with a click",
-      "description": "Outlines every open window, so a click captures the whole window.",
+      "description": "Outlines the windows of the current workspace, so a click captures a whole window.",
       "help": "Not available with circle selection.",
       "keywords": [
         "Snap to windows",
@@ -180,7 +180,7 @@
       "key": "regionSelector.targetRegions.showLabel",
       "section": "regionSelector",
       "label": "Show region labels",
-      "description": "Writes the app name on each outlined window and the panel name on each panel.",
+      "description": "Writes the window class (such as org.kde.dolphin) or the panel's layer name on each outlined area.",
       "keywords": [
         "Mostrar etiquetas de región"
       ],
@@ -217,7 +217,7 @@
       "key": "regionSelector.targetRegions.contentRegionOpacity",
       "section": "regionSelector",
       "label": "Content highlight opacity",
-      "description": "How visible the outlines of detected images and text are.",
+      "description": "How visible the outlines of detected images and text are; 0 % hides them.",
       "keywords": [
         "Opacidad del resaltado de contenido"
       ],
@@ -520,7 +520,7 @@
       "key": "screenRecord.recordAudioByDefault",
       "section": "recording",
       "label": "Record audio by default",
-      "description": "Recordings started without choosing sound, such as Ctrl+Alt+R or the buttons above, include audio.",
+      "description": "Recordings started without an audio choice (Ctrl+Alt+R, Super+Shift+R or the buttons above) include audio.",
       "help": "Super+Shift+Alt+R always records the system sound.",
       "icon": "mic",
       "keywords": [

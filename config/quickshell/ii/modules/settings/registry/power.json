@@ -8,7 +8,7 @@
       "id": "profile",
       "title": "Power profile",
       "icon": "speed",
-      "description": "Choose between speed and battery life, heat and fan noise."
+      "description": "The same modes as the power quick toggle; Performance only appears when your hardware offers it."
     },
     {
       "id": "battery",

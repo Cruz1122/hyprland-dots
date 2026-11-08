@@ -73,6 +73,8 @@ class AnimationVisualsTest(unittest.TestCase):
                          "preview: replay() restarts from the start", "preview: play() restarts from the start",
                          "preview: the rounded frame is drawn above a mini screen clipped inside it",
                          "editor: an overshooting curve keeps the ball inside the track",
+                         "editor: an undershooting curve keeps the ball inside the track",
+                         "preview: a family change shows the end state",
                          "editor: an edit changes the edited copy, not the bound points",
                          "editor: changing the bound points after an edit shows them",
                          "editor: a negative x is invalid and not applied"):

@@ -409,6 +409,67 @@ ShellRoot {
                     capabilityAgain: backend.capabilities.includes("animationsLoaded")
                 }));
             });
+        },
+        // A write queued while another one is applied (_flushAfter) starts
+        // only after a managed-state read that began after the first apply
+        // ended, never from a read of the old file. The first apply is held;
+        // a configreloaded starts a read during it (log mark taken once that
+        // read ended, the apply still held); nothing else reads until the
+        // apply ends, so a --list logged after the mark began after it.
+        () => {
+            root.begin();
+            const confirmedBefore = backend._confirmed;
+            const shimLines = () => root.lines(root.shimLog);
+            const start = shimLines().length;
+            root.writeText(root.shimDelay, "2");
+            backend.write(root.entry("border"), root.value(6, "emphasizedDecel", ""));
+            root.waitFor(() => backend.runner.running && backend._inflight !== null, 5000, started => {
+                backend.write(root.entry("windowsIn"), root.value(2.5, "emphasizedDecel", "popin 85%"));
+                const lists = root.listCalls();
+                backend.hyprlandEvents.onRawEvent({ name: "configreloaded" });
+                root.waitFor(() => backend._flushAfter && !backend.listProc.running && root.listCalls() > lists, 5000, queued => {
+                    const stillApplying = backend.runner.running;
+                    const mark = shimLines().length;
+                    root.settle(backend, idle => {
+                        const log = shimLines();
+                        const applies = [];
+                        for (let i = start; i < log.length; i++) {
+                            if (log[i].includes("animationsgen.py") && log[i].includes("--apply-json"))
+                                applies.push(i);
+                        }
+                        const listAfterMark = log.findIndex((line, i) => i >= mark && line.includes("animationsgen.py") && line.includes("--list"));
+                        root.scenario("flushAfterApply", {
+                            confirmedBefore: true, started: true, queued: true, stillApplying: true, idle: true,
+                            applies: 2, secondAfterAFreshRead: true, border: 6, windowsIn: 2.5, failures: 0
+                        }, {
+                            confirmedBefore: confirmedBefore, started: started, queued: queued, stillApplying: stillApplying, idle: idle,
+                            applies: applies.length,
+                            secondAfterAFreshRead: applies.length === 2 && applies[0] < mark && listAfterMark >= mark && applies[1] > listAfterMark,
+                            border: backend.read(root.entry("border")).speed, windowsIn: backend.read(root.entry("windowsIn")).speed,
+                            failures: root.failures.length
+                        });
+                    });
+                });
+            });
+        },
+        // The test base fixture going missing (FileView onLoadFailed) drops
+        // the base, and the rows hear about it: their default is unknown now.
+        () => {
+            root.late = backendComponent.createObject(root);
+            root.waitFor(() => root.late.available && root.late.base !== null, 10000, ready => {
+                const card = root.entry("windowsIn");
+                root.late.read(card);
+                const knownBefore = root.late.defaultValue(card) !== undefined;
+                const heard = [];
+                root.late.succeeded.connect(key => heard.push(key));
+                root.late.baseFixture = `${root.baseFixturePath}.missing`;
+                root.waitFor(() => root.late.base === null, 5000, dropped => root.scenario("baseFixtureMissing", {
+                    ready: true, knownBefore: true, dropped: true, unknownAfter: true, announced: true
+                }, {
+                    ready: ready, knownBefore: knownBefore, dropped: dropped,
+                    unknownAfter: root.late.defaultValue(card) === undefined, announced: heard.includes(card.key)
+                }));
+            });
         }
     ]
 

@@ -38,13 +38,13 @@
       "id": "quote",
       "title": "Quote",
       "icon": "format_quote",
-      "description": "A short line of text under the desktop clock."
+      "description": "Text of your choice under the clock, in either clock style."
     },
     {
       "id": "weather",
       "title": "Weather widget",
       "icon": "partly_cloudy_day",
-      "description": "Current weather drawn on the wallpaper; the location is set in Services."
+      "description": "Its location and units are set in Services."
     }
   ],
   "entries": [
@@ -94,7 +94,7 @@
       "key": "policies.weeb",
       "section": "wallpaper",
       "label": "Anime content",
-      "description": "Random anime wallpaper buttons and a Homework folder in the wallpaper picker.",
+      "description": "Random anime wallpaper buttons on this page and in the welcome app, and a Homework folder in the wallpaper picker.",
       "keywords": [
         "weeb",
         "anime",
@@ -135,7 +135,9 @@
       "description": "Slide the wallpaper a step each time you switch workspace.",
       "keywords": [
         "parallax",
-        "paralaje"
+        "paralaje",
+        "Parallax",
+        "Desplazamiento"
       ],
       "icon": "view_carousel",
       "backend": "config",
@@ -151,7 +153,9 @@
       "description": "Slide the wallpaper a little to one side when a sidebar opens.",
       "keywords": [
         "parallax",
-        "paralaje"
+        "paralaje",
+        "Parallax",
+        "Desplazamiento"
       ],
       "icon": "dock_to_left",
       "backend": "config",
@@ -170,6 +174,10 @@
       "type": "bool",
       "consumers": [
         "modules/ii/background/Background.qml"
+      ],
+      "keywords": [
+        "Parallax",
+        "Desplazamiento"
       ]
     },
     {
@@ -186,6 +194,10 @@
       },
       "consumers": [
         "modules/ii/background/Background.qml"
+      ],
+      "keywords": [
+        "Parallax",
+        "Desplazamiento"
       ]
     },
     {
@@ -197,7 +209,9 @@
       "keywords": [
         "Wallpaper zoom",
         "Zoom del fondo",
-        "parallax"
+        "parallax",
+        "Parallax",
+        "Desplazamiento"
       ],
       "icon": "zoom_in",
       "backend": "config",
@@ -229,6 +243,10 @@
       "unit": "×",
       "consumers": [
         "modules/ii/background/Background.qml"
+      ],
+      "keywords": [
+        "Parallax",
+        "Desplazamiento"
       ]
     },
     {
@@ -374,7 +392,9 @@
       "keywords": [
         "Sides",
         "Lados",
-        "cookie"
+        "cookie",
+        "Cookie clock",
+        "Reloj cookie"
       ],
       "icon": "pentagon",
       "backend": "config",
@@ -458,6 +478,10 @@
         "modules/ii/background/widgets/clock/dateIndicator/RectangleDate.qml",
         "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml",
         "modules/ii/background/widgets/clock/minuteMarks/MinuteMarks.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -509,6 +533,10 @@
       },
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -564,6 +592,10 @@
       },
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -615,6 +647,10 @@
       },
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -669,6 +705,10 @@
         "modules/ii/background/widgets/clock/dateIndicator/DateIndicator.qml",
         "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml",
         "modules/ii/background/widgets/clock/minuteMarks/MinuteMarks.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -711,6 +751,10 @@
         "modules/ii/background/widgets/clock/CookieClock.qml",
         "modules/ii/background/widgets/clock/TimeColumn.qml",
         "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -755,13 +799,17 @@
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml",
         "modules/ii/background/widgets/clock/TimeColumn.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
       "key": "background.widgets.clock.cookie.constantlyRotate",
       "section": "cookieClock",
       "label": "Keep rotating",
-      "description": "Turn the shape of the dial nonstop, one full turn every 30 seconds.",
+      "description": "Turn the shape of the dial nonstop, one full turn every 30 seconds; the second hand also moves smoothly.",
       "cost": "gpu",
       "icon": "rotate_right",
       "backend": "config",
@@ -789,6 +837,10 @@
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml",
         "modules/ii/background/widgets/clock/SecondHand.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -821,6 +873,10 @@
       },
       "consumers": [
         "modules/ii/background/widgets/clock/CookieClock.qml"
+      ],
+      "keywords": [
+        "Cookie clock",
+        "Reloj cookie"
       ]
     },
     {
@@ -832,7 +888,9 @@
       "keywords": [
         "Gemini",
         "AI",
-        "IA"
+        "IA",
+        "Cookie clock",
+        "Reloj cookie"
       ],
       "icon": "auto_awesome",
       "backend": "config",
@@ -1070,7 +1128,7 @@
       "key": "background.widgets.clock.digital.font.weight",
       "section": "digitalClock",
       "label": "Digit weight",
-      "description": "From thin (100) to heavy (900); 400 is regular.",
+      "description": "Stroke weight of the time; 400 is regular and 700 is bold.",
       "help": "Variable fonts such as Google Sans Flex accept any value; other fonts use their closest weight.",
       "keywords": [
         "Weight",
