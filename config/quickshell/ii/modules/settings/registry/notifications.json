@@ -3,6 +3,138 @@
   "title": "Notifications",
   "icon": "notifications",
   "description": "Do Not Disturb, timeouts and where notifications appear.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "behavior",
+      "title": "Behavior",
+      "icon": "notifications_active"
+    },
+    {
+      "id": "placement",
+      "title": "Placement",
+      "icon": "monitor"
+    },
+    {
+      "id": "conflicts",
+      "title": "Other notification services",
+      "icon": "block",
+      "description": "Other daemons and tray hosts can take over notifications or the system tray."
+    }
+  ],
+  "entries": [
+    {
+      "key": "ipc.notifications.silent",
+      "section": "behavior",
+      "label": "Do Not Disturb",
+      "description": "Keep notifications in the list without showing popups.",
+      "keywords": [
+        "dnd",
+        "silent",
+        "silencio",
+        "no molestar"
+      ],
+      "icon": "do_not_disturb_on",
+      "backend": "ipc",
+      "type": "bool",
+      "widget": "switch"
+    },
+    {
+      "key": "notifications.timeout",
+      "section": "behavior",
+      "label": "Popup duration",
+      "description": "How long a popup stays when the app does not set its own timeout.",
+      "keywords": [
+        "timeout",
+        "duración"
+      ],
+      "icon": "timer",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 1000,
+      "max": 30000,
+      "step": 500,
+      "uiScale": 0.001,
+      "decimals": 1,
+      "unit": " s",
+      "consumers": [
+        "services/Notifications.qml"
+      ]
+    },
+    {
+      "key": "notifications.monitor.enable",
+      "section": "placement",
+      "label": "Fixed monitor",
+      "description": "Show popups on one monitor instead of the focused one.",
+      "keywords": [
+        "screen",
+        "pantalla",
+        "monitor"
+      ],
+      "icon": "monitor",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/notificationPopup/NotificationPopup.qml"
+      ]
+    },
+    {
+      "key": "notifications.monitor.name",
+      "section": "placement",
+      "label": "Monitor",
+      "description": "Monitor that shows notification popups.",
+      "icon": "desktop_windows",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "keys": [
+        "notifications.monitor.name"
+      ],
+      "enabledWhen": {
+        "key": "notifications.monitor.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/notificationPopup/NotificationPopup.qml"
+      ]
+    },
+    {
+      "key": "conflictKiller.autoKillNotificationDaemons",
+      "section": "conflicts",
+      "label": "Close other notification daemons",
+      "description": "Stop daemons such as mako or dunst when the shell starts.",
+      "keywords": [
+        "mako",
+        "dunst",
+        "kded"
+      ],
+      "icon": "notifications_off",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/ConflictKiller.qml",
+        "killDialog.qml"
+      ]
+    },
+    {
+      "key": "conflictKiller.autoKillTrays",
+      "section": "conflicts",
+      "label": "Close other tray hosts",
+      "description": "Stop other system tray hosts when the shell starts.",
+      "keywords": [
+        "tray",
+        "bandeja"
+      ],
+      "icon": "cancel",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/ConflictKiller.qml",
+        "killDialog.qml"
+      ]
+    }
+  ]
 }

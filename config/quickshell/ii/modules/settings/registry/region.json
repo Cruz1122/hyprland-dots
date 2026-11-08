@@ -3,6 +3,177 @@
   "title": "Language and region",
   "icon": "language",
   "description": "Interface language and time and date formats.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "language",
+      "title": "Language",
+      "icon": "translate"
+    },
+    {
+      "id": "time",
+      "title": "Time",
+      "icon": "schedule"
+    },
+    {
+      "id": "date",
+      "title": "Date",
+      "icon": "calendar_month",
+      "description": "Qt date patterns: d day, M month, yyyy year, ddd weekday; text in single quotes is kept as is."
+    }
+  ],
+  "entries": [
+    {
+      "key": "language.ui",
+      "section": "language",
+      "label": "Interface language",
+      "description": "Language of the shell and this app; Automatic follows the system locale, and a regional variant without its own translation uses the closest one.",
+      "keywords": [
+        "idioma",
+        "locale",
+        "translation",
+        "traducción"
+      ],
+      "icon": "translate",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "consumers": [
+        "services/Translation.qml"
+      ],
+      "keys": [
+        "language.ui"
+      ]
+    },
+    {
+      "key": "time.format",
+      "section": "time",
+      "label": "Time format",
+      "description": "Clock format of the bar, the lock screen and widgets.",
+      "keywords": [
+        "12h",
+        "24h",
+        "clock",
+        "reloj",
+        "hora"
+      ],
+      "icon": "schedule",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "hh:mm",
+          "label": "24h"
+        },
+        {
+          "value": "h:mm",
+          "label": "12h"
+        },
+        {
+          "value": "h:mm ap",
+          "label": "12h am/pm"
+        },
+        {
+          "value": "h:mm AP",
+          "label": "12h AM/PM"
+        }
+      ],
+      "external": "scripts/settings/hyprlock-time.py",
+      "consumers": [
+        "services/DateTime.qml"
+      ]
+    },
+    {
+      "key": "time.secondPrecision",
+      "section": "time",
+      "label": "Show seconds",
+      "description": "Clocks update every second and show seconds where they fit.",
+      "keywords": [
+        "segundos",
+        "seconds"
+      ],
+      "icon": "pace",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/DateTime.qml"
+      ]
+    },
+    {
+      "key": "info.region.timePreview",
+      "section": "time",
+      "label": "Preview",
+      "icon": "visibility",
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "time.dateFormat",
+      "section": "date",
+      "label": "Date",
+      "description": "Date shown in the bar and panels.",
+      "icon": "today",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "placeholder": "ddd, dd/MM",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 40,
+        "regex": "^[^\\u0000-\\u001f]+$"
+      },
+      "consumers": [
+        "services/DateTime.qml"
+      ]
+    },
+    {
+      "key": "time.shortDateFormat",
+      "section": "date",
+      "label": "Short date",
+      "description": "Compact date for small spaces.",
+      "icon": "event",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "placeholder": "dd/MM",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 40,
+        "regex": "^[^\\u0000-\\u001f]+$"
+      },
+      "consumers": [
+        "services/DateTime.qml"
+      ]
+    },
+    {
+      "key": "time.dateWithYearFormat",
+      "section": "date",
+      "label": "Date with year",
+      "description": "Date that includes the year.",
+      "icon": "calendar_today",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "placeholder": "dd/MM/yyyy",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 40,
+        "regex": "^[^\\u0000-\\u001f]+$"
+      },
+      "consumers": [
+        "services/DateTime.qml"
+      ]
+    },
+    {
+      "key": "info.region.datePreview",
+      "section": "date",
+      "label": "Preview",
+      "icon": "visibility",
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    }
+  ]
 }
