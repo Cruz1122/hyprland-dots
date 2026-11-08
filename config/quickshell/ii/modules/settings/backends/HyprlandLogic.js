@@ -271,14 +271,24 @@ function isPausedByGameMode(entry, gameMode, gameModeOverrides) {
         && Object.prototype.hasOwnProperty.call(gameModeOverrides, overrideKey(entry.path));
 }
 
-// hyprbase.py output -> { ok, config }; anything unexpected is not ok.
+function isObject(value) {
+    return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+// hyprbase.py output -> { ok, config, curves, animations }; anything
+// unexpected is not ok. curves and animations feed AnimationBackend.
 function parseBase(text) {
     try {
         var data = JSON.parse(text);
-        if (data && data.ok === true && data.config && typeof data.config === "object" && !Array.isArray(data.config))
-            return { ok: true, config: data.config };
+        if (data && data.ok === true && isObject(data.config))
+            return {
+                ok: true,
+                config: data.config,
+                curves: isObject(data.curves) ? data.curves : {},
+                animations: isObject(data.animations) ? data.animations : {}
+            };
     } catch (error) {
         // Truncated or non-JSON output: the base is unknown, as with ok=false.
     }
-    return { ok: false, config: {} };
+    return { ok: false, config: {}, curves: {}, animations: {} };
 }

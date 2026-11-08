@@ -323,7 +323,7 @@ fail synchronously; the commands they start run asynchronously. The
 | `audio` | `Quickshell.Services.Pipewire` preferred default sink and source; duplicate HDMI nodes are merged. Capability `pipewire`. |
 | `power` | `Quickshell.Services.UPower` power profiles (the performance profile only when offered) and the `battery` capability (`UPower.displayDevice.isLaptopBattery`). |
 | `system` | No entries. Probes optional tools once at start with `which <tool>` (argv) and publishes the found ones as capabilities (`satty`, `checkupdates`), independent of the main shell. Always available. |
-| `animation` | Hyprland animations and curves (keys `animation.*`). Placeholder for now: `AnimationBackend` is never available ("Animation settings are not available yet"), holds no values, and every `write`/`reset` fails; see `AnimationBackend` once the real backend lands. |
+| `animation` | Hyprland animations and curves (keys `animation.*`) in `~/.config/hypr/custom/shell-animations.lua`, written by `scripts/settings/animationsgen.py` and applied live with one `hyprctl eval` per change; see "Backends -> animation" below. |
 | `ipc` | `qs -p <shell dir> ipc call …` to the main shell, which is the same instance as `qs -c ii` (Do Not Disturb through `notifications`, AI quota connect through `aiQuotaPanel.connectProvider`, region recording through `region`). Available while `ipc show` answers; polled every 10 s while the app is open. The app never starts `ai-quotas.py serve` itself. |
 
 Helper scripts (`scripts/settings/`, run as `python3 <script>` with argv;
@@ -361,7 +361,10 @@ dotfiles sets it, and `undefined` (unknown: rows hide the default mark and the
 "Reset to X" text) when the base could not be read or is not read yet. The
 base comes from `scripts/settings/hyprbase.py --json --config-dir
 <config>/hypr`, run at start and, debounced by 300 ms, after every
-`configreloaded`. A failed read is an expected state and logs nothing.
+`configreloaded`. A failed read is an expected state and logs nothing. The
+whole parsed result (`config`, `curves`, `animations`) is also published as
+`basePayload`, which `SettingsStore` passes to the `animation` backend as
+`sharedBase`, so the dotfiles run once per reload for both backends.
 
 **Game Mode.** While Game Mode's line is in `shellOverrides/main.lua`
 (capability `gameMode`), the backend lists that file with
@@ -418,6 +421,156 @@ descriptions fixture standing for Game Mode's live values. The driver also
 checks that `succeeded(key)` fires when only a row's default changes (the base
 arrives after the first read) or only its status note (Game Mode starts or
 ends with the app open): rows learn about changes only through that signal.
+
+### Backends -> animation
+
+`backends/AnimationBackend.qml` (pure logic in `backends/AnimationLogic.js`)
+manages 10 animation cards, the derived preset and the user's curves.
+Verified Hyprland 0.57 behaviour it relies on is in the plan's evidence
+(live spikes A1–F2) and in the tests named below.
+
+**Keys.** The card id is the entry `path` (`animation.` prefix optional).
+
+| Key | Value |
+|---|---|
+| `animation.<card>` | `{ enabled, speed, curve, style }` for `windowsIn`, `windowsOut`, `windowsMove`, `workspaces`, `specialWorkspaceIn`, `specialWorkspaceOut`, `layersIn`, `layersOut`, `border`, `zoomFactor`. `speed` is Hyprland's, in deciseconds (1 = 100 ms; accepted in (0, 100]); `curve` a curve name; `style` a style of the card's family ("" = none). |
+| `animation.preset` | `default`, `agile`, `smooth`, `bouncy`, `minimal`, or the read-only `custom`. Derived from the cards, never stored; `isModified` is always false. |
+| `animation.curves` | The user's curves: `[{ name, type, points \| mass/stiffness/damping, label, group: "user", builtin: false }]`. A write replaces the whole list (added, changed and removed curves in one change). `isModified` is always false, so "Reset page" never deletes curves. |
+
+Windows and layers cards also write their fade companion (`fadeIn`,
+`fadeOut`, `fadeLayersIn`, `fadeLayersOut`): same `enabled`, speed
+`clamp(round2(base_c × speed / base_p), 0.01, 100)` from the dotfiles base
+speeds (`round2(x) = floor(x × 100 + 0.5) / 100` on both sides), base curve,
+no style; with a spring the companion keeps its base speed. Styles allowed per
+family: windows `slide [top|bottom|left|right]`, `popin [N%]`, `gnomed`;
+workspaces `slide`, `slidevert`, `fade`, `slidefade [N%]`,
+`slidefadevert [N%]`; layers `fade`, `slide [dir]`, `popin [N%]`; border and
+zoom none (N is 0–100). Curves: Hyprland's `default` and `linear`, the
+dotfiles curves of the base, the app springs `ii_spring_soft` and
+`ii_spring_bouncy`, and user curves named `ii_[a-z0-9_]{1,32}` (bezier with
+x in [0, 1] and y in [-1, 2]; spring values in (0.5, 10000]; label 1–40 code
+points without control characters).
+
+**Values.** A card shows, in order: its line in the generated file (the source
+of truth: Hyprland forgets speed and curve of a disabled leaf and rounds
+`hyprctl -j animations`), the dotfiles base (`scripts/settings/hyprbase.py
+--json`, read once by the `hyprland` backend and passed in as
+`sharedBase`; the nearest overridden ancestor in Hyprland's animation tree) and Hyprland's compiled default (`global`: enabled, speed 8,
+curve `default`). `defaultValue` is the base value, or `undefined` while the
+base is unknown. A card is modified while the file holds its line. Without the
+base, cards and curves stay readable, but card and preset writes (other than
+`default`) fail with a message, since companions and presets need it.
+
+**Generated file.** `~/.config/hypr/custom/shell-animations.lua`
+(`$XDG_CONFIG_HOME` honoured), required by `config/hypr/hyprland.lua` with
+`pcall(require, "custom.shell-animations")` after `custom.shell-settings` and
+before the shell overrides, so Game Mode keeps winning and a broken file does
+not stop it (Hyprland 0.57 records the error in its config errors and runs
+the rest; `tests/test_animations_hyprland_verify.py`). Layout:
+
+```lua
+-- managed by the settings app (scripts/settings/animationsgen.py); manual edits are overwritten
+-- Generated file: Hyprland animations and curves chosen in the settings app (loaded by hyprland.lua).
+
+-- ii:curve {"label": "My curve", "name": "ii_my_curve"}
+hl.curve("ii_my_curve", { type = "bezier", points = { { 0.2, 0 }, { 0, 1 } } })
+hl.curve("ii_spring_soft", { type = "spring", mass = 1, stiffness = 238.1191, damping = 24.21279333 })
+
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 2, spring = "ii_spring_soft", style = "popin 85%" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 3, bezier = "emphasizedDecel" })
+hl.animation({ leaf = "border", enabled = false, speed = 6, bezier = "ii_my_curve" })
+```
+
+User curves are always written, app springs only while a card uses them, and
+every `hl.curve` comes before the first `hl.animation`. Labels live in
+`-- ii:curve` comments as ASCII-escaped JSON. A disabled card keeps its full
+tuple (Hyprland accepts and ignores the extra fields), so enabling it again
+restores it. Numbers never use an exponent.
+
+**`animationsgen.py`** (python3 stdlib, argv only, the app's only Lua
+serializer): `[--file PATH] --list --json` prints `{ ok, exists, cards,
+leaves, curves, appCurves, errors }`; `[--file PATH] --apply-json FILE|-
+[--eval]` takes `{ "cards": { card: value | null }, "curves": { name:
+descriptor | null }, "removeAllAnimations": bool, "base": <hyprbase JSON> }`
+(curves first, then `removeAllAnimations`, then cards; `null` removes a card's
+lines or deletes a user curve) and prints one `{ ok, changed, written, evalOk,
+reloaded, errors, cards }`. Every emitted value is re-validated (names
+`^[A-Za-z_][A-Za-z0-9_]*$` and known, styles from the allowlist, finite
+numbers in range), carried-over lines too. Deleting a curve a card uses fails
+naming the cards; deleting a Hyprland, dotfiles or app curve fails. Card
+writes need `base`. With `--eval`, the new or changed statements (curves
+first) go to one `hyprctl eval` before the write; removed lines are applied by
+the reload that follows the write. Unchanged content is not written (no eval,
+`changed: false`). Exit codes: 0 ok; 2 usage or validation error (nothing
+applied or written); 3 the file is not ours (no marker, or not a regular
+file: never overwritten); 4 `hyprctl eval` failed, `hyprctl reload
+config-only` already ran and nothing was written; 5 the file could not be read
+or written.
+
+**Writes.** `write` validates with `AnimationLogic` (the same cases as the
+generator: `tests/fixtures/animation-cases.json`), shows the value at once and
+queues it; after 400 ms one `animationsgen.py --apply-json - --eval` runs
+(serial queue, change set on stdin). A value equal to the shown one starts
+nothing. A preset writes the 10 cards in one change set (one generator call,
+one eval, at most one reload); `default` sends `removeAllAnimations` and keeps
+the curves. Results:
+
+- changed: when Hyprland does not answer with `configreloaded` within
+  `reloadGraceMs` (2 s), one `hyprctl reload config-only` runs (Hyprland only
+  watches the file once its config loaded it);
+- unchanged: nothing else;
+- any failure: exit 4 was already compensated by the generator; for any other
+  exit the backend runs `hyprctl reload config-only` (an eval may have applied
+  part of the batch). Then the optimistic value is dropped, the managed state
+  is read again and `failed(key, message)` carries
+  "Could not apply the animation: <generator error>" (already translated).
+
+`deferWrites`, `busy` and `flush()` behave as in the `hyprland` backend.
+Entries are never risky (`preview` returns false; `snapshot`/`restore` exist
+for the contract).
+
+**Availability and capability.** Available while Hyprland runs
+(`HYPRLAND_INSTANCE_SIGNATURE`) and `--list` succeeded; a file without the
+marker makes it unavailable ("custom/shell-animations.lua was not created by
+Settings, so it is left alone"). The capability `animationsLoaded` is
+published while the deployed `hyprland.lua` requires `custom.shell-animations`
+(checked with a regex, refreshed on `configreloaded`). After the first changed
+write and its reload, the backend reads `hyprctl -j animations` once, waiting
+until no write is queued, running or awaiting its reload, and compares the
+primary leaves of the latest changed write (speed at 2 decimals, `spring:<name>`
+for springs); on a difference it drops the capability and emits `failed`
+("Hyprland did not load the animation settings: update hyprland.lua").
+
+**Game Mode.** Watched like the `hyprland` backend (`shellOverrides/main.lua`,
+`HyprlandLogic.isGameModeActive`). Game Mode only sets `animations:enabled`, so
+cards keep showing and writing their stored values; `statusNote(entry)`
+returns "Paused by Game Mode" for cards and the preset while it is on.
+
+**UI helpers.** `curveCatalog()` (`[{ name, type, points | spring values,
+label, group: "hyprland" | "dotfiles" | "app" | "user", builtin }]`, labels
+are English source strings; dotfiles curves without a friendly name use their
+identifier), `styleOptions(card)` (`[{ kind, label, description, percent,
+directions }]`), `presets()` (`[{ value, label, description }]`),
+`curveUsage(name)` (card ids using a curve; a used curve cannot be deleted)
+and `summaryParts(card)` (`{ enabled, style: { kind, label, percent,
+direction, known, raw } | null, durationMs (null for springs), spring, curve:
+{ name, label, known } }`, to be translated and joined by the page;
+`popin 100%` is labelled "Fade only", unknown styles and curves "Not
+recognized: %1" with the raw text kept). `AnimationLogic.parseStyle(card,
+style)` / `formatStyle(card, parsed)` convert styles; an unknown style is
+kept as it is (`known: false`).
+
+**Tests.** `tests/test_animationsgen.py` (generator, parity cases, `--eval`
+with the harness `hyprctl` stub, and `tst_AnimationLogic.qml` run with
+`QML_XHR_ALLOW_FILE_READ=1` so its fixture-driven parity test runs instead of
+skipping), `tests/test_animations_hyprland_verify.py` (`Hyprland
+--verify-config` of every preset, all-disabled cards, user curves and both
+springs, every allowlisted style, and a broken file inside the `pcall`;
+skipped when Hyprland is missing), `tests/qml_settings/tst_AnimationLogic.qml`
+and `tests/test_animation_backend.py` (driver
+`tests/harness/drivers/animation-backend.qml` with the `hyprctl` stub, the
+`python3` shim of `tests/harness/stubs/` and the base from
+`tests/fixtures/hyprbase-sample.json` through the `baseFixture` test seam).
 
 ## Rows and pages
 

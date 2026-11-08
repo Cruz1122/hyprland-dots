@@ -57,7 +57,7 @@ class HyprlandBaseTest(unittest.TestCase):
                   for line in log.splitlines() if MARKER in line]
         self.assertFalse([e for e in events if e.get("type") == "fatal"], log[-3000:])
         checks = [e for e in events if e.get("type") == "check"]
-        self.assertEqual(len(checks), 35, result.stdout + log[-3000:])
+        self.assertEqual(len(checks), 38, result.stdout + log[-3000:])
         for check in checks:
             with self.subTest(check=check["name"]):
                 self.assertEqual(check["actual"], check["expected"], check)

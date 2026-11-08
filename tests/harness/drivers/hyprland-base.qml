@@ -126,6 +126,9 @@ ShellRoot {
         const animations = root.entry("hyprland.animations.enabled");
         const gapsIn = root.entry("hyprland.general.gaps_in");
         check("gameMode capability", b.capabilities.includes("gameMode"), true);
+        // AnimationBackend gets the dotfiles curves and animations from here.
+        check("basePayload has the dotfiles curves", "menu_decel" in (b.basePayload?.curves ?? {}), true);
+        check("basePayload has the dotfiles animations", "windowsIn" in (b.basePayload?.animations ?? {}), true);
         // Its read() does not depend on the base: only the default changed.
         check("succeeded when the base loads (option outside Game Mode)",
             root.announcedAtBase.includes("hyprland.misc.animate_manual_resizes"), true);
@@ -186,6 +189,7 @@ ShellRoot {
             root.reloaded();
             root.waitFor(() => !root.backend.baseLoaded, 8000, ok => {
                 check("broken base is not loaded", ok, true);
+                check("basePayload is null while the base is unknown", root.backend.basePayload, null);
                 check("defaultValue is unknown", root.backend.defaultValue(root.entry("hyprland.general.gaps_in")), undefined);
                 check("store defaultValue is unknown", root.store.defaultValue("hyprland.general.gaps_in"), undefined);
                 root.gameModeOff();

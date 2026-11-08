@@ -47,6 +47,10 @@ QtObject {
     // getoption name -> value the dotfiles set (hyprbase.py `config`).
     property var base: ({})
     property bool baseLoaded: false
+    // The whole parsed hyprbase.py result ({ ok, config, curves, animations })
+    // or null while unknown. AnimationBackend uses it through SettingsStore, so
+    // the dotfiles run once per reload for both backends.
+    property var basePayload: null
     property bool touchpad: false
     property bool gameMode: false
     // Override key -> value in shellOverrides/main.lua while Game Mode is on.
@@ -553,6 +557,7 @@ QtObject {
             const parsed = HL.parseBase(baseOut.text);
             root.base = parsed.config;
             root.baseLoaded = parsed.ok;
+            root.basePayload = parsed.ok ? parsed : null;
             root._announce(before);
         }
     }

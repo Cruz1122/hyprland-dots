@@ -1,0 +1,1348 @@
+{
+ "_comment": "Shared validation cases of animationsgen.py (tests/test_animationsgen.py) and AnimationLogic.js (tests/qml_settings/tst_AnimationLogic.qml). Cards use the curves of tests/fixtures/hyprbase-sample.json plus userCurves.",
+ "userCurves": {
+  "ii_user": {
+   "name": "ii_user",
+   "type": "bezier",
+   "points": [
+    0.2,
+    0,
+    0,
+    1
+   ],
+   "label": "Mine"
+  }
+ },
+ "cards": [
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 80%"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 100%"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 0%"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsOut",
+   "value": {
+    "enabled": false,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slide left"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsMove",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "gnomed"
+   },
+   "valid": true
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": true
+  },
+  {
+   "card": "workspaces",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "menu_decel",
+    "style": "slidefade 20%"
+   },
+   "valid": true
+  },
+  {
+   "card": "specialWorkspaceIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slidefadevert"
+   },
+   "valid": true
+  },
+  {
+   "card": "specialWorkspaceOut",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "fade"
+   },
+   "valid": true
+  },
+  {
+   "card": "layersIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "ii_spring_soft",
+    "style": "popin 93%"
+   },
+   "valid": true
+  },
+  {
+   "card": "layersOut",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "ii_user",
+    "style": "slide bottom"
+   },
+   "valid": true
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 100,
+    "curve": "linear",
+    "style": ""
+   },
+   "valid": true
+  },
+  {
+   "card": "zoomFactor",
+   "value": {
+    "enabled": true,
+    "speed": 0.01,
+    "curve": "default",
+    "style": ""
+   },
+   "valid": true
+  },
+  {
+   "card": "zoomFactor",
+   "value": {
+    "enabled": true,
+    "speed": 1e-05,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": true
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 0,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": -1,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 100.01,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": "3",
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": true,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": 1,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": "true",
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "default"
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "",
+    "extra": 1
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": null,
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": [
+    true,
+    3,
+    "default",
+    ""
+   ],
+   "valid": false
+  },
+  {
+   "card": "nope",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "border",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "fade"
+   },
+   "valid": false
+  },
+  {
+   "card": "zoomFactor",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 80%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slidefade 20%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 101%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 080%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin  80%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": " popin 80%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "POPIN 80%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slide up"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "gnome"
+   },
+   "valid": false
+  },
+  {
+   "card": "workspaces",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slide left"
+   },
+   "valid": false
+  },
+  {
+   "card": "workspaces",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "slide 20%"
+   },
+   "valid": false
+  },
+  {
+   "card": "layersIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "gnomed"
+   },
+   "valid": false
+  },
+  {
+   "card": "layersIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "fade 20%"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 80%\" }) os.exit(1) --"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "emphasizedDecel",
+    "style": "popin 80%\n"
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "default\", style = \"x",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "default\"}) os.execute(\"rm -rf ~\") --",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "default\n",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "noSuchCurve",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "ii_missing",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "",
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": null,
+    "style": ""
+   },
+   "valid": false
+  },
+  {
+   "card": "windowsIn",
+   "value": {
+    "enabled": true,
+    "speed": 3,
+    "curve": "os.exit",
+    "style": ""
+   },
+   "valid": false
+  }
+ ],
+ "curves": [
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     -1,
+     1,
+     2
+    ],
+    "label": "My curve"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.42,
+     1.67,
+     0.21,
+     0.9
+    ],
+    "label": "My curve"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve",
+    "name": "ii_a",
+    "group": "user",
+    "builtin": false
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 1,
+    "stiffness": 200,
+    "damping": 20,
+    "label": "My spring"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 0.51,
+    "stiffness": 10000,
+    "damping": 20,
+    "label": "My spring"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "Curva \"rápida\" \\ ]] --[["
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "valid": true
+  },
+  {
+   "name": "ii_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_A",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "my_curve",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "default",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_spring_soft",
+   "desc": {
+    "type": "spring",
+    "mass": 1,
+    "stiffness": 200,
+    "damping": 20,
+    "label": "My spring"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a\"); os.exit(1) --",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a\n",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve",
+    "name": "ii_b"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     1.5,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     0,
+     -0.1,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     2.01,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     0,
+     0
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     0,
+     0,
+     "1"
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     [
+      0,
+      0
+     ],
+     [
+      0,
+      1
+     ]
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve",
+    "mass": 1
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 0.5,
+    "stiffness": 200,
+    "damping": 20,
+    "label": "My spring"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 1,
+    "stiffness": 200,
+    "damping": 10001,
+    "label": "My spring"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 1,
+    "stiffness": "200",
+    "damping": 20,
+    "label": "My spring"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_s",
+   "desc": {
+    "type": "spring",
+    "mass": 1,
+    "stiffness": 200,
+    "damping": 20,
+    "label": "My spring",
+    "points": [
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "cubic",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": ""
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "   "
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "two\nlines"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "tab\there"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "nul\u0000"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "line sep"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "c1"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": 3
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0,
+     0,
+     1,
+     1
+    ]
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": {
+    "type": "bezier",
+    "points": [
+     0.2,
+     0,
+     0,
+     1
+    ],
+    "label": "My curve",
+    "evil": "x"
+   },
+   "valid": false
+  },
+  {
+   "name": "ii_a",
+   "desc": null,
+   "valid": false
+  }
+ ],
+ "styles": [
+  {
+   "card": "windowsIn",
+   "style": "popin 80%",
+   "known": true,
+   "kind": "popin",
+   "percent": 80,
+   "direction": ""
+  },
+  {
+   "card": "windowsIn",
+   "style": "popin",
+   "known": true,
+   "kind": "popin",
+   "percent": null,
+   "direction": ""
+  },
+  {
+   "card": "windowsIn",
+   "style": "slide top",
+   "known": true,
+   "kind": "slide",
+   "percent": null,
+   "direction": "top"
+  },
+  {
+   "card": "windowsIn",
+   "style": "",
+   "known": true,
+   "kind": "none",
+   "percent": null,
+   "direction": ""
+  },
+  {
+   "card": "windowsIn",
+   "style": "gnomed",
+   "known": true,
+   "kind": "gnomed",
+   "percent": null,
+   "direction": ""
+  },
+  {
+   "card": "workspaces",
+   "style": "slidefadevert 35%",
+   "known": true,
+   "kind": "slidefadevert",
+   "percent": 35,
+   "direction": ""
+  },
+  {
+   "card": "workspaces",
+   "style": "slidevert",
+   "known": true,
+   "kind": "slidevert",
+   "percent": null,
+   "direction": ""
+  },
+  {
+   "card": "layersOut",
+   "style": "slide right",
+   "known": true,
+   "kind": "slide",
+   "percent": null,
+   "direction": "right"
+  },
+  {
+   "card": "layersIn",
+   "style": "popin 120%",
+   "known": false
+  },
+  {
+   "card": "windowsIn",
+   "style": "slidefade",
+   "known": false
+  },
+  {
+   "card": "border",
+   "style": "popin",
+   "known": false
+  },
+  {
+   "card": "specialWorkspaceIn",
+   "style": "slidevert top",
+   "known": false
+  }
+ ],
+ "companions": [
+  {
+   "card": "windowsIn",
+   "primary": {
+    "enabled": true,
+    "speed": 2,
+    "curve": "emphasizedDecel",
+    "style": "popin 85%"
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 2,
+    "curve": "emphasizedDecel",
+    "style": ""
+   }
+  },
+  {
+   "card": "windowsOut",
+   "primary": {
+    "enabled": true,
+    "speed": 1.4,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 1.4,
+    "curve": "emphasizedDecel",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersIn",
+   "primary": {
+    "enabled": true,
+    "speed": 1.8,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 0.33,
+    "curve": "menu_decel",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersOut",
+   "primary": {
+    "enabled": true,
+    "speed": 1.6,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 1.8,
+    "curve": "stall",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersOut",
+   "primary": {
+    "enabled": true,
+    "speed": 100,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 100,
+    "curve": "stall",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersIn",
+   "primary": {
+    "enabled": true,
+    "speed": 0.01,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 0.01,
+    "curve": "menu_decel",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersIn",
+   "primary": {
+    "enabled": false,
+    "speed": 4,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": false,
+    "speed": 0.74,
+    "curve": "menu_decel",
+    "style": ""
+   }
+  },
+  {
+   "card": "layersIn",
+   "primary": {
+    "enabled": true,
+    "speed": 4,
+    "curve": "ii_spring_bouncy",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 0.5,
+    "curve": "menu_decel",
+    "style": ""
+   }
+  },
+  {
+   "card": "windowsIn",
+   "primary": {
+    "enabled": true,
+    "speed": 0.375,
+    "curve": "emphasizedDecel",
+    "style": ""
+   },
+   "expect": {
+    "enabled": true,
+    "speed": 0.38,
+    "curve": "emphasizedDecel",
+    "style": ""
+   }
+  }
+ ]
+}

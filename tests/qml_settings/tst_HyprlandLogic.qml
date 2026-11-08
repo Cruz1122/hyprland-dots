@@ -124,6 +124,13 @@ TestCase {
         const ok = HL.parseBase(JSON.stringify({ ok: true, errors: [], config: { "general:gaps_in": 4 }, curves: {}, animations: {} }));
         verify(ok.ok);
         compare(ok.config["general:gaps_in"], 4);
+        const full = HL.parseBase(JSON.stringify({ ok: true, errors: [], config: {},
+            curves: { menu_decel: { type: "bezier", points: [0.1, 1, 0, 1] } },
+            animations: { windowsIn: { enabled: true, speed: 3, bezier: "menu_decel" } } }));
+        compare(full.curves.menu_decel.points[0], 0.1, "curves pass through for AnimationBackend");
+        compare(full.animations.windowsIn.speed, 3, "animations pass through for AnimationBackend");
+        compare(Object.keys(HL.parseBase(JSON.stringify({ ok: true, config: {}, curves: [] })).curves).length, 0,
+            "a non-object curves field becomes empty");
         verify(!HL.parseBase(JSON.stringify({ ok: false, errors: ["x"], config: {}, curves: {}, animations: {} })).ok);
         verify(!HL.parseBase("{\"ok\": tr").ok, "truncated output");
         verify(!HL.parseBase("").ok);

@@ -110,7 +110,8 @@ def main() -> int:
                              " (interaction drivers)")
     parser.add_argument("--hyprctl-log", type=Path,
                         help="hyprctl.log of a --hyprland-stub run: with --strict, the stub must have answered"
-                             " '-j descriptions' and no captured page may show unavailable Hyprland rows")
+                             " '-j descriptions' and no captured page may show unavailable Hyprland or animation"
+                             " rows")
     args = parser.parse_args()
 
     parsed = parse_log(args.log, load_known(args.known))
@@ -143,9 +144,12 @@ def main() -> int:
             strict_problems.append(f"{where}: {len(page['overflowX'])} row(s) overflow horizontally")
         if page.get("openPopups", 0) > 0:
             strict_problems.append(f"{where}: {page['openPopups']} popup(s) open after load")
-        hyprland_down = (page.get("unavailable") or {}).get("hyprland", 0)
-        if args.hyprctl_log is not None and hyprland_down:
-            strict_problems.append(f"{where}: {hyprland_down} Hyprland row(s) unavailable with the Hyprland stub")
+        # The stub stands in for Hyprland, so its two backends must be up.
+        unavailable = page.get("unavailable") or {}
+        for backend, what in (("hyprland", "Hyprland"), ("animation", "animation")):
+            down = unavailable.get(backend, 0)
+            if args.hyprctl_log is not None and down:
+                strict_problems.append(f"{where}: {down} {what} row(s) unavailable with the Hyprland stub")
     if args.hyprctl_log is not None:
         calls = args.hyprctl_log.read_text(encoding="utf-8").splitlines() if args.hyprctl_log.exists() else []
         if not any(call.split() == ["-j", "descriptions"] for call in calls):

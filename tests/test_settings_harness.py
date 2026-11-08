@@ -144,7 +144,7 @@ class SummarizeTest(unittest.TestCase):
 
     def test_hyprland_stub_runs_must_use_the_stub_and_render_hyprland_rows_available(self) -> None:
         ok_calls = ["-j monitors all", "-j descriptions", "-j devices"]
-        good = [report(self.page("windows", unavailable={"animation": 1})), report({"type": "done"})]
+        good = [report(self.page("windows", unavailable={"ipc": 1})), report({"type": "done"})]
         code, data = self.summarize(good, strict=True, hyprctl_calls=ok_calls)
         self.assertEqual(code, 0, data)
 
@@ -156,6 +156,12 @@ class SummarizeTest(unittest.TestCase):
         code, data = self.summarize(down, strict=True, hyprctl_calls=ok_calls)
         self.assertEqual(code, 1, data)
         self.assertEqual(data["strictProblems"], ["800x600/windows: 4 Hyprland row(s) unavailable with the Hyprland stub"])
+
+        animations_down = [report(self.page("animations", unavailable={"animation": 2})), report({"type": "done"})]
+        code, data = self.summarize(animations_down, strict=True, hyprctl_calls=ok_calls)
+        self.assertEqual(code, 1, data)
+        self.assertEqual(data["strictProblems"],
+                         ["800x600/animations: 2 animation row(s) unavailable with the Hyprland stub"])
 
         code, data = self.summarize(down, strict=True)
         self.assertEqual(code, 0, "runs without the stub may render Hyprland rows unavailable")

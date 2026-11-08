@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+"""python3 shim for harness drivers (tests/test_animation_backend.py).
+
+Put first on PATH inside the sandbox, it logs every call and then runs the
+real /usr/bin/python3 with the same arguments, so the app's scripts behave as
+usual. It never talks to anything outside the sandbox.
+
+Environment:
+  PYTHON3_SHIM_LOG    append each call's argv (without the interpreter), space-joined, one line per call
+  PYTHON3_SHIM_FAIL   file holding an exit code; the next animationsgen.py --apply-json call
+                      exits with it (printing a generator-like JSON error) instead of running,
+                      and the file is removed, so it fails exactly once
+"""
+import json
+import os
+import sys
+
+REAL = "/usr/bin/python3"
+
+
+def main() -> None:
+    args = sys.argv[1:]
+    log = os.environ.get("PYTHON3_SHIM_LOG")
+    if log:
+        with open(log, "a", encoding="utf-8") as handle:
+            handle.write(" ".join(args) + "\n")
+    control = os.environ.get("PYTHON3_SHIM_FAIL")
+    is_apply = bool(args) and args[0].endswith("animationsgen.py") and "--apply-json" in args
+    if control and is_apply and os.path.isfile(control):
+        with open(control, encoding="utf-8") as handle:
+            code = int(handle.read().strip() or "1")
+        os.unlink(control)
+        sys.stdin.read()
+        print(json.dumps({"ok": False, "changed": False, "written": False, "evalOk": None, "reloaded": False,
+                          "errors": [f"python3 shim: forced exit {code}"], "cards": {}}))
+        sys.exit(code)
+    os.execv(REAL, [REAL] + args)
+
+
+if __name__ == "__main__":
+    main()

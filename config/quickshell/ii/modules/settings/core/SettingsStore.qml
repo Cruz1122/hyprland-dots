@@ -45,7 +45,10 @@ Singleton {
 
     ConfigBackend { id: configBackend }
     HyprlandBackend { id: hyprlandBackend }
-    AnimationBackend { id: animationBackend }
+    AnimationBackend {
+        id: animationBackend
+        sharedBase: hyprlandBackend.basePayload
+    }
     IdleBackend { id: idleBackend }
     DisplayBackend { id: displayBackend }
     MimeBackend { id: mimeBackend }
