@@ -21,20 +21,6 @@ CONFIG_OPTIONS = SHELL / "modules/common/ConfigOptions.qml"
 ES_MX = SHELL / "translations/es_MX.json"
 HYPRLAND_FIXTURE = REPO / "tests/fixtures/hyprland-options.json"
 
-# Legacy pages that are no longer referenced; phase P3 ports and deletes
-# them, so they are exempt from the deny-list, shell-string and size scans.
-LEGACY = {
-    SETTINGS / "About.qml",
-    SETTINGS / "AdvancedConfig.qml",
-    SETTINGS / "BackgroundConfig.qml",
-    SETTINGS / "BarConfig.qml",
-    SETTINGS / "GeneralConfig.qml",
-    SETTINGS / "InterfaceConfig.qml",
-    SETTINGS / "QuickConfig.qml",
-    SETTINGS / "ScreenRecordingConfig.qml",
-    SETTINGS / "ServicesConfig.qml",
-}
-
 PAGE_IDS = [
     "quick", "appearance", "background", "bar", "panels",
     "windows", "input", "displays",
@@ -122,7 +108,7 @@ def is_under(path: str, prefixes: list[str]) -> bool:
 
 
 def qml_files(root: Path) -> list[Path]:
-    return sorted(path for path in root.rglob("*.qml") if path not in LEGACY)
+    return sorted(root.rglob("*.qml"))
 
 
 def page_source(page_id: str) -> Path:
@@ -168,6 +154,13 @@ class SettingsContractTest(unittest.TestCase):
                 text = page_source(page_id).read_text(encoding="utf-8")
                 self.assertIn("SettingsPage {", text)
                 self.assertIn(f'pageId: "{page_id}"', text)
+
+    def test_no_pages_outside_the_registry_layout(self) -> None:
+        # The old hand-written *Config.qml pages sat at the top level; pages
+        # now come from registry/ and pages/.
+        stray = [str(p.relative_to(SETTINGS)) for p in qml_files(SETTINGS)
+                 if p.relative_to(SETTINGS).parts[0] not in {"backends", "components", "core", "pages"}]
+        self.assertEqual(stray, [])
 
     def test_sections_and_entries_follow_the_schema(self) -> None:
         for page_id, doc in self.docs.items():
