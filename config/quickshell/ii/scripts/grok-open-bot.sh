@@ -2,15 +2,22 @@
 set -u
 
 bot_id="${1:-}"
-if [[ ! "$bot_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$ ]]; then
+focus_only=0
+if [[ -z "$bot_id" || "$bot_id" == "--focus" ]]; then
+    # `--focus` surfaces the warm startup window without opening a bot route.
+    focus_only=1
+    bot_id=""
+elif [[ ! "$bot_id" =~ ^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$ ]]; then
     exit 2
 fi
 
 # Grok Bot 0.71.2 exposes the agent route as the supported deep link for a
 # bot conversation. It focuses that bot in the app; the app does not expose a
 # public message-id route for the roster's lastMessageId/newestEntryId fields.
-command -v xdg-open >/dev/null 2>&1 || exit 1
-deep_link="grokbot://app/v1/agent?id=${bot_id}"
+if [[ "$focus_only" -eq 0 ]]; then
+    command -v xdg-open >/dev/null 2>&1 || exit 1
+    deep_link="grokbot://app/v1/agent?id=${bot_id}"
+fi
 
 workspace=""
 window_address=""
@@ -64,7 +71,9 @@ fi
 
 # Hand the bot deep link to Grok Bot's registered single-instance handler. Keep
 # this asynchronous so a warm instance can be focused without waiting on xdg-open.
-xdg-open "$deep_link" >/dev/null 2>&1 </dev/null &
+if [[ "$focus_only" -eq 0 ]]; then
+    xdg-open "$deep_link" >/dev/null 2>&1 </dev/null &
+fi
 
 if [[ "$window_address" =~ ^0x[0-9a-fA-F]+$ ]]; then
     if [[ "$window_workspace" == "special:grok-bot" && -n "$workspace" ]]; then

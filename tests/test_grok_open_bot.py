@@ -84,6 +84,20 @@ class GrokOpenBotTests(unittest.TestCase):
                 "dispatch focuswindow address:0xabc",
             ])
 
+    def test_focus_mode_surfaces_hidden_window_without_a_deep_link(self):
+        with tempfile.TemporaryDirectory() as temp:
+            _, log, environment = self.make_bin(
+                temp,
+                '[{"address":"0xabc","class":"grok-bot","workspace":{"name":"special:grok-bot"}}]',
+            )
+            result = subprocess.run([SCRIPT, "--focus"], env=environment, check=False)
+
+            self.assertEqual(result.returncode, 0)
+            lines = log.read_text(encoding="utf-8").splitlines()
+            self.assertIn("dispatch movetoworkspace 2,address:0xabc", lines)
+            self.assertIn("dispatch focuswindow address:0xabc", lines)
+            self.assertFalse(any("grokbot://" in line for line in lines))
+
     def test_lua_provider_uses_focus_and_move_dispatchers(self):
         with tempfile.TemporaryDirectory() as temp:
             bin_dir = Path(temp) / "bin"
