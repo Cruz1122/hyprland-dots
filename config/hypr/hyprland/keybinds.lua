@@ -9,6 +9,25 @@ local hyprScripts = "$HOME/.config/hypr/hyprland/scripts"
 local qsIpcCall = "qs -c $qsConfig ipc call"
 local qsIsAlive = qsIpcCall .. " TEST_ALIVE"
 
+-- Quickshell's Super release shortcut also receives the release after a
+-- Super+key action. Interrupt it for every other Super binding so it only
+-- opens the overview when Super is pressed by itself.
+local bind = hl.bind
+hl.bind = function(keys, dispatcher, options)
+    local normalized = string.upper(keys):gsub("%s+", "")
+    local is_super_release = normalized == "SUPER+SUPER_L" or normalized == "SUPER+SUPER_R"
+    local is_super_only = normalized == "SUPER_L" or normalized == "SUPER_R"
+
+    if normalized:find("SUPER", 1, true) and not is_super_release and not is_super_only then
+        bind(keys, hl.dsp.global("quickshell:searchToggleReleaseInterrupt"), {
+            non_consuming = true,
+            transparent = true
+        })
+    end
+
+    return bind(keys, dispatcher, options)
+end
+
 hl.bind("SUPER + SUPER_L", hl.dsp.global("quickshell:searchToggleRelease"), { description = "Shell: Toggle search" })
 hl.bind("SUPER + SUPER_R", hl.dsp.global("quickshell:searchToggleRelease"))
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qsIsAlive .. " || pkill fuzzel || fuzzel"))
