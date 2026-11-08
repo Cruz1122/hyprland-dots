@@ -179,7 +179,7 @@ class TranslationOrphansRepositoryTest(unittest.TestCase):
         self.assertEqual(report["staleAllowlist"], [], "remove these from translation-orphans-allowlist.txt")
         # Strings this settings page set relies on must never be reported.
         # "Opens plain text (.txt) files." is only an entry description.
-        for used in ["Terminal", "Pinned apps", "Requires “%1”", "Hyprland is not running",
+        for used in ["Terminal", "Apps pinned in the start menu", "Requires “%1”", "Hyprland is not running",
                      "Opens plain text (.txt) files."]:
             self.assertNotIn(used, report["orphans"])
         print(f"\ntranslation orphans in es_MX.json: {len(report['orphans'])}", file=sys.stderr)

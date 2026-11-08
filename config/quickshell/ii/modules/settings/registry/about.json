@@ -6,13 +6,15 @@
   "sections": [
     {
       "id": "distro",
-      "title": "Distro",
-      "icon": "box"
+      "title": "System",
+      "icon": "box",
+      "description": "Links to the documentation and support of your Linux distribution."
     },
     {
       "id": "dotfiles",
-      "title": "Dotfiles",
-      "icon": "folder_managed"
+      "title": "Desktop configuration",
+      "icon": "folder_managed",
+      "description": "Links to the documentation, issues, discussions and donations of illogical-impulse."
     }
   ],
   "entries": [
@@ -21,6 +23,10 @@
       "section": "distro",
       "label": "Operating system",
       "description": "The distribution this shell is running on.",
+      "keywords": [
+        "distro",
+        "Distro"
+      ],
       "icon": "computer",
       "backend": "readonly",
       "type": "custom",
@@ -31,6 +37,10 @@
       "section": "dotfiles",
       "label": "illogical-impulse",
       "description": "The Quickshell configuration these settings belong to.",
+      "keywords": [
+        "dotfiles",
+        "Dotfiles"
+      ],
       "icon": "folder_managed",
       "backend": "readonly",
       "type": "custom",
