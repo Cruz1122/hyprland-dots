@@ -7,11 +7,14 @@
 //   src/animation/Spring.cpp          -> advanceSpring()
 //   src/animation/AnimatedVariable.cpp (getCurveStep, getPercent)
 //                                     -> springProgress(), springSettleMs()
-// hyprutils computes in 32-bit floats; this port uses doubles. The
-// difference is below 1e-6 for every curve the app offers, and both this
-// file and the independent Python port (tests/curve_reference.py) use doubles
-// with the same operation order, so the golden fixture
-// (tests/fixtures/curve-golden.json) pins them to each other.
+// hyprutils computes in 32-bit floats; this port uses doubles. Against the
+// real libhyprutils the values match within 1e-6 for the built-in, dotfiles
+// and app curves; extreme user curves can differ by up to ~3e-4 near x = 1
+// (e.g. [1, 0, 1, 0] at x = 0.999999), and heavily overdamped springs settle a
+// few ms apart (springSettleMs). Both this file and the independent Python
+// port (tests/curve_reference.py) use doubles with the same operation order,
+// so the golden fixture (tests/fixtures/curve-golden.json) pins them to each
+// other.
 //
 // Curve descriptors: { name, type: "bezier", points: [x1, y1, x2, y2] } or
 // { name, type: "spring", mass, stiffness, damping }.

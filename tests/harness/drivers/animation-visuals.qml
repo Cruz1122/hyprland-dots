@@ -7,7 +7,9 @@
 // visuals (SettingsCurveThumb, SettingsCurvePicker, SettingsCurveEditor,
 // SettingsAnimationPreview) at 760 and 1100 px in the dark fixture theme and
 // a light theme, then checks the picker's keyboard navigation, the editor's
-// clamping and validation, and plays one preview to its end. Screenshots
+// clamping, validation, bound points and ball track, the previews' frame,
+// idle state, play()/replay() rules and geometry, and plays one preview to
+// its end. Screenshots
 // are "page" reports (overflowX lists clipped text and items past the
 // window edge); every check is a "check" report, and a failed one is also
 // "fatal" so summarize.py fails the run. tests/test_animation_visuals.py runs it.
@@ -100,6 +102,12 @@ ShellRoot {
     property var activations: []
     property int editorChanged: 0
     property int editorAccepted: 0
+    property int typedFrom: 0
+    // The gallery editor is controlled like a page would do it: `points` is
+    // bound here and changed(points) writes back.
+    property var editorPoints: [0.3, 1.4, 0.2, 0.95]
+    // Bound by boundEditor, never written back: only "outside" changes.
+    property var boundPoints: [0.25, 0.1, 0.25, 1]
 
     function report(payload) {
         console.info(`[harness:report] ${JSON.stringify(payload)}`);
@@ -286,7 +294,9 @@ ShellRoot {
     }
 
     function checkEditor() {
-        editor.points = [0.05, 0.7, 0.1, 1];
+        root.checkBallTrack();
+        root.checkBoundPoints();
+        root.editorPoints = [0.05, 0.7, 0.1, 1];
         root.editorChanged = 0;
         root.editorAccepted = 0;
         const first = root.findByName(editor, "curveHandle:0");
@@ -300,7 +310,7 @@ ShellRoot {
         root.check("editor: dragging past the bottom-right clamps the second point to x 1, y -1", root.same(editor.points.slice(2), [1, -1]),
             { points: editor.points });
 
-        editor.points = [0.05, 0.7, 0.1, 1];
+        root.editorPoints = [0.05, 0.7, 0.1, 1];
         const x1 = root.findByName(editor, "curveField:0");
         const y2 = root.findByName(editor, "curveField:3");
         const start = [0.05, 0.7, 0.1, 1];
@@ -310,11 +320,21 @@ ShellRoot {
             () => {
                 x1.forceActiveFocus();
                 events.keyClick(Qt.Key_A, Qt.ControlModifier, -1);
-                root.typeText("1.5");
+                // Every prefix of "2" and "-1" is invalid too, so a valid
+                // prefix cannot be applied on the way (as '1' of '1.5' was).
+                root.typedFrom = root.editorChanged;
+                root.typeText("2");
             },
             () => {
                 root.check("editor: x out of [0, 1] is invalid and not applied", x1.invalid && editor.invalidMessage.length > 0
-                    && editor.points[0] <= 1, { invalid: x1.invalid, message: editor.invalidMessage, points: editor.points });
+                    && root.same(editor.points, start) && root.same(editor.editedPoints, start) && root.editorChanged === root.typedFrom,
+                    { invalid: x1.invalid, message: editor.invalidMessage, points: editor.points, changed: root.editorChanged - root.typedFrom });
+                events.keyClick(Qt.Key_A, Qt.ControlModifier, -1);
+                root.typeText("-1");
+            },
+            () => {
+                root.check("editor: a negative x is invalid and not applied", x1.invalid && root.same(editor.editedPoints, start)
+                    && root.editorChanged === root.typedFrom, { invalid: x1.invalid, points: editor.editedPoints, changed: root.editorChanged - root.typedFrom });
                 events.keyClick(Qt.Key_A, Qt.ControlModifier, -1);
                 root.typeText("0.4");
                 events.keyClick(Qt.Key_Return, Qt.NoModifier, -1);
@@ -387,6 +407,41 @@ ShellRoot {
         ]);
     }
 
+    // An overshooting curve (y up to 2) keeps the ball inside its track.
+    function checkBallTrack() {
+        const ball = root.findByName(editor, "curveBall");
+        const track = root.findByName(editor, "curveTrack");
+        root.editorPoints = [0.5, 2, 0.5, 2];
+        let left = Infinity;
+        let right = -Infinity;
+        let peak = 0;
+        for (let i = 0; i <= 40; i++) {
+            editor.ballProgress = i / 40;
+            left = Math.min(left, ball.x);
+            right = Math.max(right, ball.x + ball.width);
+            peak = Math.max(peak, track.value);
+        }
+        root.check("editor: an overshooting curve keeps the ball inside the track", track.clip && peak > 1.5 && left >= 0 && right <= track.width,
+            { left: left, right: right, track: track.width, peak: peak, clip: track.clip });
+        editor.ballProgress = 1;
+    }
+
+    // A parent binding on `points` survives edits, and outside changes reach
+    // the editor after an edit.
+    function checkBoundPoints() {
+        const handle = root.findByName(boundEditor, "curveHandle:0");
+        const field = root.findByName(boundEditor, "curveField:0");
+        root.drag(handle, 30, 0);
+        const edited = boundEditor.editedPoints;
+        root.check("editor: an edit changes the edited copy, not the bound points",
+            !root.same(edited, [0.25, 0.1, 0.25, 1]) && root.same(boundEditor.points, [0.25, 0.1, 0.25, 1]),
+            { edited: edited, points: boundEditor.points });
+        root.boundPoints = [0.1, 0.8, 0.2, 1];
+        root.check("editor: changing the bound points after an edit shows them",
+            root.same(boundEditor.points, [0.1, 0.8, 0.2, 1]) && root.same(boundEditor.editedPoints, [0.1, 0.8, 0.2, 1]) && field.text === "0.10",
+            { points: boundEditor.points, edited: boundEditor.editedPoints, text: field.text });
+    }
+
     property var pendingSteps: []
 
     function runSteps(steps) {
@@ -417,6 +472,8 @@ ShellRoot {
     // CurveMath, and each family's geometry follows the mapped value.
     function checkPreviewFrames() {
         const previewAt = index => previewRepeater.itemAt(index).preview;
+        // The animated geometry lives in the mini screen inside the frame.
+        const screenOf = preview => root.findByName(preview, "previewScreen");
         const caseOf = index => root.previewCases[index];
         // popin 80, slide left, windowsOut popin 90, a spring, workspaces slidefade 50%.
         for (const index of [0, 3, 5, 6, 11]) {
@@ -433,7 +490,7 @@ ShellRoot {
 
         // windowsIn slide left: the window comes in from the left edge.
         const slide = previewAt(3);
-        const sw = slide.width;
+        const sw = screenOf(slide).width;
         const gw = sw * 0.46;
         const gx = (sw - gw) / 2;
         const slideWindow = root.findByName(slide, "previewWindow");
@@ -449,8 +506,8 @@ ShellRoot {
         const nearestWindow = root.findByName(nearest, "previewWindow");
         nearest.seek(0);
         root.check("preview: slide with no direction comes from the nearest edge (bottom)",
-            root.near(nearestWindow.y, nearest.height, 0.5) && root.near(nearestWindow.x, gx, 0.5),
-            { x: nearestWindow.x, y: nearestWindow.y, height: nearest.height });
+            root.near(nearestWindow.y, screenOf(nearest).height, 0.5) && root.near(nearestWindow.x, gx, 0.5),
+            { x: nearestWindow.x, y: nearestWindow.y, height: screenOf(nearest).height });
 
         // windowsIn popin 80%: starts at 80 % of the size, transparent.
         const popin = previewAt(0);
@@ -473,26 +530,74 @@ ShellRoot {
         // workspaces slidefade 50%: the incoming workspace moves half the
         // screen and fades in; the current one moves away and fades out.
         const ws = previewAt(11);
+        const wsWidth = screenOf(ws).width;
         const incoming = root.findByName(ws, "previewIncomingWorkspace");
         const current = root.findByName(ws, "previewCurrentWorkspace");
         ws.seek(0.3);
         const v = ws.value;
         root.check("preview: workspaces slidefade 50% offsets the incoming workspace by half the screen",
-            root.near(incoming.transform[0].x, 0.5 * ws.width * (1 - v), 0.5) && root.near(current.transform[0].x, -0.5 * ws.width * v, 0.5)
+            root.near(incoming.transform[0].x, 0.5 * wsWidth * (1 - v), 0.5) && root.near(current.transform[0].x, -0.5 * wsWidth * v, 0.5)
             && root.near(incoming.opacity, v, 1e-6) && root.near(current.opacity, 1 - v, 1e-6),
-            { incomingX: incoming.transform[0].x, currentX: current.transform[0].x, value: v, width: ws.width });
+            { incomingX: incoming.transform[0].x, currentX: current.transform[0].x, value: v, width: wsWidth });
+        // The frame is drawn above the mini screen, whose square clip stays
+        // inside the rounded border, so moving content cannot cover it.
+        const frameProblems = [];
+        for (let i = 0; i < previewRepeater.count; i++) {
+            const preview = previewAt(i);
+            const screen = screenOf(preview);
+            const frame = root.findByName(preview, "previewFrame");
+            if (!screen || !frame) {
+                frameProblems.push({ index: i, screen: !!screen, frame: !!frame });
+                continue;
+            }
+            const siblings = Array.from(preview.children);
+            const above = frame.z > screen.z || (frame.z === screen.z && siblings.indexOf(frame) > siblings.indexOf(screen));
+            const r = frame.radius;
+            const inner = r - frame.border.width;
+            // Top-left corner of the clip against the frame's rounded corner
+            // (the frame is symmetric: the other corners match).
+            const corner = Math.hypot(r - screen.x, r - screen.y);
+            const inside = screen.x >= frame.border.width && screen.y >= frame.border.width && corner <= inner;
+            if (!above || !inside || !screen.clip || frame.color.a !== 0)
+                frameProblems.push({ index: i, above: above, corner: corner, inner: inner, clip: screen.clip });
+        }
+        root.check("preview: the rounded frame is drawn above a mini screen clipped inside it", frameProblems.length === 0, frameProblems);
         for (let i = 0; i < previewRepeater.count; i++)
             previewAt(i).seek(1);
     }
 
     function checkPreview() {
+        // Before anything seeks them: a fresh preview rests on its end state,
+        // a disabled one too, without play().
+        root.check("preview: idle shows the end state", !idleTarget.playing && idleTarget.progress === 1 && root.near(idleTarget.value, 1, 1e-9),
+            { progress: idleTarget.progress, value: idleTarget.value });
+        root.check("preview: a disabled card shows the end state without play()", !disabledTarget.playing && disabledTarget.progress === 1,
+            { progress: disabledTarget.progress });
         root.checkPreviewFrames();
         const preview = playTarget;
+        preview.play();
+        preview.enabled = false;
+        root.check("preview: disabling it while it plays shows the end state", !preview.playing && preview.progress === 1, { progress: preview.progress });
+        preview.enabled = true;
         preview.reduceMotion = true;
-        preview.seek(0);
-        preview.play(true);
+        preview.seek(1);
+        preview.replay();
         root.check("preview: no automatic replay with reduceMotion", !preview.playing && preview.progress === 1, { progress: preview.progress });
+        preview.play();
+        root.check("preview: play() plays even with reduceMotion", preview.playing && preview.progress < 0.5, { progress: preview.progress });
+        preview.seek(1);
+        // The old play(true) flag must not stop an explicit play either.
+        preview.play(true);
+        root.check("preview: play() takes no automatic flag", preview.playing && preview.progress < 0.5, { progress: preview.progress });
+        preview.seek(1);
         preview.reduceMotion = false;
+        preview.seek(0.7);
+        preview.replay();
+        root.check("preview: replay() restarts from the start", preview.playing && preview.progress < 0.5, { progress: preview.progress });
+        preview.seek(0.7);
+        preview.play();
+        root.check("preview: play() restarts from the start", preview.playing && preview.progress < 0.5, { progress: preview.progress });
+        preview.seek(1);
         disabledTarget.seek(0);
         disabledTarget.play();
         root.check("preview: a disabled animation jumps to the end", !disabledTarget.playing && disabledTarget.progress === 1, {});
@@ -655,11 +760,14 @@ ShellRoot {
                         id: editor
                         Layout.fillWidth: true
                         // Differs from the original so both curves show.
-                        points: [0.3, 1.4, 0.2, 0.95]
+                        points: root.editorPoints
                         originalPoints: [0.05, 0.7, 0.1, 1]
                         baseCurves: root.bezierCurves
                         durationMs: 300
-                        onChanged: root.editorChanged++
+                        onChanged: points => {
+                            root.editorChanged++;
+                            root.editorPoints = points;
+                        }
                         onAccepted: root.editorAccepted++
                     }
 
@@ -703,7 +811,6 @@ ShellRoot {
                                     durationMs: CurveMath.speedToMs(previewCell.modelData[4])
                                     curve: root.curveByName[previewCell.modelData[5]]
                                     enabled: previewCell.modelData[6]
-                                    startAtEnd: true
                                 }
 
                                 StyledText {
@@ -743,6 +850,21 @@ ShellRoot {
                         Layout.preferredWidth: 160
                         curve: root.curveByName.ii_spring_bouncy
                     }
+
+                    SettingsAnimationPreview {
+                        id: idleTarget
+                        Layout.preferredWidth: 160
+                        family: "windowsIn"
+                        kind: "popin"
+                        percent: 80
+                        curve: root.curveByName.emphasizedDecel
+                    }
+                }
+
+                SettingsCurveEditor {
+                    id: boundEditor
+                    Layout.preferredWidth: 620
+                    points: root.boundPoints
                 }
 
                 SettingsCurvePicker {

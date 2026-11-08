@@ -47,6 +47,13 @@ ShellRoot {
             // Appearance.scaled() itself; the panels that call it are checked
             // statically in tests/test_motion_contract.py.
             scaledHelper520: Appearance.scaled(520),
+            // MotionScale.duration leaves -1 (Qt's infinite), infinite and
+            // NaN durations untouched; scaled() must not coerce them to 0 (a
+            // 0 ms animation finishes inside start()). JSON has no Infinity
+            // or NaN, hence the strings.
+            scaledNegative: Appearance.scaled(-1),
+            scaledInfinite: String(Appearance.scaled(Infinity)),
+            scaledNaN: String(Appearance.scaled(NaN)),
         });
     }
 

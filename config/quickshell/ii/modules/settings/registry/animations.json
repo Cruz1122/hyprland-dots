@@ -180,8 +180,8 @@
       "key": "appearance.animations.durationScale",
       "section": "shellMotion",
       "label": "Speed of menus and transitions",
-      "description": "How fast the menus, buttons and transitions drawn by the shell move.",
-      "help": "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed.",
+      "description": "Changes how long switches, sliders and the transitions inside the shell's panels take.",
+      "help": "It does not change how Hyprland opens windows or shell panels; that is the rest of this page. Loading spinners keep their speed, and some effects ignore it, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions.",
       "keywords": [
         "Speed of the shell's motion",
         "animation speed",
@@ -236,8 +236,8 @@
       "key": "appearance.animations.reduceMotion",
       "section": "shellMotion",
       "label": "Reduce motion in the shell",
-      "description": "Transitions inside the shell end instantly instead of animating.",
-      "help": "While it is on, the speed above has no effect and loading spinners keep turning. For the desktop itself, use the Minimal preset at the top of this page.",
+      "description": "Switches, sliders, menus and the transitions inside the shell's panels end instantly.",
+      "help": "Some effects still animate, such as button ripples, text fades, the scrollbar, the lock screen and the settings app's page transitions; loading spinners keep turning and the speed above has no effect. For the desktop itself, use the Minimal preset at the top of this page.",
       "keywords": [
         "reduce motion",
         "reduced motion",

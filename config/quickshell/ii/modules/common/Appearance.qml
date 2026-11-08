@@ -22,7 +22,11 @@ Singleton {
     // follow a change live. Loops, spinners and clock ticks never use these
     // (they carry `// motion-ok:`; tests/test_motion_contract.py).
     readonly property real animationFactor: MotionScale.factor(Config.options?.appearance?.animations?.durationScale, Config.options?.appearance?.animations?.reduceMotion)
-    function scaled(ms: real): int {
+    // Returns real, not int: an int return type would turn the Infinity and
+    // NaN that MotionScale.duration passes through into 0 ms, an animation
+    // that finishes inside start(). Assigning the result to an int duration
+    // still rounds it.
+    function scaled(ms: real): real {
         return MotionScale.duration(ms, root.animationFactor);
     }
     function scaledVelocity(velocity: real): real {

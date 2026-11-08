@@ -96,6 +96,16 @@ class MotionScaleDriverTest(unittest.TestCase):
         self.assertEqual(state["heldFactoryDuration"], 1)
         self.assertEqual(state["scaledHelper520"], 1)
 
+    def test_scaled_passes_special_durations_through(self) -> None:
+        # Appearance.scaled() once returned int, which turned Infinity and NaN
+        # into 0 ms.
+        for label in ("seeded", "reduced", "normal"):
+            state = self.motion(label)
+            with self.subTest(label):
+                self.assertEqual(state["scaledNegative"], -1)
+                self.assertEqual(state["scaledInfinite"], "Infinity")
+                self.assertEqual(state["scaledNaN"], "NaN")
+
     def test_reduced_factory_animations_finish_asynchronously(self) -> None:
         for label in ("elementMoveFast", "elementMove"):
             probe = self.finish(label)

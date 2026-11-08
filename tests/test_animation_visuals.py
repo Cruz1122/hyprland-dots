@@ -2,8 +2,9 @@
 
 Runs tests/harness/drivers/animation-visuals.qml, which renders a gallery of
 every component and state at 760 and 1100 px in a dark and a light theme,
-then checks the picker's keyboard navigation, the editor's clamping and
-validation, and plays one preview to its end. To look at the screenshots:
+then checks the picker's keyboard navigation, the editor's clamping,
+validation, bound points and ball track, the previews' frame, idle state,
+play()/replay() rules and geometry, and plays one preview to its end. To look at the screenshots:
     scripts/settings-harness/run.sh --strict --driver tests/harness/drivers/animation-visuals.qml \
         --sizes 1100x760 --out DIR
 """
@@ -64,7 +65,17 @@ class AnimationVisualsTest(unittest.TestCase):
                          "preview: slide left starts left of its place and follows the value",
                          "preview: slide with no direction comes from the nearest edge (bottom)",
                          "preview: windowsOut goes from opaque and full size to transparent at 90%",
-                         "preview: workspaces slidefade 50% offsets the incoming workspace by half the screen"):
+                         "preview: workspaces slidefade 50% offsets the incoming workspace by half the screen",
+                         "preview: idle shows the end state",
+                         "preview: a disabled card shows the end state without play()",
+                         "preview: disabling it while it plays shows the end state",
+                         "preview: play() plays even with reduceMotion", "preview: play() takes no automatic flag",
+                         "preview: replay() restarts from the start", "preview: play() restarts from the start",
+                         "preview: the rounded frame is drawn above a mini screen clipped inside it",
+                         "editor: an overshooting curve keeps the ball inside the track",
+                         "editor: an edit changes the edited copy, not the bound points",
+                         "editor: changing the bound points after an edit shows them",
+                         "editor: a negative x is invalid and not applied"):
             self.assertIn(required, names)
         self.assertTrue(any(event.get("type") == "done" for event in events), context)
 

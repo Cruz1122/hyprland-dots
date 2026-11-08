@@ -720,8 +720,10 @@ signals; no registry, store or backend access). Curve descriptors are
 source string; `group: "user"` labels are shown as typed).
 
 `CurveMath.js` (`.pragma library`, pure) ports hyprutils v0.14.3, the version
-Hyprland 0.57 uses, in doubles (hyprutils uses floats; the difference is below
-1e-6):
+Hyprland 0.57 uses, in doubles (hyprutils uses floats). Compared with the real
+libhyprutils, values match within 1e-6 for the built-in, dotfiles and app
+curves; extreme user curves can differ by up to ~3e-4 near x = 1, and heavily
+overdamped springs settle a few ms apart:
 
 | Function | Meaning |
 |---|---|
@@ -755,18 +757,31 @@ Components:
   itself. A value missing from `curves` gets an extra "Not recognized: X"
   item, selected, that keeps the value when chosen.
 - `SettingsCurveEditor { points, originalPoints, baseCurves, durationMs;
-  changed(points), accepted(points) }`: bezier only. Drag the two handles or
+  editedPoints; changed(points), accepted(points) }`: bezier only. `points`
+  may be bound by the page: the editor never assigns it, edits its own copy
+  `editedPoints` (read it, do not assign it) and loads `points` again
+  whenever they change from outside (undo, reset, a backend revert; a new
+  array with the same values counts as a change). Drag the two handles or
   type x/y (Up/Down step 0.01, Shift 0.1); x stays in [0, 1], y in [-1, 2],
   values round to 2 decimals, out-of-range text shows a hint and is not
   applied. `changed` fires on every edit, `accepted` at the end of each one
   (release, Enter/focus loss, a step, "Start from…"). The original curve is
-  drawn in grey; ▶ moves a ball along the curve for `durationMs`. Stacks
-  below 560 px.
+  drawn in grey; ▶ moves a ball along the curve for `durationMs`, past the
+  end mark for overshooting curves but never out of its track (it stops at
+  the edge for y near -1 or 2). Stacks below 560 px.
 - `SettingsAnimationPreview` (contract in section 5 of the phase-A
-  contracts): `family`, `kind`, `percent` (< 0 = not given), `direction`,
-  `durationMs`, `curve`, `enabled` (false: jumps to the end, "No animation"),
-  `reduceMotion`, `startAtEnd`, `play(automatic)`, `seek(progress)`,
-  `playing`. A mini screen per family: windows (popin N%, 100% = fade only;
+  contracts, amended in wave 1): `family`, `kind`, `percent` (< 0 = not
+  given), `direction`, `durationMs`, `curve`, `enabled`, `reduceMotion`,
+  `play()`, `replay()`, `seek(progress)`, `playing`. When idle it shows the
+  END state (the element at rest), also when `enabled` is false ("No
+  animation" chip) or the family changes. `play()` is the explicit ▶: it
+  always plays from the first frame, reduceMotion or not (a disabled one
+  stays at the end). `replay()` is for automatic replays (a slider released,
+  a value changed): it does nothing while `reduceMotion` is set, otherwise
+  it is `play()`. The rounded frame is drawn above the mini screen, which is
+  clipped to a rectangle inset inside the frame's rounded corners (a rounded
+  shader mask would not draw in the software renderer), so moving content
+  never covers the border. A mini screen per family: windows (popin N%, 100% = fade only;
   slide from a forced or the nearest edge; GNOME style), window move,
   workspaces (slide, slidevert, fade, slidefade/slidefadevert N%, forced
   direction), special workspace in/out over the dimmed workspace, shell
@@ -775,14 +790,17 @@ Components:
   `NumberAnimation` drives `progress` (marked `// motion-ok: Hyprland
   preview`, outside the shell motion scale) and `CurveMath.valueAt` maps it;
   springs last `springSettleMs` and carry an "Approximate" chip. It never
-  loops; `play(true)` (an automatic replay) only jumps to the end when
-  `reduceMotion` is set.
+  loops.
 
 `tests/harness/drivers/animation-visuals.qml` (run by
 `tests/test_animation_visuals.py`) renders every component and state at 760
 and 1100 px in the dark fixture theme and a light theme, fails on clipped
 text or items past the edge, checks the picker keyboard, the editor's
-clamping and validation, and plays one preview to its end:
+clamping, validation (typed values whose every prefix is invalid), a bound
+`points` that changes after an edit and the ball staying in its track for
+[0.5, 2, 0.5, 2], the previews' frame geometry, idle end state,
+`play()`/`replay()` rules and per-family geometry, and plays one preview to
+its end:
 `scripts/settings-harness/run.sh --strict --driver
 tests/harness/drivers/animation-visuals.qml --sizes 1100x760 --out DIR`
 leaves the screenshots in `DIR`.
@@ -819,7 +837,7 @@ and close is Hyprland's `layersIn`/`layersOut` and the rest of that page.
 | Key | Values | Effect |
 |---|---|---|
 | `appearance.animations.durationScale` | `0.5`, `0.75`, `1` (default), `1.5`, `2` (segmented: Very fast … Very slow) | Multiplies durations; 0.5 is twice as fast. Velocities are divided by the same factor. |
-| `appearance.animations.reduceMotion` | `false` (default), `true` | Transitions end at once; the speed has no effect while it is on. |
+| `appearance.animations.reduceMotion` | `false` (default), `true` | Every preset transition (switches, sliders, menus, in-panel transitions) ends at once; the speed has no effect while it is on. The unmigrated durations below still move. |
 
 `modules/common/functions/MotionScale.js` (pure, `tests/qml_settings/tst_MotionScale.qml`):
 `factor(scale, reduce)` is 0 when `reduce` is `true`, otherwise `scale`
@@ -833,7 +851,9 @@ discard re-entrantly; 1 ms finishes on the next animation tick.
 
 `Appearance.qml` exposes `animationFactor` (bound to both keys, so a change
 applies live in the main shell and in the settings app), `scaled(ms)` and
-`scaledVelocity(v)`. Every preset (`elementMove` 500, `elementMoveSmall` 350,
+`scaledVelocity(v)`. `scaled()` returns `real`, so `-1`, infinite and NaN
+durations pass through untouched (an `int` return type turned Infinity into
+a 0 ms animation); assigning it to an `int` duration still rounds. Every preset (`elementMove` 500, `elementMoveSmall` 350,
 `elementMoveEnter` 400, `elementMoveExit` 200, `elementMoveFast` 200,
 `elementResize` 300, `clickBounce` 400, `scroll` 200, `menuDecel` 350) and
 its `velocity` go through them, and the factory Components bind to the
@@ -856,14 +876,25 @@ monitor writes), the reload popup timeout, and the raw
 must use Hyprland's own milliseconds and carry the marker too. The settings
 search highlight pulse (`SettingsRow.qml`) is not scaled either.
 
-About 55 hardcoded durations elsewhere (bar widgets, lock screen, clock
-hands, ripples, the settings app's own page transitions) still ignore both
-keys; migrating them is deferred. `tests/test_motion_contract.py` scans
-`config/quickshell/ii/**/*.qml` (waffle excluded) for duration bindings and
-assignments with a nonzero literal that do not go through `Appearance` or
-`MotionScale` and lack `motion-ok`, and fails when the count exceeds
-`MAX_UNMIGRATED`. Lower that constant when you migrate or mark a site; never
-raise it. The same test rejects readers of `animationCurves.*Duration`
+About 56 hardcoded durations elsewhere (bar widgets, lock screen, clock
+hands, ripples, text fades, the scrollbar, the settings app's own page
+transitions) still ignore both keys; migrating them is deferred. The texts of
+both keys say so: the reduceMotion help names what still moves.
+`tests/test_motion_contract.py` scans `config/quickshell/ii/**/*.qml`
+(waffle excluded) for duration bindings and assignments with a nonzero
+literal that lacks `motion-ok` and fails when the count exceeds
+`MAX_UNMIGRATED`. A literal is exempt only inside
+`Appearance.scaled(...)`/`MotionScale.*(...)`, as the `1` of a
+`Math.max(1, ...)` floor, or as a plain multiplier or divisor of a derived
+duration (`rippleDuration * 2`, `preset.duration / 2`); a literal next to a
+preset or derived duration (`Math.max(300, preset.duration)`,
+`fooDuration > 0 ? 300 : 200`, `preset.duration ?? 200`) counts. Timer
+`interval:` literals are counted separately (`MAX_UNMARKED_INTERVALS`, 18)
+in files that use `Appearance.animation`, where a timer may wait for a
+scaled animation; mark timeouts and polling with `// motion-ok: <reason>`.
+Lower either constant when you migrate or mark a site; never raise it for
+new code (wave 1 raised `MAX_UNMIGRATED` from 55 to 56 once, when the
+scanner became stricter). The same test rejects readers of `animationCurves.*Duration`
 outside `Appearance.qml` and scaled durations inside looping animations. It
 also requires a 1 ms floor (`Math.max(1, ...)` or `Appearance.scaled()`) on
 any arithmetic over a preset duration, `Appearance.scaled()` around the
@@ -873,7 +904,8 @@ and a preset velocity or `Appearance.scaledVelocity()` in every
 those shell files. `tests/test_motion_scale.py` runs `tests/harness/drivers/motion-scale.qml`
 with a config seeded at 0.5 (elementMove 250 ms, velocities doubled), then
 `reduceMotion` (1 ms, and a preset factory animation emits `finished` after
-`start()` returns) and back to 1 (500 ms), and renders the Animations page in
+`start()` returns) and back to 1 (500 ms), checks in each state that
+`Appearance.scaled()` returns -1, Infinity and NaN unchanged, and renders the Animations page in
 strict mode with the packaged config, which has neither key.
 
 ## Config schema version

@@ -14,14 +14,17 @@ import "CurveMath.js" as CurveMath
 //   durationMs speedToMs(speed); a spring curve ignores it and lasts until
 //              Hyprland would end it (CurveMath.springSettleMs)
 //   curve      curve descriptor; `enabled` false = the animation is off
-//              (the preview jumps to the end)
-//   reduceMotion, startAtEnd
-//              play(true) (an automatic replay, e.g. after a control is
-//              released) does nothing but show the end when reduceMotion is
-//              set; startAtEnd starts on the last frame (screenshots)
-// Playback is a linear progress 0..1 mapped through CurveMath, never a Qt
-// easing curve, so it follows Hyprland's own math. It never loops and does
-// not follow the shell motion scale.
+//              (the preview shows the end and play() does not move it)
+//   reduceMotion
+//              replay() (an automatic replay, e.g. after a control is
+//              released) does nothing while it is set; play() (the user's
+//              explicit ▶) always plays
+// When idle the preview shows the END state (the animated element at rest):
+// a first frame of an opening animation would be an empty desktop. play()
+// and replay() restart from the first frame. Playback is a linear progress
+// 0..1 mapped through CurveMath, never a Qt easing curve, so it follows
+// Hyprland's own math. It never loops and does not follow the shell motion
+// scale.
 Item {
     id: root
 
@@ -32,8 +35,7 @@ Item {
     property real durationMs: 300
     property var curve: ({ name: "default", type: "bezier", points: CurveMath.DEFAULT_POINTS })
     property bool reduceMotion: false
-    property bool startAtEnd: false
-    property real progress: root.startAtEnd ? 1 : 0
+    property real progress: 1
     readonly property bool isSpring: CurveMath.isSpring(root.curve)
     readonly property real effectiveDurationMs: root.isSpring ? CurveMath.springSettleMs(root.curve) : Math.max(1, root.durationMs)
     readonly property real value: CurveMath.valueAt(root.curve, root.progress, root.effectiveDurationMs)
@@ -62,14 +64,24 @@ Item {
     }
     readonly property bool closing: root.family.endsWith("Out")
 
-    function play(automatic) {
+    // Explicit play (▶): plays even with reduceMotion; a disabled animation
+    // only shows its end.
+    function play() {
         progressAnimation.stop();
-        if (!root.enabled || (automatic === true && root.reduceMotion)) {
+        if (!root.enabled) {
             root.progress = 1;
             return;
         }
         root.progress = 0;
         progressAnimation.start();
+    }
+
+    // Automatic replay (a value changed, a slider was released): nothing
+    // moves while reduceMotion is set.
+    function replay() {
+        if (root.reduceMotion)
+            return;
+        root.play();
     }
 
     // Shows a fixed frame (harness, tests): linear progress in [0, 1].
@@ -96,7 +108,8 @@ Item {
     Accessible.role: Accessible.Animation
     Accessible.name: Translation.tr("Animation preview")
 
-    onFamilyChanged: root.seek(root.startAtEnd ? 1 : 0)
+    onFamilyChanged: root.seek(1)
+    onEnabledChanged: if (!root.enabled) root.seek(1)
 
     NumberAnimation {
         id: progressAnimation
@@ -196,13 +209,24 @@ Item {
         }
     }
 
+    // The bezel: the rounded frame. The mini screen inside is clipped to a
+    // rectangle inset far enough that its square corners stay inside the
+    // rounded border (a rounded clip would need a shader mask, which the
+    // software renderer does not draw), and the border is drawn above it.
     Rectangle {
-        id: screen
+        id: bezel
         anchors.fill: parent
         radius: SettingsMetrics.controlRadius
+        color: Appearance.m3colors.m3surfaceContainerHigh
+    }
+
+    Rectangle {
+        id: screen
+        objectName: "previewScreen"
+        readonly property real inset: Math.ceil(bezel.radius * (1 - Math.SQRT1_2)) + frame.border.width + 1
+        anchors.fill: parent
+        anchors.margins: screen.inset
         color: Appearance.colors.colLayer0Base
-        border.width: 1
-        border.color: Appearance.colors.colOutlineVariant
         clip: true
 
         readonly property real sw: screen.width
@@ -489,23 +513,32 @@ Item {
                 z: 6
             }
         }
+    }
 
-        Row {
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: 6
-            spacing: 4
-            z: 10
+    Rectangle {
+        id: frame
+        objectName: "previewFrame"
+        anchors.fill: parent
+        radius: bezel.radius
+        color: "transparent"
+        border.width: 1
+        border.color: Appearance.colors.colOutlineVariant
+    }
 
-            PreviewChip {
-                visible: !root.enabled
-                text: Translation.tr("No animation")
-            }
+    Row {
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: screen.inset + 4
+        spacing: 4
 
-            PreviewChip {
-                visible: root.enabled && root.isSpring
-                text: Translation.tr("Approximate")
-            }
+        PreviewChip {
+            visible: !root.enabled
+            text: Translation.tr("No animation")
+        }
+
+        PreviewChip {
+            visible: root.enabled && root.isSpring
+            text: Translation.tr("Approximate")
         }
     }
 

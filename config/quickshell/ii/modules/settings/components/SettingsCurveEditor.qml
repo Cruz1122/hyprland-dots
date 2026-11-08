@@ -8,11 +8,13 @@ import qs.modules.common.functions
 import qs.services
 import "CurveMath.js" as CurveMath
 
-// Editor for a bezier curve's two control points [x1, y1, x2, y2]. Setting
-// `points` loads a curve; the editor then updates `points` as the user
-// edits. Every change emits changed(points); the end of each edit (drag
-// release, Enter or focus loss in a field, an arrow-key step, "Start from…")
-// also emits accepted(points). x is kept in [0, 1] and y in [-1, 2] (Hyprland
+// Editor for a bezier curve's two control points [x1, y1, x2, y2]. `points`
+// is the curve to show and may be bound by the parent: the editor never
+// assigns it. It edits its own copy (`editedPoints`, read-only for the
+// parent) and loads `points` again whenever they change from outside (undo,
+// reset, a backend revert). Every change emits changed(points); the end of
+// each edit (drag release, Enter or focus loss in a field, an arrow-key step,
+// "Start from…") also emits accepted(points). x is kept in [0, 1] and y in [-1, 2] (Hyprland
 // accepts x outside [0, 1], but the timing then stops being monotonic), and
 // values are rounded to 2 decimals.
 //
@@ -23,6 +25,9 @@ Item {
     id: root
 
     property var points: CurveMath.LINEAR_POINTS
+    // The points shown and edited. Read-only for the parent: assign `points`
+    // instead.
+    property var editedPoints: root.normalized(root.points)
     property var originalPoints: null
     property var baseCurves: []
     property real durationMs: 500
@@ -49,13 +54,13 @@ Item {
     // Applies an edit; returns false when nothing changed.
     function setPoints(points, finished) {
         const next = root.normalized(points);
-        const same = next.every((v, i) => v === root.points[i]);
+        const same = next.every((v, i) => v === root.editedPoints[i]);
         if (!same) {
-            root.points = next;
+            root.editedPoints = next;
             root.changed(next);
         }
         if (finished)
-            root.accepted(root.points);
+            root.accepted(root.editedPoints);
         return !same;
     }
 
@@ -66,13 +71,13 @@ Item {
     }
 
     function setCoordinate(index, value, finished) {
-        const next = root.points.slice();
+        const next = root.editedPoints.slice();
         next[index] = value;
         return root.setPoints(next, finished);
     }
 
     function step(index, delta, finished) {
-        return root.setCoordinate(index, root.round2(root.points[index] + delta), finished);
+        return root.setCoordinate(index, root.round2(root.editedPoints[index] + delta), finished);
     }
 
     function preview() {
@@ -80,6 +85,10 @@ Item {
         root.ballProgress = 0;
         ballAnimation.start();
     }
+
+    // The binding on editedPoints breaks at the first edit; this keeps
+    // loading the parent's points after that.
+    onPointsChanged: root.editedPoints = root.normalized(root.points)
 
     implicitWidth: layout.implicitWidth
     implicitHeight: layout.implicitHeight
@@ -200,9 +209,9 @@ Item {
                         fillColor: "transparent"
                         startX: plotFrame.mapX(0)
                         startY: plotFrame.mapY(0)
-                        PathLine { x: plotFrame.mapX(root.points[0]); y: plotFrame.mapY(root.points[1]) }
+                        PathLine { x: plotFrame.mapX(root.editedPoints[0]); y: plotFrame.mapY(root.editedPoints[1]) }
                         PathMove { x: plotFrame.mapX(1); y: plotFrame.mapY(1) }
-                        PathLine { x: plotFrame.mapX(root.points[2]); y: plotFrame.mapY(root.points[3]) }
+                        PathLine { x: plotFrame.mapX(root.editedPoints[2]); y: plotFrame.mapY(root.editedPoints[3]) }
                     }
 
                     ShapePath {
@@ -212,7 +221,7 @@ Item {
                         capStyle: ShapePath.RoundCap
                         joinStyle: ShapePath.RoundJoin
                         PathPolyline {
-                            path: plotFrame.polyline(root.points)
+                            path: plotFrame.polyline(root.editedPoints)
                         }
                     }
                 }
@@ -227,8 +236,8 @@ Item {
                         readonly property real size: 28
 
                         objectName: "curveHandle:" + handle.index
-                        x: plotFrame.mapX(root.points[handle.xIndex]) - handle.size / 2
-                        y: plotFrame.mapY(root.points[handle.xIndex + 1]) - handle.size / 2
+                        x: plotFrame.mapX(root.editedPoints[handle.xIndex]) - handle.size / 2
+                        y: plotFrame.mapY(root.editedPoints[handle.xIndex + 1]) - handle.size / 2
                         implicitWidth: handle.size
                         implicitHeight: handle.size
                         z: 2
@@ -255,29 +264,32 @@ Item {
                                 if (!dragArea.pressed)
                                     return;
                                 const p = dragArea.mapToItem(plotFrame, mouse.x, mouse.y);
-                                const next = root.points.slice();
+                                const next = root.editedPoints.slice();
                                 next[handle.xIndex] = plotFrame.unmapX(p.x);
                                 next[handle.xIndex + 1] = plotFrame.unmapY(p.y);
                                 root.setPoints(next, false);
                             }
-                            onReleased: root.accepted(root.points)
+                            onReleased: root.accepted(root.editedPoints)
                         }
                     }
                 }
             }
 
             // Ball preview: travels from the start to the end position along
-            // the curve; overshooting curves carry it past the end.
+            // the curve; overshooting curves carry it past the end mark, but
+            // never out of the track (y can reach -1 or 2: the ball stops at
+            // the track's edge).
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
 
                 Rectangle {
                     id: track
+                    objectName: "curveTrack"
                     readonly property real ballSize: 16
                     readonly property real startX: track.width * 0.12
                     readonly property real endX: track.width * 0.78
-                    readonly property real value: CurveMath.bezierY(root.points, root.ballProgress)
+                    readonly property real value: CurveMath.bezierY(root.editedPoints, root.ballProgress)
 
                     Layout.fillWidth: true
                     implicitHeight: 28
@@ -285,6 +297,7 @@ Item {
                     color: Appearance.colors.colLayer2
                     border.width: 1
                     border.color: Appearance.colors.colOutlineVariant
+                    clip: true
 
                     Rectangle {
                         x: Math.round(track.endX)
@@ -296,7 +309,9 @@ Item {
 
                     Rectangle {
                         objectName: "curveBall"
-                        x: track.startX + track.value * (track.endX - track.startX) - track.ballSize / 2
+                        readonly property real inset: (track.height - track.ballSize) / 2
+                        x: Math.max(inset, Math.min(track.width - track.ballSize - inset,
+                            track.startX + track.value * (track.endX - track.startX) - track.ballSize / 2))
                         anchors.verticalCenter: parent.verticalCenter
                         implicitWidth: track.ballSize
                         implicitHeight: track.ballSize
@@ -427,7 +442,7 @@ Item {
                                         return isFinite(v) && v >= field.low && v <= field.high;
                                     }
                                     function stored() {
-                                        return root.points[coordinate.pointIndex].toFixed(2);
+                                        return root.editedPoints[coordinate.pointIndex].toFixed(2);
                                     }
                                     function commit() {
                                         if (field.valid(field.text))
@@ -464,7 +479,7 @@ Item {
 
                                     Connections {
                                         target: root
-                                        function onPointsChanged() {
+                                        function onEditedPointsChanged() {
                                             if (!field.activeFocus)
                                                 field.text = field.stored();
                                         }

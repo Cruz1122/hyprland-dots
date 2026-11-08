@@ -9,10 +9,20 @@ The scanner counts, in config/quickshell/ii/**/*.qml except the waffle family
 (retired, it has its own Looks presets), every duration binding or assignment
 whose expression holds a nonzero number literal and does not go through
 Appearance or MotionScale, unless the line carries `// motion-ok: <reason>`.
-Durations that must never scale (endless loops, spinners, clock ticks,
-timeouts, hardware writes) carry that marker. Timer intervals are not scanned:
-most are timeouts or polling; a timer that waits for an animation reads the
-same Appearance preset (Overlay.qml, BottomWidgetGroup.qml).
+A literal is exempt only inside Appearance.scaled(...)/MotionScale.*(...), as
+the `1` of a `Math.max(1, ...)` floor, or as a plain multiplier or divisor of
+a derived duration (`rippleDuration * 2`, `preset.duration / 2`); a literal
+next to a derived duration (`Math.max(300, preset.duration)`, `fooDuration > 0
+? 300 : 200`, `preset.duration ?? 200`) is still counted. Durations that must
+never scale (endless loops, spinners, clock ticks, timeouts, hardware writes)
+carry the marker.
+
+Timer intervals are counted by a separate ratchet, only in files that also use
+Appearance.animation (where a timer may wait for a scaled animation): a
+nonzero literal `interval:` in a Timer that does not go through Appearance or
+MotionScale is counted unless the line carries `// motion-ok: <reason>`
+(timeouts, polling). A timer that waits for an animation reads the same
+Appearance preset (Overlay.qml, BottomWidgetGroup.qml).
 
 Separate rules: nobody outside Appearance.qml reads the raw
 animationCurves.*Duration constants (they do not scale), and a looping
@@ -25,6 +35,7 @@ Appearance.scaledVelocity().
 """
 from __future__ import annotations
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -39,13 +50,32 @@ EXCLUDED_PARTS = {"waffle"}
 # that must not scale with `// motion-ok: <reason>`, lower this number to the
 # new count printed by the failure message. Never raise it: route new motion
 # through Appearance instead.
-MAX_UNMIGRATED = 55
+#
+# The stricter scanner of wave 1 (literals next to Appearance or a derived
+# duration count) raised the honest count from 55 to 56: it added
+# modules/common/widgets/MaterialSymbol.qml (`... ?? 200`).
+MAX_UNMIGRATED = 56
+# Timer intervals with a nonzero literal in files that use Appearance.animation
+# (see the module docstring). Same rule: lower it when you mark a timeout or
+# polling timer with `// motion-ok: <reason>` or route a wait through
+# Appearance; never raise it.
+MAX_UNMARKED_INTERVALS = 18
 
 MARKER = "motion-ok:"
+# Any scaled expression (the loop rule below: a scaled loop would spin at 1 ms).
 SCALED = re.compile(r"\bAppearance\s*\??\.|\bMotionScale\s*\.|\bscaled(?:Velocity|Interval)?\s*\(")
-# An expression derived from another duration (`rippleDuration * 2`) is not
-# counted again: the duration it reads is checked where it is declared.
-DERIVED = re.compile(r"[\w.]*(?:duration|Duration)\b")
+# Calls whose literals are scaled: Appearance.scaled(...), root.scaled(...)
+# inside Appearance.qml, scaledVelocity/scaledInterval, MotionScale.*(...).
+SCALED_CALL = re.compile(r"(?:\bMotionScale\s*\.\s*\w+|\bscaled(?:Velocity|Interval)?)\s*\(")
+# A duration read from somewhere else (`rippleDuration`, `Appearance?.animation.x.duration`):
+# it is checked where it is declared, so a plain multiplier or divisor of it
+# is not counted again.
+DERIVED = re.compile(r"(?<![\w.])[A-Za-z_][\w?.]*(?:duration|Duration)\b")
+DERIVED_TOKEN = "__derived__"
+SCALE_OF_DERIVED = re.compile(
+    rf"{DERIVED_TOKEN}\s*[*/]\s*(?:\d+\.?\d*|\.\d+)(?![\w.])|(?<![\w.])(?:\d+\.?\d*|\.\d+)\s*\*\s*{DERIVED_TOKEN}")
+# The 1 ms floor that the preset arithmetic rule asks for.
+ONE_MS_FLOOR = re.compile(r"\bMath\.max\(\s*1\s*,")
 # `duration: <expr>`, `fooDuration: <expr>` (QML bindings and property
 # declarations) and `x.duration = <expr>` (imperative assignments).
 DURATION = re.compile(
@@ -60,6 +90,32 @@ def strip_comment(line: str) -> str:
     return line.split("//", 1)[0]
 
 
+def strip_calls(expr: str, call: re.Pattern) -> str:
+    """`expr` without the calls matching `call`, arguments included (balanced parentheses)."""
+    out = []
+    index = 0
+    while (match := call.search(expr, index)):
+        out.append(expr[index:match.start()])
+        depth = 1
+        end = match.end()
+        while end < len(expr) and depth:
+            depth += {"(": 1, ")": -1}.get(expr[end], 0)
+            end += 1
+        out.append(" ")
+        index = end
+    out.append(expr[index:])
+    return "".join(out)
+
+
+def unscaled_literals(expr: str) -> list[float]:
+    """Nonzero number literals of `expr` that ignore the shell motion settings."""
+    rest = strip_calls(expr, SCALED_CALL)
+    rest = ONE_MS_FLOOR.sub("Math.max(", rest)
+    rest = DERIVED.sub(DERIVED_TOKEN, rest)
+    rest = SCALE_OF_DERIVED.sub(DERIVED_TOKEN, rest)
+    return [value for value in (float(n) for n in NUMBER.findall(rest)) if value]
+
+
 def hardcoded_durations(text: str) -> list[tuple[int, str]]:
     """(line number, line) of each duration that ignores the shell motion settings."""
     found = []
@@ -68,13 +124,31 @@ def hardcoded_durations(text: str) -> list[tuple[int, str]]:
             continue
         code = strip_comment(line)
         for match in DURATION.finditer(code):
-            expr = match.group("expr")
-            literals = [float(n) for n in NUMBER.findall(expr)]
-            if not any(literals) or SCALED.search(expr) or DERIVED.search(expr):
-                continue
-            found.append((number, line.strip()))
-            break
+            if unscaled_literals(match.group("expr")):
+                found.append((number, line.strip()))
+                break
     return found
+
+
+TIMER = re.compile(r"\bTimer\s*\{")
+INTERVAL = re.compile(r"(?<![\w.])interval\s*:\s*(?P<expr>[^;}\n]*)")
+USES_PRESETS = re.compile(r"\bAppearance\s*\??\.\s*animation\b")
+
+
+def literal_intervals(text: str) -> list[tuple[int, str]]:
+    """Timer intervals with an unscaled literal, in a file that uses Appearance.animation."""
+    if not USES_PRESETS.search(text):
+        return []
+    lines = text.splitlines()
+    found = set()
+    for timer in TIMER.finditer(text):
+        start, end = block_bounds(text, timer.end())
+        for interval in INTERVAL.finditer(text, start, end):
+            number = text.count("\n", 0, interval.start()) + 1
+            line = lines[number - 1]
+            if MARKER not in line and unscaled_literals(strip_comment(interval.group("expr"))):
+                found.add((number, line.strip()))
+    return sorted(found)
 
 
 def raw_curve_readers(text: str) -> list[tuple[int, str]]:
@@ -228,11 +302,52 @@ class ScannerSelfTest(unittest.TestCase):
             "    if (anim.duration == 300) {}",
             "    revealAnimation.duration = Math.max(Appearance.scaled(160), full);",
             "    durationLabel: 300",
-            "    duration: Appearance?.animation.elementMoveFast.duration ?? 200",
             "    duration: rippleDuration * 2",
             "    width: 300",
+            "    duration: 2 * root.rippleDuration",
+            "    duration: Appearance.animation.elementMove.duration * 1.5",
+            "    readonly property int half: Math.max(1, Math.round(Appearance.animation.elementMove.duration / 2))",
+            "    duration: Appearance.scaled(Math.max(160, fullDuration * Math.abs(to - p)))",
+            "    duration: MotionScale.duration(Math.max(300, base), f)",
+            "    duration: Appearance.scaled(Appearance.animation.elementMove.duration / 2)",
+            "    duration: fooDuration > 0 ? fooDuration : 0",
         ])
         self.assertEqual(hardcoded_durations(text), [])
+
+    def test_flags_literals_next_to_scaled_or_derived_durations(self) -> None:
+        # Mentioning Appearance or a derived duration once exempted the whole
+        # expression, so these literals were never counted.
+        text = "\n".join([
+            "    duration: Math.max(300, Appearance.animation.elementMove.duration)",
+            "    duration: fooDuration > 0 ? 300 : 200",
+            "    duration: Appearance?.animation.elementMoveFast.duration ?? 200",
+            "    duration: Appearance.animation.elementMove.duration + 100",
+            "    duration: Math.max(Appearance.scaled(160), 300)",
+            "    revealAnimation.duration = Math.max(160, fullDuration * Math.abs(to - p));",
+            "    duration: Math.min(10, root.rippleDuration)",
+            "    duration: 300 * Appearance.animationFactor",
+        ])
+        self.assertEqual([n for n, _ in hardcoded_durations(text)], [1, 2, 3, 4, 5, 6, 7, 8])
+
+    def test_literal_intervals(self) -> None:
+        uses = "Item {\n    NumberAnimation { duration: Appearance.animation.elementMove.duration }\n"
+        text = uses + "\n".join([
+            "    Timer { interval: 300; onTriggered: close() }",
+            "    Timer {",
+            "        id: wait",
+            "        interval: 150",
+            "    }",
+            "    Timer { interval: 5000 } // motion-ok: error toast timeout",
+            "    Timer { interval: Appearance.animation.elementMove.duration }",
+            "    Timer { interval: Appearance.scaled(400) }",
+            "    Timer { interval: Config.options.delay ?? 100 }",
+            "    Timer { interval: 0 }",
+            "    PauseAnimation { interval: 300 }",
+            "}",
+        ])
+        self.assertEqual([n for n, _ in literal_intervals(text)], [3, 6, 11])
+        # Files without Appearance.animation are not scanned.
+        self.assertEqual(literal_intervals(text.replace("Appearance.animation", "Looks.transition")), [])
 
     def test_raw_curve_readers(self) -> None:
         self.assertEqual(len(raw_curve_readers("duration: Appearance.animationCurves.expressiveFastSpatialDuration")), 1)
@@ -305,6 +420,17 @@ class MotionContractTest(unittest.TestCase):
             print(f"\ntest_motion_contract: {len(hits)} hardcoded durations; lower MAX_UNMIGRATED "
                   f"from {MAX_UNMIGRATED} to {len(hits)}.")
 
+    def test_literal_intervals_do_not_grow(self) -> None:
+        hits = scan(literal_intervals)
+        self.assertLessEqual(
+            len(hits), MAX_UNMARKED_INTERVALS,
+            f"{len(hits)} Timer intervals with a literal in files that use Appearance.animation (limit "
+            f"{MAX_UNMARKED_INTERVALS}). A timer that waits for a shell animation reads the same preset or "
+            "Appearance.scaled(); mark timeouts and polling with '// motion-ok: <reason>'. Sites:\n" + "\n".join(hits))
+        if len(hits) < MAX_UNMARKED_INTERVALS:
+            print(f"\ntest_motion_contract: {len(hits)} literal Timer intervals; lower MAX_UNMARKED_INTERVALS "
+                  f"from {MAX_UNMARKED_INTERVALS} to {len(hits)}.")
+
     def test_raw_curve_durations_are_only_read_by_appearance(self) -> None:
         hits = [hit for hit in scan(raw_curve_readers) if not hit.startswith("modules/common/Appearance.qml:")]
         self.assertEqual(hits, [], "read Appearance.animation.<preset>.duration instead (it scales)")
@@ -329,6 +455,25 @@ class MotionContractTest(unittest.TestCase):
         files = all_shell_files()
         self.assertTrue([p for p in files if "waffle" in p.relative_to(SHELL).parts])
         self.assertEqual(scan(unscaled_velocities, files), [])
+
+    def test_reduce_motion_text_names_what_still_moves(self) -> None:
+        # Copy rule "truth first": while these sites keep hardcoded durations,
+        # the reduceMotion help must not let the user think everything stops.
+        registry = json.loads((SHELL / "modules/settings/registry/animations.json").read_text(encoding="utf-8"))
+        entry = next(e for e in registry["entries"] if e.get("key") == "appearance.animations.reduceMotion")
+        hits = scan(hardcoded_durations)
+        still_moving = {
+            "button ripples": "modules/common/widgets/RippleButton.qml:",
+            "text fades": "modules/common/widgets/StyledText.qml:",
+            "the scrollbar": "modules/common/widgets/StyledScrollBar.qml:",
+            "the lock screen": "modules/ii/lock/",
+            "the settings app's page transitions": "modules/settings/components/SettingsPage",
+        }
+        for words, site in still_moving.items():
+            if any(hit.startswith(site) for hit in hits):
+                with self.subTest(words):
+                    self.assertIn(words, entry["help"])
+        self.assertNotIn("Transitions inside the shell end instantly", entry["description"])
 
     def test_appearance_reads_both_settings(self) -> None:
         appearance = (SHELL / "modules/common/Appearance.qml").read_text(encoding="utf-8")
