@@ -8,16 +8,19 @@ import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.services
 import qs.modules.settings.core
+import "../core/SettingsLogic.js" as Logic
 
 // Current wallpaper with the ways to change it. The path itself is owned by
-// switchwall.sh (registry "managedElsewhere"), so it is only read here.
-// Random anime wallpapers follow `policies.weeb` (1 = shown).
+// switchwall.sh (registry "managedElsewhere"), so it is only read here; a
+// video wallpaper is previewed by its thumbnail. Random anime wallpapers
+// follow `policies.weeb` (1 = shown).
 GridLayout {
     id: root
 
     property var row: null
     readonly property bool wide: root.width >= 560
     readonly property string wallpaper: Config.options?.background?.wallpaperPath ?? ""
+    readonly property string previewPath: Logic.wallpaperPreview(root.wallpaper, Config.options?.background?.thumbnailPath)
     readonly property bool randomAllowed: (SettingsStore.revision, SettingsStore.value("policies.weeb") === 1)
 
     columns: root.wide ? 2 : 1
@@ -54,7 +57,7 @@ GridLayout {
             id: preview
             anchors.fill: parent
             fillMode: Image.PreserveAspectCrop
-            source: root.wallpaper.length > 0 ? root.wallpaper : ""
+            source: root.previewPath
             cache: false
             Accessible.role: Accessible.Graphic
             Accessible.name: Translation.tr("Current wallpaper")

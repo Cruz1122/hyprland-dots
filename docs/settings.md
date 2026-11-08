@@ -486,5 +486,8 @@ See `scripts/settings-harness/run.sh --help`.
   `game-mode-state.qml` (`test_game_mode_state.py`),
   `hyprland-reload-fallback.qml` (`test_hyprland_reload_fallback.py`, with a
   stub `hyprctl` on `PATH`).
+- `test_settings_video_wallpaper.py` renders the pages with the wallpaper card
+  in strict mode with a seeded video wallpaper (`run.sh --config`): the card
+  previews `background.thumbnailPath`, never the video itself.
 - `scripts/verify.sh` runs everything, including the strict harness and the
   interaction driver.

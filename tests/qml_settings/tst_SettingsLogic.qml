@@ -121,6 +121,18 @@ TestCase {
         compare(Logic.deviceChoices(undefined).length, 0);
     }
 
+    // Regression: the wallpaper card loaded a video wallpaper as an image, so
+    // the preview stayed empty and Qt warned "Cannot open".
+    function test_wallpaper_preview_uses_the_thumbnail_of_videos() {
+        compare(Logic.wallpaperPreview("/w/a.png", "/t/old.jpg"), "/w/a.png");
+        compare(Logic.wallpaperPreview("/w/a.mp4", "/t/a.mp4.jpg"), "/t/a.mp4.jpg");
+        compare(Logic.wallpaperPreview("/w/a.webm", undefined), "", "no thumbnail yet: placeholder");
+        compare(Logic.wallpaperPreview("", "/t/a.jpg"), "");
+        compare(Logic.wallpaperPreview(undefined, undefined), "");
+        verify(Logic.wallpaperIsVideo("/w/clip.mkv"));
+        verify(!Logic.wallpaperIsVideo("/w/clip.mp4.png"));
+    }
+
     function test_capability_reasons() {
         compare(Logic.capabilityReason("satty"), "Requires satty, which is not installed");
         compare(Logic.capabilityReason("touchpad"), "No touchpad detected");

@@ -273,6 +273,20 @@ function deviceChoices(choices) {
     });
 }
 
+// switchwall.sh plays a video wallpaper with mpvpaper and stores a still
+// frame in background.thumbnailPath; the shell shows that frame for videos
+// (Appearance.qml, Background.qml), with the same extension list.
+var VIDEO_WALLPAPER = /\.(mp4|webm|mkv|avi|mov)$/;
+
+function wallpaperIsVideo(path) {
+    return VIDEO_WALLPAPER.test(String(path || ""));
+}
+
+// The image that previews the wallpaper ("" when there is none to show).
+function wallpaperPreview(wallpaperPath, thumbnailPath) {
+    return wallpaperIsVideo(wallpaperPath) ? String(thumbnailPath || "") : String(wallpaperPath || "");
+}
+
 function conditionKeys(cond, acc) {
     acc = acc || [];
     if (!cond)
