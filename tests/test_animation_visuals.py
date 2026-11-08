@@ -77,7 +77,8 @@ class AnimationVisualsTest(unittest.TestCase):
                          "preview: a family change shows the end state",
                          "editor: an edit changes the edited copy, not the bound points",
                          "editor: changing the bound points after an edit shows them",
-                         "editor: a negative x is invalid and not applied"):
+                         "editor: a negative x is invalid and not applied", "editor: a valid x is applied",
+                         "editor: a value typed with a decimal comma is applied"):
             self.assertIn(required, names)
         self.assertTrue(any(event.get("type") == "done" for event in events), context)
 

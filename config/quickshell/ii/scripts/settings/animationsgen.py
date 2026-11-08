@@ -274,11 +274,15 @@ def check_base(base: object) -> dict[str, Any] | None:
     """Validated {curves, animations, errors} of a hyprbase.py result, or None when absent.
 
     A dotfiles curve whose name is not a Lua identifier cannot be written to
-    the file, so it is left out (and reported in `errors`) instead of
-    rejecting the whole base, which would block every card write. A base
-    animation that uses such a curve is left out the same way, and so is an
-    enabled one without a speed (hyprbase.py drops a non-finite one such as
-    `speed = 1/0`): Hyprland rejects that line, so the leaf inherits."""
+    the file, and Hyprland 0.57 skips a curve without a known `type`; either
+    is left out (and reported in `errors`) instead of rejecting the whole
+    base, which would block every card write. A base animation that uses such
+    a curve is left out the same way, and so is an enabled one without a
+    speed (hyprbase.py drops a non-finite one such as `speed = 1/0`) or with
+    a numeric `enabled` other than 0 or 1: Hyprland rejects that line, so the
+    leaf inherits. Hyprland reads `enabled = 0` / `1` as false / true.
+    AnimationLogic.js resolveLeaf() and curveCatalog() mirror these rules
+    (tests/fixtures/animation-cases.json "bases")."""
     if base is None:
         return None
     if not isinstance(base, dict):
@@ -289,18 +293,32 @@ def check_base(base: object) -> dict[str, Any] | None:
         raise Invalid('base.curves and base.animations must be objects')
     out_curves: dict[str, dict] = {}
     errors: list[str] = []
+    ignored: set[str] = set()
     for name, desc in curves.items():
         if not IDENT_RE.fullmatch(name):
             errors.append(f'base.curves.{name} is not a Lua identifier; it is ignored')
+            ignored.add(name)
             continue
-        if not isinstance(desc, dict) or desc.get('type') not in ('bezier', 'spring'):
+        if not isinstance(desc, dict):
             raise Invalid(f'base.curves.{name} is not a valid curve')
+        if desc.get('type') not in ('bezier', 'spring'):
+            errors.append(f'base.curves.{name} has no known type; it is ignored')
+            ignored.add(name)
+            continue
         out_curves[name] = {'type': desc['type']}
     out_anims: dict[str, dict] = {}
     for leaf, item in animations.items():
         if leaf not in PARENTS and leaf != 'global':
             continue
-        if not isinstance(item, dict) or not isinstance(item.get('enabled'), bool):
+        if not isinstance(item, dict):
+            raise Invalid(f'base.animations.{leaf} is not a valid animation')
+        enabled = item.get('enabled')
+        if is_number(enabled):
+            if enabled not in (0, 1):
+                errors.append(f'base.animations.{leaf} has enabled = {format_number(enabled)}; it is ignored')
+                continue
+            item = {**item, 'enabled': enabled == 1}
+        if not isinstance(item.get('enabled'), bool):
             raise Invalid(f'base.animations.{leaf} is not a valid animation')
         if not item['enabled'] and 'speed' not in item:
             out_anims[leaf] = {'enabled': False, 'speed': 1, 'curve': 'default', 'style': ''}
@@ -312,7 +330,7 @@ def check_base(base: object) -> dict[str, Any] | None:
         curve = item.get('bezier', item.get('spring'))
         if not is_number(item.get('speed')) or not 0 < item['speed'] <= 100 or not isinstance(curve, str):
             raise Invalid(f'base.animations.{leaf} is not a valid animation')
-        if not IDENT_RE.fullmatch(curve):
+        if not IDENT_RE.fullmatch(curve) or curve in ignored:
             # Uses an ignored curve: resolve() falls back to the parent or
             # Hyprland's compiled tuple for this leaf.
             errors.append(f'base.animations.{leaf} uses the ignored curve {curve}; it is ignored')

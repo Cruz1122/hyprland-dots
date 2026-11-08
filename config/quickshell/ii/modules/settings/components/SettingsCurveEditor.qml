@@ -442,7 +442,7 @@ Item {
                                         return isFinite(v) && v >= field.low && v <= field.high;
                                     }
                                     function stored() {
-                                        return root.editedPoints[coordinate.pointIndex].toFixed(2);
+                                        return Number(root.editedPoints[coordinate.pointIndex]).toLocaleString(Qt.locale(), "f", 2);
                                     }
                                     function commit() {
                                         if (field.valid(field.text))

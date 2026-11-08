@@ -12,13 +12,18 @@
 //   helpers       the widgets get the 5 backend helpers' results through SettingsStore.backends.animation
 //   tab-order     Tab through a folded and an unfolded card; Space folds and unfolds
 //   search        revealing a card (a search hit) unfolds it
+//   not-loaded    without the loader in hyprland.lua (no animationsLoaded) every animation
+//                 row and [Apply Minimal] is disabled with the reason, and a write runs nothing
+//   unavailable   with the backend unavailable (here a foreign custom/shell-animations.lua)
+//                 the preset shows "—" without a "Now:" note and [Apply Minimal] is disabled
 //   loaded        the first card write passes the backend's animationsLoaded confirmation
 //   curve-add     a new user curve through the library row
 //   curve-spring  a user spring (hand-edited config) only gets a new name, never bezier points
 //   preset        a preset is 1 generator call, 1 eval and at most 1 reload
 //   default       Default empties the animations and keeps the curves
 //   apply-minimal the [Apply Minimal] action of "Motion inside the shell" writes Minimal
-//   undo          a preset over a custom state shows Undo; Undo restores in one batch
+//   undo          a preset over a custom state shows Undo; a second preset renames the bar;
+//                 Undo restores the custom state in one batch
 //   delete-used   deleting a curve that a card uses is refused
 //   reduce-motion a changed control does not play the preview under reduceMotion, ▶ does
 //   spring        a spring hides the duration and shows "≈ N ms (lo marca el muelle)"
@@ -133,6 +138,12 @@ ShellRoot {
             done(code);
         });
         proc.running = true;
+    }
+
+    function writeText(path, text) {
+        const view = writerComponent.createObject(root, { path: path });
+        view.setText(text);
+        view.destroy();
     }
 
     function readText(path) {
@@ -317,6 +328,78 @@ ShellRoot {
         });
     }
 
+    // ---------------------------------------------------------- not-loaded
+
+    // hyprland.lua without the require (here: commented out) has no
+    // animationsLoaded capability: Hyprland would never load what the page
+    // writes, so the rows say why they are disabled and nothing is written.
+    function notLoadedStep() {
+        const b = root.backend();
+        const reason = "Hyprland todavía no carga los ajustes de animación: actualiza los dotfiles";
+        const keys = root.cardIds.map(id => `animation.${id}`).concat(["animation.preset", "animation.curves"]);
+        const rows = () => keys.map(k => root.rowOn(k));
+        const action = root.rowOn("action.animations.applyMinimal");
+        const original = root.readText(b.hyprlandFile);
+        const commented = original.replace('    pcall(require, "custom.shell-animations")', '    -- pcall(require, "custom.shell-animations")');
+        root.check("not-loaded: the rows start enabled with the loader", commented !== original && SettingsStore.hasCapability("animationsLoaded")
+            && rows().every(r => r?.rowEnabled) && action?.rowEnabled === true, {});
+        root.writeText(b.hyprlandFile, commented);
+        b.hyprlandEvents.onRawEvent({ name: "configreloaded" });
+        root.waitFor(() => !SettingsStore.hasCapability("animationsLoaded") && rows().every(r => !r.rowEnabled), 5000, dropped => {
+            const bad = rows().filter(r => r.rowEnabled || r.disabledReason !== reason || r.requires !== null);
+            root.check("not-loaded: every animation row is disabled with the reason", dropped && bad.length === 0, {
+                bad: bad.map(r => ({ key: r.settingKey, enabled: r.rowEnabled, reason: r.disabledReason, requires: r.requires })) });
+            root.check("not-loaded: [Apply Minimal] is disabled with the reason", !action.rowEnabled && action.disabledReason === reason, {
+                enabled: action.rowEnabled, reason: action.disabledReason });
+            root.begin();
+            const card = root.rowOn("animation.border");
+            const wrote = SettingsStore.write("animation.border", Object.assign({}, card.value, { speed: card.value.speed + 1 }));
+            root.later(900, () => {
+                const counts = root.since();
+                root.check("not-loaded: a write is refused and runs nothing", wrote === false && counts.generatorCalls === 0 && counts.evals === 0
+                    && !card.modified, Object.assign({ wrote: wrote }, counts));
+                root.writeText(b.hyprlandFile, original);
+                b.hyprlandEvents.onRawEvent({ name: "configreloaded" });
+                root.waitFor(() => SettingsStore.hasCapability("animationsLoaded") && rows().every(r => r.rowEnabled) && action.rowEnabled, 5000, back => {
+                    root.check("not-loaded: the loader back enables the rows again", back, {});
+                    root.settle(() => root.next());
+                });
+            });
+        });
+    }
+
+    // --------------------------------------------------------- unavailable
+
+    // An unavailable backend knows no preset: the row shows "—" and no
+    // "Now: …" (an empty managed state would read as Default), and
+    // [Apply Minimal] cannot offer a write that can only fail. The foreign
+    // file is the same `available === false` path as Hyprland not running.
+    function unavailableStep() {
+        const b = root.backend();
+        const preset = root.rowOn("animation.preset");
+        const action = root.rowOn("action.animations.applyMinimal");
+        root.check("unavailable: with the backend the preset shows its note", preset.available && preset.optionNote.length > 0 && action.rowEnabled, {
+            note: preset.optionNote, action: action.rowEnabled });
+        b.foreign = true;
+        root.waitFor(() => !preset.available && !action.rowEnabled, 3000, gone => {
+            root.check("unavailable: the preset shows — and no Now note", gone && preset.showPlaceholder && preset.optionNote === ""
+                && preset.Accessible.description.indexOf("Ahora:") < 0, {
+                placeholder: preset.showPlaceholder, note: preset.optionNote, description: preset.Accessible.description });
+            // Without the page's gating the registry capability would still
+            // disable the row, but with the "not loaded yet" reason, which is
+            // untrue here: the row must say it is not available instead.
+            const notLoaded = "Hyprland todavía no carga los ajustes de animación: actualiza los dotfiles";
+            root.check("unavailable: [Apply Minimal] is disabled", gone && !action.rowEnabled && action.disabledReason === "No disponible"
+                && action.disabledReason !== notLoaded && action.Accessible.description.indexOf(notLoaded) < 0, {
+                enabled: action.rowEnabled, reason: action.disabledReason, description: action.Accessible.description });
+            b.foreign = false;
+            root.waitFor(() => preset.available && action.rowEnabled && preset.optionNote.length > 0, 3000, back => {
+                root.check("unavailable: the backend back restores the note and the action", back, {});
+                root.next();
+            });
+        });
+    }
+
     // -------------------------------------------------------------- loaded
 
     // The backend confirms once, after the first card write, that Hyprland
@@ -464,17 +547,26 @@ ShellRoot {
             root.settle(() => {
                 const bar = root.findItem(row, "presetUndoBar");
                 root.check("undo: a preset over a custom state shows Undo", row.value === "smooth" && bar.visible, { value: row.value });
-                root.begin();
-                root.findItem(row, "presetUndo").clicked();
-                root.settle(idle => {
-                    const counts = root.since();
-                    const lines = root.animationLines();
-                    root.check("undo: one batch", idle && counts.generatorCalls === 1 && counts.evals <= 1 && counts.reloads <= 1, counts);
-                    root.check("undo: the previous cards are back", row.value === "custom" && root.canon(SettingsStore.value("animation.windowsIn")) === root.canon(custom)
-                        && lines.length === 2 && lines.every(l => l.indexOf('leaf = "windowsIn"') >= 0 || l.indexOf('leaf = "fadeIn"') >= 0), {
-                        lines: lines, value: row.value, card: SettingsStore.value("animation.windowsIn"), expected: custom });
-                    root.check("undo: the bar goes away", !bar.visible, {});
-                    root.next();
+                // A second preset inside the 10 s keeps the snapshot but
+                // names the preset now applied.
+                row.applyPreset("agile");
+                const text = root.findItem(row, "presetUndoText")?.text ?? "";
+                root.check("undo: a second preset renames the Undo bar", row.undoLabel === "Ágil" && text.indexOf("«Ágil»") === 0 && bar.visible, {
+                    label: row.undoLabel, text: text });
+                root.settle(() => {
+                    root.check("undo: the second preset is applied", row.value === "agile" && bar.visible, { value: row.value });
+                    root.begin();
+                    root.findItem(row, "presetUndo").clicked();
+                    root.settle(idle => {
+                        const counts = root.since();
+                        const lines = root.animationLines();
+                        root.check("undo: one batch", idle && counts.generatorCalls === 1 && counts.evals <= 1 && counts.reloads <= 1, counts);
+                        root.check("undo: the previous cards are back", row.value === "custom" && root.canon(SettingsStore.value("animation.windowsIn")) === root.canon(custom)
+                            && lines.length === 2 && lines.every(l => l.indexOf('leaf = "windowsIn"') >= 0 || l.indexOf('leaf = "fadeIn"') >= 0), {
+                            lines: lines, value: row.value, card: SettingsStore.value("animation.windowsIn"), expected: custom });
+                        root.check("undo: the bar goes away", !bar.visible, {});
+                        root.next();
+                    });
                 });
             });
         });
@@ -508,14 +600,21 @@ ShellRoot {
         row.unfolded = true;
         root.waitFor(() => row.reduceMotion && !!root.findItem(row, "animationPreview"), 4000, ready => {
             const preview = root.findItem(row, "animationPreview");
+            // Every start is recorded, so neither check depends on when it
+            // samples: a wrong replay that already ended still counts, and
+            // a ▶ replay is seen however late the event loop runs.
+            const starts = { count: 0 };
+            const onStart = () => { if (preview.playing) starts.count++; };
+            preview.playingChanged.connect(onStart);
             row.commitField("speed", 2.2);
-            root.later(150, () => {
-                root.check("reduce-motion: a changed control does not play the preview", ready && !preview.playing && preview.progress === 1, {
-                    playing: preview.playing, progress: preview.progress });
+            root.later(400, () => {
+                root.check("reduce-motion: a changed control does not play the preview", ready && starts.count === 0 && !preview.playing && preview.progress === 1, {
+                    starts: starts.count, playing: preview.playing, progress: preview.progress });
                 root.findItem(row, "playButton").clicked();
                 root.later(60, () => {
-                    root.check("reduce-motion: ▶ plays it", preview.playing === true, {
-                        progress: preview.progress, enabled: preview.enabled, card: row.card, rowEnabled: row.enabled, details: !!row.findDetails });
+                    preview.playingChanged.disconnect(onStart);
+                    root.check("reduce-motion: ▶ plays it", starts.count >= 1, {
+                        starts: starts.count, progress: preview.progress, enabled: preview.enabled, card: row.card, rowEnabled: row.enabled, details: !!row.findDetails });
                     SettingsStore.reset("appearance.animations.reduceMotion");
                     root.waitFor(() => !row.reduceMotion && !preview.playing, 4000, () => {
                         // Record any start: under load a 260 ms replay can
@@ -654,6 +753,8 @@ ShellRoot {
             { name: "helpers", run: root.helpersStep },
             { name: "tab-order", run: root.tabStep },
             { name: "search", run: root.searchStep },
+            { name: "not-loaded", run: root.notLoadedStep },
+            { name: "unavailable", run: root.unavailableStep },
             { name: "loaded", run: root.loadedStep },
             { name: "curve-add", run: root.curveAddStep },
             { name: "curve-spring", run: root.curveSpringStep },
@@ -697,6 +798,14 @@ ShellRoot {
         id: readerComponent
         FileView {
             blockLoading: true
+            printErrors: false
+        }
+    }
+
+    Component {
+        id: writerComponent
+        FileView {
+            blockWrites: true
             printErrors: false
         }
     }

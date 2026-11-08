@@ -61,7 +61,10 @@ var APP_SPRINGS = [
     { name: "ii_spring_bouncy", type: "spring", mass: 1, stiffness: 260, damping: 18, label: "Bouncy spring", group: "app", builtin: true }
 ];
 // Friendly names of the dotfiles curves (config/hypr/hyprland/general.lua);
-// the raw identifier only appears in help text.
+// the raw identifier only appears in help text. The bounce names follow how
+// far each curve overshoots (peak y of the bezier): expressiveDefaultSpatial
+// about 1.4 %, expressiveSlowSpatial 1.9 %, expressiveFastSpatial 9 %
+// (tests/test_animation_texts.py).
 var CURVE_LABELS = {
     emphasizedDecel: "Quick start, gentle stop",
     emphasizedAccel: "Speeding exit",
@@ -69,8 +72,8 @@ var CURVE_LABELS = {
     menu_decel: "Menu entrance",
     menu_accel: "Menu exit",
     stall: "Pause, then go",
-    expressiveSlowSpatial: "Light bounce",
-    expressiveDefaultSpatial: "Medium bounce",
+    expressiveSlowSpatial: "Medium bounce",
+    expressiveDefaultSpatial: "Light bounce",
     expressiveFastSpatial: "Strong bounce"
 };
 
@@ -194,7 +197,7 @@ var PRESET_DESCRIPTIONS = {
     agile: "Everything a bit faster, without bounces.",
     smooth: "Slower and more fluid.",
     bouncy: "Windows and panels overshoot a little before they settle.",
-    minimal: "Short fades with almost no movement."
+    minimal: "Short animations: windows and workspaces fade in and out; moved windows and the panels still move, only faster."
 };
 
 // ------------------------------------------------------------------ helpers
@@ -346,7 +349,7 @@ function curveCatalog(base, userCurves) {
     var out = BUILTIN_CURVES.map(plain);
     var baseCurves = base && base.curves ? base.curves : {};
     Object.keys(baseCurves).sort().forEach(function (name) {
-        if (!IDENT_RE.test(name) || out.some(function (c) { return c.name === name; }))
+        if (isIgnoredBaseCurve(base, name) || out.some(function (c) { return c.name === name; }))
             return;
         var item = Object.assign({ name: name }, plain(baseCurves[name]));
         item.label = CURVE_LABELS[name] || name;
@@ -451,21 +454,50 @@ function validateCurve(name, desc) {
 
 // --------------------------------------------------------------------- base
 
+// A dotfiles curve the generator leaves out (animationsgen.py check_base): a
+// name that is not a Lua identifier cannot be written, and Hyprland skips a
+// curve without a known type.
+function isIgnoredBaseCurve(base, name) {
+    if (!IDENT_RE.test(name))
+        return true;
+    var curves = base && base.curves ? base.curves : {};
+    if (!Object.prototype.hasOwnProperty.call(curves, name))
+        return false;
+    var desc = curves[name];
+    return !desc || (desc.type !== "bezier" && desc.type !== "spring");
+}
+
+// `enabled` of a base animation: Hyprland reads 0 / 1 as false / true and
+// rejects other numbers (null: the line is ignored).
+function baseEnabled(item) {
+    if (isNumber(item.enabled))
+        return item.enabled === 0 ? false : (item.enabled === 1 ? true : null);
+    return item.enabled !== false;
+}
+
 // Effective tuple of a leaf in the dotfiles base (hyprbase.py "animations"):
-// the nearest overridden ancestor, else Hyprland's compiled default.
+// the nearest overridden ancestor, else Hyprland's compiled default. A base
+// line Hyprland rejects is skipped as animationsgen.py check_base skips it:
+// enabled without a speed, a numeric `enabled` other than 0 or 1, or an
+// ignored curve (tests/fixtures/animation-cases.json "bases").
 function resolveLeaf(base, leaf) {
     var animations = base && base.animations ? base.animations : {};
     for (var node = leaf; node; node = PARENTS[node]) {
         var item = animations[node];
         if (item) {
-            if (item.enabled === false && !("speed" in item))
+            var enabled = baseEnabled(item);
+            if (enabled === false && !("speed" in item))
                 return { enabled: false, speed: 1, curve: "default", style: "" };
-            return {
-                enabled: item.enabled !== false,
-                speed: item.speed,
-                curve: item.bezier !== undefined ? item.bezier : (item.spring !== undefined ? item.spring : "default"),
-                style: item.style || ""
-            };
+            var curve = item.bezier !== undefined ? item.bezier : (item.spring !== undefined ? item.spring : "default");
+            var skipped = enabled === null || !isNumber(item.speed) || (typeof curve === "string" && isIgnoredBaseCurve(base, curve));
+            if (!skipped) {
+                return {
+                    enabled: enabled,
+                    speed: item.speed,
+                    curve: curve,
+                    style: item.style || ""
+                };
+            }
         }
         if (COMPILED[node])
             return plain(COMPILED[node]);

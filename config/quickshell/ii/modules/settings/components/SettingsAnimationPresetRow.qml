@@ -35,10 +35,16 @@ SettingsRow {
     stacked: true
     controlFillsWidth: true
     needsValue: true
-    optionNote: row.currentIndex >= 0 && row.options[row.currentIndex].description ? Translation.tr("Now: %1").arg(row.options[row.currentIndex].description) : ""
+    // Only for a known value: without the backend the preset is unknown
+    // ("—"), never the Default that an empty managed state would suggest.
+    optionNote: !row.showPlaceholder && row.available && row.currentIndex >= 0 && row.options[row.currentIndex].description
+        ? Translation.tr("Now: %1").arg(row.options[row.currentIndex].description) : ""
     interactHandler: () => false
 
-    // Writes a preset; over a custom state it keeps the cards for Undo.
+    // Writes a preset; over a custom state it keeps the cards for Undo. A
+    // preset applied while the Undo bar shows keeps that snapshot (Undo
+    // still goes back to the custom state) but renames the bar and gives it
+    // its full time again.
     function applyPreset(value) {
         const snapshot = row.value === "custom" ? row.cardKeys.map(key => ({
             key: key,
@@ -47,8 +53,9 @@ SettingsRow {
         })) : null;
         if (!row.commit(value))
             return false;
-        if (snapshot) {
+        if (snapshot)
             row.undoSnapshot = snapshot;
+        if (row.undoSnapshot !== null) {
             row.undoLabel = row.options.find(o => o.value === value)?.label ?? String(value);
             undoTimer.restart();
         }
@@ -181,6 +188,7 @@ SettingsRow {
                 }
 
                 StyledText {
+                    objectName: "presetUndoText"
                     Layout.fillWidth: true
                     text: Translation.tr("“%1” replaced your custom animations.").arg(row.undoLabel)
                     wrapMode: Text.Wrap

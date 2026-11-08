@@ -288,6 +288,11 @@ ShellRoot {
         return null;
     }
 
+    // Field texts follow the locale's decimal separator, like the rest of the app.
+    function fmt(v) {
+        return Number(v).toLocaleString(Qt.locale(), "f", 2);
+    }
+
     function typeText(text) {
         for (const ch of text)
             events.keyClickChar(ch, Qt.NoModifier, -1);
@@ -341,11 +346,11 @@ ShellRoot {
             },
             () => {
                 root.check("editor: a valid x is applied", root.same(editor.points, [0.4, 0.7, 0.1, 1]) && !x1.invalid
-                    && editor.invalidMessage === "" && x1.text === "0.40", { points: editor.points, text: x1.text, message: editor.invalidMessage });
+                    && editor.invalidMessage === "" && x1.text === root.fmt(0.4), { points: editor.points, text: x1.text, message: editor.invalidMessage });
                 events.keyClick(Qt.Key_Up, Qt.NoModifier, -1);
             },
             () => {
-                root.check("editor: Up steps 0.01", root.same(editor.points, [0.41, 0.7, 0.1, 1]) && x1.text === "0.41", { points: editor.points, text: x1.text });
+                root.check("editor: Up steps 0.01", root.same(editor.points, [0.41, 0.7, 0.1, 1]) && x1.text === root.fmt(0.41), { points: editor.points, text: x1.text });
                 events.keyClick(Qt.Key_Up, Qt.ShiftModifier, -1);
             },
             () => {
@@ -368,7 +373,7 @@ ShellRoot {
                 x1.forceActiveFocus();
             },
             () => {
-                root.check("editor: leaving an invalid field restores its value", !y2.invalid && y2.text === "1.00" && editor.invalidMessage === ""
+                root.check("editor: leaving an invalid field restores its value", !y2.invalid && y2.text === root.fmt(1) && editor.invalidMessage === ""
                     && root.same(editor.points, [0.99, 0.7, 0.1, 1]), { text: y2.text, message: editor.invalidMessage, points: editor.points });
                 events.keyClick(Qt.Key_A, Qt.ControlModifier, -1);
                 root.typeText("abc");
@@ -378,8 +383,17 @@ ShellRoot {
                 events.keyClick(Qt.Key_Return, Qt.NoModifier, -1);
             },
             () => {
-                root.check("editor: Enter on an invalid field restores it", x1.text === "0.99" && root.same(editor.points, [0.99, 0.7, 0.1, 1]),
+                root.check("editor: Enter on an invalid field restores it", x1.text === root.fmt(0.99) && root.same(editor.points, [0.99, 0.7, 0.1, 1]),
                     { text: x1.text, points: editor.points });
+                events.keyClick(Qt.Key_A, Qt.ControlModifier, -1);
+                root.typeText("0,5");
+                events.keyClick(Qt.Key_Return, Qt.NoModifier, -1);
+            },
+            () => {
+                // The harness runs in the user's locale (es_CO: decimal comma);
+                // the other value above was typed with a dot: both are accepted.
+                root.check("editor: a value typed with a decimal comma is applied", root.same(editor.points, [0.5, 0.7, 0.1, 1]) && !x1.invalid
+                    && x1.text === root.fmt(0.5), { points: editor.points, text: x1.text, locale: Qt.locale().name });
                 editor.setPoints([-1, 5, 3, -7], true);
                 root.check("editor: setPoints clamps", root.same(editor.points, [0, 2, 1, -1]), { points: editor.points });
                 root.checkStartFrom();
@@ -447,7 +461,7 @@ ShellRoot {
             { edited: edited, points: boundEditor.points });
         root.boundPoints = [0.1, 0.8, 0.2, 1];
         root.check("editor: changing the bound points after an edit shows them",
-            root.same(boundEditor.points, [0.1, 0.8, 0.2, 1]) && root.same(boundEditor.editedPoints, [0.1, 0.8, 0.2, 1]) && field.text === "0.10",
+            root.same(boundEditor.points, [0.1, 0.8, 0.2, 1]) && root.same(boundEditor.editedPoints, [0.1, 0.8, 0.2, 1]) && field.text === root.fmt(0.1),
             { points: boundEditor.points, edited: boundEditor.editedPoints, text: field.text });
     }
 

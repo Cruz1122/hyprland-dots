@@ -1,5 +1,5 @@
 {
- "_comment": "Shared validation cases of animationsgen.py (tests/test_animationsgen.py) and AnimationLogic.js (tests/qml_settings/tst_AnimationLogic.qml). Cards use the curves of tests/fixtures/hyprbase-sample.json plus userCurves.",
+ "_comment": "Shared validation cases of animationsgen.py (tests/test_animationsgen.py) and AnimationLogic.js (tests/qml_settings/tst_AnimationLogic.qml). Cards use the curves of tests/fixtures/hyprbase-sample.json plus userCurves. \"bases\" are dotfiles bases (hyprbase.py output) with lines Hyprland 0.57 rejects or skips: both sides resolve each leaf in \"expect\" the same way and keep the dotfiles curves in \"curves\"; \"errors\" are what animationsgen.py reports (Python only).",
  "userCurves": {
   "ii_user": {
    "name": "ii_user",
@@ -1343,6 +1343,292 @@
     "curve": "emphasizedDecel",
     "style": ""
    }
+  }
+ ],
+ "bases": [
+  {
+   "name": "enabled = 1 and enabled = 0 are booleans",
+   "base": {
+    "curves": {
+     "emphasizedDecel": {
+      "type": "bezier",
+      "points": [
+       0.05,
+       0.7,
+       0.1,
+       1
+      ]
+     }
+    },
+    "animations": {
+     "windows": {
+      "enabled": true,
+      "speed": 4,
+      "bezier": "emphasizedDecel"
+     },
+     "windowsIn": {
+      "enabled": 1,
+      "speed": 3,
+      "bezier": "emphasizedDecel",
+      "style": "popin 80%"
+     },
+     "windowsOut": {
+      "enabled": 0
+     }
+    }
+   },
+   "expect": {
+    "windowsIn": {
+     "enabled": true,
+     "speed": 3,
+     "curve": "emphasizedDecel",
+     "style": "popin 80%"
+    },
+    "windowsOut": {
+     "enabled": false,
+     "speed": 1,
+     "curve": "default",
+     "style": ""
+    },
+    "fadeIn": {
+     "enabled": true,
+     "speed": 8,
+     "curve": "default",
+     "style": ""
+    }
+   },
+   "curves": [
+    "emphasizedDecel"
+   ],
+   "errors": []
+  },
+  {
+   "name": "another numeric enabled is rejected, so the leaf inherits",
+   "base": {
+    "curves": {
+     "emphasizedDecel": {
+      "type": "bezier",
+      "points": [
+       0.05,
+       0.7,
+       0.1,
+       1
+      ]
+     }
+    },
+    "animations": {
+     "windows": {
+      "enabled": true,
+      "speed": 4,
+      "bezier": "emphasizedDecel"
+     },
+     "windowsMove": {
+      "enabled": 2,
+      "speed": 3,
+      "bezier": "default",
+      "style": "slide"
+     }
+    }
+   },
+   "expect": {
+    "windowsMove": {
+     "enabled": true,
+     "speed": 4,
+     "curve": "emphasizedDecel",
+     "style": ""
+    }
+   },
+   "curves": [
+    "emphasizedDecel"
+   ],
+   "errors": [
+    "base.animations.windowsMove has enabled = 2; it is ignored"
+   ]
+  },
+  {
+   "name": "a curve without a known type is skipped, and so are the leaves using it",
+   "base": {
+    "curves": {
+     "emphasizedDecel": {
+      "type": "bezier",
+      "points": [
+       0.05,
+       0.7,
+       0.1,
+       1
+      ]
+     },
+     "foo": {
+      "points": [
+       0,
+       0,
+       1,
+       1
+      ]
+     },
+     "odd": {
+      "type": "weird",
+      "points": [
+       0,
+       0,
+       1,
+       1
+      ]
+     }
+    },
+    "animations": {
+     "windows": {
+      "enabled": true,
+      "speed": 4,
+      "bezier": "emphasizedDecel"
+     },
+     "windowsIn": {
+      "enabled": true,
+      "speed": 3,
+      "bezier": "foo",
+      "style": "popin 80%"
+     },
+     "windowsOut": {
+      "enabled": true,
+      "speed": 2,
+      "bezier": "odd"
+     },
+     "border": {
+      "enabled": true,
+      "speed": 10,
+      "bezier": "emphasizedDecel"
+     }
+    }
+   },
+   "expect": {
+    "windowsIn": {
+     "enabled": true,
+     "speed": 4,
+     "curve": "emphasizedDecel",
+     "style": ""
+    },
+    "windowsOut": {
+     "enabled": true,
+     "speed": 4,
+     "curve": "emphasizedDecel",
+     "style": ""
+    },
+    "border": {
+     "enabled": true,
+     "speed": 10,
+     "curve": "emphasizedDecel",
+     "style": ""
+    }
+   },
+   "curves": [
+    "emphasizedDecel"
+   ],
+   "errors": [
+    "base.curves.foo has no known type; it is ignored",
+    "base.curves.odd has no known type; it is ignored",
+    "base.animations.windowsIn uses the ignored curve foo; it is ignored",
+    "base.animations.windowsOut uses the ignored curve odd; it is ignored"
+   ]
+  },
+  {
+   "name": "an enabled leaf without a speed inherits, style included",
+   "base": {
+    "curves": {
+     "emphasizedDecel": {
+      "type": "bezier",
+      "points": [
+       0.05,
+       0.7,
+       0.1,
+       1
+      ]
+     }
+    },
+    "animations": {
+     "windows": {
+      "enabled": true,
+      "speed": 4,
+      "bezier": "emphasizedDecel"
+     },
+     "windowsIn": {
+      "enabled": true,
+      "bezier": "emphasizedDecel",
+      "style": "popin 80%"
+     }
+    }
+   },
+   "expect": {
+    "windowsIn": {
+     "enabled": true,
+     "speed": 4,
+     "curve": "emphasizedDecel",
+     "style": ""
+    }
+   },
+   "curves": [
+    "emphasizedDecel"
+   ],
+   "errors": [
+    "base.animations.windowsIn has no speed; it is ignored"
+   ]
+  },
+  {
+   "name": "a leaf using a curve that is not a Lua identifier inherits",
+   "base": {
+    "curves": {
+     "emphasizedDecel": {
+      "type": "bezier",
+      "points": [
+       0.05,
+       0.7,
+       0.1,
+       1
+      ]
+     },
+     "my-curve": {
+      "type": "bezier",
+      "points": [
+       0,
+       0,
+       1,
+       1
+      ]
+     }
+    },
+    "animations": {
+     "windows": {
+      "enabled": true,
+      "speed": 4,
+      "bezier": "emphasizedDecel"
+     },
+     "windowsMove": {
+      "enabled": true,
+      "speed": 3,
+      "bezier": "my-curve"
+     }
+    }
+   },
+   "expect": {
+    "windowsMove": {
+     "enabled": true,
+     "speed": 4,
+     "curve": "emphasizedDecel",
+     "style": ""
+    },
+    "layersIn": {
+     "enabled": true,
+     "speed": 8,
+     "curve": "default",
+     "style": ""
+    }
+   },
+   "curves": [
+    "emphasizedDecel"
+   ],
+   "errors": [
+    "base.curves.my-curve is not a Lua identifier; it is ignored",
+    "base.animations.windowsMove uses the ignored curve my-curve; it is ignored"
+   ]
   }
  ]
 }

@@ -94,6 +94,17 @@ class ParityCasesTest(unittest.TestCase):
                 value = gen.companion_value(case["card"], case["primary"], gen.check_base(BASE), known())
                 self.assertEqual(value, case["expect"])
 
+    def test_bases(self) -> None:
+        # Base lines Hyprland rejects or skips: check_base leaves them out
+        # and resolve() inherits, as AnimationLogic.js resolveLeaf() does.
+        for case in CASES["bases"]:
+            with self.subTest(case=case["name"]):
+                checked = gen.check_base(case["base"])
+                self.assertEqual(checked["errors"], case["errors"])
+                self.assertEqual(sorted(checked["curves"]), case["curves"])
+                for leaf, expect in case["expect"].items():
+                    self.assertEqual(gen.resolve(checked, leaf), expect, leaf)
+
     def test_logic_strings_are_translated(self) -> None:
         # Labels, descriptions and errors of AnimationLogic.js are English
         # source strings shown through Translation.tr.
@@ -116,8 +127,9 @@ class ParityCasesTest(unittest.TestCase):
 
 @unittest.skipUnless(QMLTESTRUNNER.is_file(), f"Qt 6 qmltestrunner not found at {QMLTESTRUNNER}")
 class ParityQmlTest(unittest.TestCase):
-    """tests/test_settings_qml.py runs tst_AnimationLogic.qml without file reads,
-    so its fixture-driven parity test skips there; it runs here."""
+    """Both tests/test_settings_qml.py and this test run tst_AnimationLogic.qml
+    with QML_XHR_ALLOW_FILE_READ=1, so test_parity_cases runs (never skips) in
+    both; this one also requires its PASS line."""
 
     def test_animation_logic_reads_the_shared_cases(self) -> None:
         result = subprocess.run(
@@ -223,7 +235,9 @@ class GeneratorTest(unittest.TestCase):
         code, data, _ = self.run_gen("--apply-json", "-", stdin="{not json")
         self.assertEqual((code, data["ok"]), (2, False))
         for bad in ([], {"cards": {"nope": None}}, {"cards": []}, {"removeAllAnimations": "yes"}, {"extra": 1},
-                    {"base": "x"}, {"base": {"curves": {"ok": {"type": "nope"}}}}):
+                    {"base": "x"}, {"base": {"curves": {"ok": "nope"}}}):
+            # A curve with an unknown type is skipped, not an error (Hyprland
+            # skips it too): test_a_base_hyprland_accepts_or_skips_does_not_block_writes.
             with self.subTest(changes=bad):
                 code, data, _ = self.run_gen("--apply-json", "-", stdin=bad)
                 self.assertEqual(code, 2, data)
@@ -404,6 +418,27 @@ class GeneratorTest(unittest.TestCase):
         # A speed that is present but out of range still rejects the base.
         base["animations"]["windowsMove"] = {"enabled": True, "speed": 0, "bezier": "default"}
         self.assertEqual(self.apply({"base": base, "cards": {"border": self.value(style="")}})[0], 2)
+
+    def test_a_base_hyprland_accepts_or_skips_does_not_block_writes(self) -> None:
+        # Hyprland 0.57 reads `enabled = 1` as true and only reports a curve
+        # without a type: an unrelated card write must still succeed.
+        base = json.loads(json.dumps(BASE))
+        base["animations"]["windowsIn"]["enabled"] = 1
+        base["curves"]["foo"] = {"points": [0, 0, 1, 1]}
+        base["animations"]["windowsMove"] = {"enabled": True, "speed": 3, "bezier": "foo"}
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="")}})
+        self.assertEqual(code, 0, data)
+        self.assertEqual(data["errors"], [
+            "base.curves.foo has no known type; it is ignored",
+            "base.animations.windowsMove uses the ignored curve foo; it is ignored",
+        ])
+        self.assertEqual(data["cards"]["border"], self.value(style=""))
+        checked = gen.check_base(base)
+        self.assertIs(checked["animations"]["windowsIn"]["enabled"], True)
+        self.assertNotIn("foo", checked["curves"])
+        # A card cannot pick the skipped curve.
+        code, data = self.apply({"base": base, "cards": {"border": self.value(style="", curve="foo")}})
+        self.assertEqual(code, 2, data)
 
     def test_carried_over_lines_are_validated_again(self) -> None:
         # The file regex accepts styles the allowlist does not (a side on

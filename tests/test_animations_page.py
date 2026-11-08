@@ -10,7 +10,11 @@ preset over a custom state restores the cards in one batch; Tab reaches the
 controls of folded and unfolded cards; a search hit unfolds a card; a curve
 that a card uses cannot be deleted; a user spring is only renamed; the Quick
 alias is the same preset row; reduceMotion stops automatic replays but
-not ▶; a spring shows its own settle time; [Apply Minimal] writes the
+not ▶ (every start is recorded, no timed sampling); without the
+animationsLoaded capability every animation row and [Apply Minimal] is
+disabled with its reason and a write runs nothing; an unavailable backend
+shows no "Now:" note on the preset and disables [Apply Minimal]; a second
+preset renames the Undo bar; a spring shows its own settle time; [Apply Minimal] writes the
 Minimal preset; Game Mode shows its note and never "Requires …"; a card unfolded at
 760, 1100 and 1600 px never overlaps the next row. The live Hyprland session
 is never contacted.
@@ -51,6 +55,15 @@ REQUIRED = [
     "tab-order: the card has an accessible name and description",
     "search: the card is a search result",
     "search: revealing the card unfolds it",
+    "not-loaded: the rows start enabled with the loader",
+    "not-loaded: every animation row is disabled with the reason",
+    "not-loaded: [Apply Minimal] is disabled with the reason",
+    "not-loaded: a write is refused and runs nothing",
+    "not-loaded: the loader back enables the rows again",
+    "unavailable: with the backend the preset shows its note",
+    "unavailable: the preset shows — and no Now note",
+    "unavailable: [Apply Minimal] is disabled",
+    "unavailable: the backend back restores the note and the action",
     "loaded: Hyprland reports the first written card",
     "loaded: the card is back to the dotfiles value",
     "curve-add: the editor opens with a generated name",
@@ -73,6 +86,8 @@ REQUIRED = [
     "apply-minimal: Default again",
     "undo: a card change makes the state custom",
     "undo: a preset over a custom state shows Undo",
+    "undo: a second preset renames the Undo bar",
+    "undo: the second preset is applied",
     "undo: one batch",
     "undo: the previous cards are back",
     "undo: the bar goes away",

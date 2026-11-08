@@ -284,5 +284,11 @@ TestCase {
         }
         for (const c of cases.companions)
             compare(AL.companionValue(c.card, c.primary, sample, list), c.expect, `companion ${JSON.stringify(c)}`);
+        verify(cases.bases.length > 0, "base cases");
+        for (const c of cases.bases) {
+            for (const leaf in c.expect)
+                compare(AL.resolveLeaf(c.base, leaf), c.expect[leaf], `base ${c.name}: ${leaf}`);
+            compare(AL.curveCatalog(c.base, {}).filter(k => k.group === "dotfiles").map(k => k.name).sort(), c.curves, `base ${c.name}: curves`);
+        }
     }
 }

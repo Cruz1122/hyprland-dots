@@ -511,12 +511,16 @@ lines or deletes a user curve) and prints one `{ ok, changed, written, evalOk,
 reloaded, errors, cards }`. Every emitted value is re-validated (names
 `^[A-Za-z_][A-Za-z0-9_]*$` and known, styles from the allowlist, finite
 numbers in range), carried-over lines too. A dotfiles curve in `base` whose
-name is not a Lua identifier is left out (reported in `errors`, also on
-success), and so is a base animation that uses such a curve or an enabled
-one without a speed (`hyprbase.py` drops a non-finite speed such as
-`speed = 1/0`); its parent or Hyprland's compiled tuple applies, instead of
-rejecting the whole base; any other malformed curve or animation still
-rejects it. Deleting a curve a card uses fails
+name is not a Lua identifier, or whose `type` is missing or unknown (Hyprland
+0.57 reports and skips it), is left out (reported in `errors`, also on
+success), and so is a base animation that uses such a curve, an enabled one
+without a speed (`hyprbase.py` drops a non-finite speed such as
+`speed = 1/0`) or one with a numeric `enabled` other than 0 or 1 (Hyprland
+reads `enabled = 0` / `1` as false / true and rejects other numbers); its
+parent or Hyprland's compiled tuple applies, instead of rejecting the whole
+base; any other malformed curve or animation still rejects it.
+`AnimationLogic.js` (`resolveLeaf`, `curveCatalog`) resolves the base by the
+same rules (the "bases" cases of `tests/fixtures/animation-cases.json`). Deleting a curve a card uses fails
 naming the cards; deleting a Hyprland, dotfiles or app curve fails. Card
 writes need `base`. With `--eval`, the new or changed statements (curves
 first) go to one `hyprctl eval` before the write; removed lines are applied by
@@ -801,7 +805,8 @@ Components:
   whenever they change from outside (undo, reset, a backend revert; a new
   array with the same values counts as a change). Drag the two handles or
   type x/y (Up/Down step 0.01, Shift 0.1); x stays in [0, 1], y in [-1, 2],
-  values round to 2 decimals, out-of-range text shows a hint and is not
+  values round to 2 decimals and show the locale's decimal separator
+  (typing accepts both comma and dot), out-of-range text shows a hint and is not
   applied. `changed` fires on every edit, `accepted` at the end of each one
   (release, Enter/focus loss, a step, "Start from…"). The original curve is
   drawn in grey; ▶ moves a ball along the curve for `durationMs`, past the
@@ -898,7 +903,11 @@ which does nothing under "Reduce motion in the shell"; ▶ calls `play()`,
 which always plays. Tab order: fold toggle, ▶, switch, then (unfolded)
 duration, curve picker, style, percent, side. Every control has a
 `SettingsFocusRing`; the row's accessible description starts with the
-summary. Cards and the preset have `enabledWhen` "Desktop animations"; under
+summary. Cards and the preset have `enabledWhen` "Desktop animations" and
+the `animationsLoaded` capability (the curve library only the capability):
+without the loader in the deployed `hyprland.lua` every animation row is
+disabled with "Hyprland does not load the animation settings yet: update the
+dotfiles", so nothing is written to a file Hyprland ignores. Under
 Game Mode they stay enabled, show their stored values and the status note
 "Paused by Game Mode" (the backend's `statusNote`), and the page shows the
 `info.animations.gameMode` banner.
@@ -912,6 +921,9 @@ curves. Choosing a preset while the state is Custom first captures every
 card (`value` and whether the file holds it) and shows a 10 s bar with
 [Undo]: Undo writes back the cards that were in the file and resets the
 others, all in the same event-loop turn, so the backend sends one batch.
+Another preset while the bar shows keeps that capture, names the new preset
+in the bar and restarts its 10 s. Without the backend (Hyprland not running,
+a foreign file) the row shows "—" and no "Now: …" note.
 The description says that presets do not change the motion inside the
 shell.
 
@@ -931,10 +943,17 @@ whole list to `animation.curves`.
 delegate of `info.animations.intro`) is a collapsible group of three boxes:
 Desktop (Hyprland: the preset and the cards), Interface (the shell's own
 motion: the last section) and Game Mode (turns desktop animations off while
-on; values come back). "Motion inside the shell" ends with
+on; values come back). "Motion inside the shell" lists "Reduce motion in the
+shell" first and the speed after it (`enabledWhen` reduceMotion off: the
+speed has no effect while it is on), and ends with
 `action.animations.applyMinimal` ([Apply Minimal]): its text says the speed
 controls above do not affect desktop animations; the button applies the
 Minimal preset through the preset row (so a Custom state gets its Undo bar).
+The action has the preset's `enabledWhen`, and the page gives it no handler
+while the animation backend is unavailable, so it is never active when the
+preset write can only fail. The Minimal description and the reduce-motion help
+say that Minimal only shortens desktop motion (panels keep their slides);
+turning off "Desktop animations" removes it.
 
 **Tests.** `tests/test_animations_page.py` runs
 `tests/harness/drivers/animations-page.qml` in the real window with
@@ -943,13 +962,18 @@ Minimal preset through the preset row (so a Custom state gets its Undo bar).
 card write leaves, so the backend's `animationsLoaded` confirmation passes):
 the 5 helpers reach the widgets through `SettingsStore.backends.animation`,
 Tab order through a folded and an unfolded card, the unfolded controls show
-the card's value, a search reveal unfolds a card, adding a curve, renaming a
+the card's value, a search reveal unfolds a card, without the loader (no
+`animationsLoaded`) every animation row and [Apply Minimal] are disabled with
+the reason and a write runs nothing, an unavailable backend leaves the preset
+without a "Now:" note and disables [Apply Minimal] as "Not available" (not
+with the "not loaded yet" capability reason), adding a curve, renaming a
 user spring keeps it a spring, a preset is
 1 generator call / 1 eval / ≤1 reload and the Quick alias is the same preset
 row with the same value, Default empties the animations and
-keeps the curves, [Apply Minimal], Undo restores a custom state in one
-batch, deleting a used curve is refused, reduceMotion stops automatic
-replays but not ▶, a spring shows its settle time, Game Mode shows the note
+keeps the curves, [Apply Minimal], a second preset renames the Undo bar and
+Undo restores a custom state in one batch, deleting a used curve is refused,
+reduceMotion stops automatic replays but not ▶ (every preview start is
+recorded instead of sampling `playing` after a delay), a spring shows its settle time, Game Mode shows the note
 and no "Requires", and an unfolded card at 760, 1100 and 1600 px overlaps no
 other row (screenshots in `SHOT_DIR`, or `ANIMATIONS_PAGE_OUT` to keep them).
 
