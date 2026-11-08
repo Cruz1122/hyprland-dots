@@ -1,74 +1,57 @@
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
-import qs.modules.settings.components
+import qs.modules.settings.core
 
+// Window content: optional titlebar, navigation, page host, confirmation bar
+// and error toast. settings.qml owns the page index; this item reports
+// navigation through pageRequested().
 Item {
     id: root
 
-    property var pages: []
-    property int currentPage: 0
-    property real contentPadding: 8
-    property bool showTitlebar: Config.options?.windows.showTitlebar
-    property bool centerTitle: Config.options?.windows.centerTitle
+    property string currentPageId: ""
+    property bool showTitlebar: true
+    property bool centerTitle: true
+    readonly property alias host: pageHost
+    readonly property alias navigation: navigation
+
+    signal pageRequested(string pageId)
+    signal revealRequested(string key)
     signal closeRequested()
 
-    focus: true
-
-    Keys.onPressed: (event) => {
-        if (event.modifiers !== Qt.ControlModifier) return
-
-        if (event.key === Qt.Key_PageDown) {
-            root.currentPage = Math.min(root.currentPage + 1, root.pages.length - 1)
-            event.accepted = true
-        } else if (event.key === Qt.Key_PageUp) {
-            root.currentPage = Math.max(root.currentPage - 1, 0)
-            event.accepted = true
-        } else if (event.key === Qt.Key_Tab) {
-            root.currentPage = (root.currentPage + 1) % root.pages.length
-            event.accepted = true
-        } else if (event.key === Qt.Key_Backtab) {
-            root.currentPage = (root.currentPage - 1 + root.pages.length) % root.pages.length
-            event.accepted = true
-        }
+    function focusSearch() {
+        navigation.focusSearch();
     }
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: root.contentPadding
-        spacing: root.contentPadding
+        anchors.margins: 8
+        spacing: 4
 
         Item {
             visible: root.showTitlebar
             Layout.fillWidth: true
-            implicitHeight: Math.max(titleText.implicitHeight, closeButton.height)
+            implicitHeight: 40
 
             StyledText {
-                id: titleText
-                anchors {
-                    left: root.centerTitle ? undefined : parent.left
-                    horizontalCenter: root.centerTitle ? parent.horizontalCenter : undefined
-                    verticalCenter: parent.verticalCenter
-                    leftMargin: 12
-                }
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: root.centerTitle ? parent.horizontalCenter : undefined
+                anchors.left: root.centerTitle ? undefined : parent.left
+                anchors.leftMargin: 12
                 text: Translation.tr("Settings")
-                color: Appearance.colors.colOnLayer0
                 font.family: Appearance.font.family.title
-                font.pixelSize: Appearance.font.pixelSize.title
                 font.variableAxes: Appearance.font.variableAxes.title
+                font.pixelSize: Appearance.font.pixelSize.title
+                color: Appearance.colors.colOnLayer0
             }
 
             SettingsIconButton {
-                id: closeButton
-                anchors {
-                    right: parent.right
-                    verticalCenter: parent.verticalCenter
-                }
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
                 iconName: "close"
-                Accessible.name: Translation.tr("Close settings")
+                tooltip: Translation.tr("Close settings")
                 onClicked: root.closeRequested()
             }
         }
@@ -76,28 +59,46 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            spacing: root.contentPadding
+            spacing: 8
 
             SettingsNavigation {
                 id: navigation
-                pages: root.pages
-                currentIndex: root.currentPage
-                expanded: root.width > 900
-                configFilePath: `${Directories.config}/illogical-impulse/config.json`
-                onPageSelected: root.currentPage = index
+                windowWidth: root.width
+                currentPageId: root.currentPageId
+                onPageSelected: pageId => root.pageRequested(pageId)
+                onResultActivated: result => {
+                    if (result.kind === "entry")
+                        root.revealRequested(result.key);
+                    else if (result.kind === "section") {
+                        root.pageRequested(result.pageId);
+                        pageHost.currentItem?.scrollToSection?.(result.sectionId);
+                    } else
+                        root.pageRequested(result.pageId);
+                }
             }
 
-            Rectangle {
+            Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                color: Appearance.m3colors.m3surfaceContainerLow
-                radius: Appearance.rounding.windowRounding - root.contentPadding
-                clip: true
 
                 SettingsPageHost {
+                    id: pageHost
                     anchors.fill: parent
-                    pages: root.pages
-                    currentIndex: root.currentPage
+                }
+
+                SettingsErrorToast {
+                    width: Math.min(implicitWidth, parent.width - 32) // size-ok: floating toast, not in a layout
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: confirmBar.visible ? confirmBar.top : parent.bottom
+                    anchors.bottomMargin: 16
+                }
+
+                SettingsConfirmBar {
+                    id: confirmBar
+                    width: Math.min(implicitWidth, parent.width - 32) // size-ok: floating bar, not in a layout
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 16
                 }
             }
         }

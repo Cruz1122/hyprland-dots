@@ -1,0 +1,12 @@
+# Localized names exercise the fallback chain
+[Desktop Entry]
+Type=Application
+Name=Image Viewer
+Name[es]=Visor de imágenes
+Name[es_CO]=Visor (Colombia)
+Icon=imv
+Exec=imv %F
+MimeType=image/png;image/jpeg;image/gif;image/webp;image/bmp;image/svg+xml;image/tiff;
+
+[Desktop Action new]
+Name=Ignored action

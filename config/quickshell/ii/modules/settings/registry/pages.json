@@ -1,0 +1,48 @@
+{
+  "groups": [
+    {
+      "id": "personalization",
+      "title": "Personalization",
+      "pages": [
+        "quick",
+        "appearance",
+        "background",
+        "bar",
+        "panels"
+      ]
+    },
+    {
+      "id": "desktop",
+      "title": "Desktop",
+      "pages": [
+        "windows",
+        "input",
+        "displays"
+      ]
+    },
+    {
+      "id": "system",
+      "title": "System",
+      "pages": [
+        "sound",
+        "power",
+        "notifications",
+        "apps",
+        "region"
+      ]
+    },
+    {
+      "id": "tools",
+      "title": "Tools",
+      "pages": [
+        "capture",
+        "search",
+        "services"
+      ]
+    }
+  ],
+  "footer": [
+    "advanced",
+    "about"
+  ]
+}

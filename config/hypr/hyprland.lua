@@ -40,5 +40,14 @@ if is_file_exists(HOME .. "/.config/hypr/monitors.lua") then
     require("monitors")
 end
 
+-- Settings app --
+-- Options persisted by the settings app. Loaded after custom/* and monitors so
+-- the app's choices win over hand-written defaults, and before the shell
+-- overrides so Game Mode (which writes shellOverrides/main.lua) still wins
+-- while it is active.
+if is_file_exists(HOME .. "/.config/hypr/custom/shell-settings.lua") then
+    require("custom.shell-settings")
+end
+
 -- Shell overrides --
 require("hyprland.shellOverrides.main")

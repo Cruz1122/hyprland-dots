@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Usage: record.sh [--fullscreen | --region <geometry>] [--sound] [--mic] [--no-audio]
+#        record.sh --stop | --pause
+# Audio: --no-audio always wins. --sound (system) and --mic request audio
+# explicitly and can be combined. With no audio flag, the config decides:
+# screenRecord.recordAudioByDefault=false records no audio; otherwise
+# screenRecord.audioSource (system|mic|both|none) is used.
+
 CONFIG_FILE="$HOME/.config/illogical-impulse/config.json"
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}/illogical-impulse"
 PID_FILE="$RUNTIME_DIR/wf-recorder.pid"
@@ -11,7 +18,8 @@ read_config() {
     local jq_path="$1"
     local fallback="$2"
     local value=""
-    value="$(jq -r "${jq_path} // empty" "$CONFIG_FILE" 2>/dev/null || true)"
+    # `// empty` would also drop `false`, so only null/missing falls back.
+    value="$(jq -r "(${jq_path}) | select(. != null)" "$CONFIG_FILE" 2>/dev/null || true)"
     if [[ -n "$value" && "$value" != "null" ]]; then
         printf '%s\n' "$value"
     else
@@ -25,13 +33,7 @@ FPS="$(read_config '.screenRecord.fps' '60')"
 PIXEL_FORMAT="$(read_config '.screenRecord.pixelFormat' 'yuv420p')"
 FULLSCREEN_FOCUSED_MONITOR="$(read_config '.screenRecord.fullscreenUsesFocusedMonitor' 'true')"
 AUDIO_SOURCE="$(read_config '.screenRecord.audioSource' 'system')"
-
-# Clean up stale combine-pids from previous crashed sessions
-if [[ -f "$COMBINE_PIDS" ]]; then
-    if ! tracked_pid > /dev/null 2>&1; then
-        cleanup_combined_audio
-    fi
-fi
+RECORD_AUDIO_BY_DEFAULT="$(read_config '.screenRecord.recordAudioByDefault' 'true')"
 
 case "$AUDIO_SOURCE" in
     system|mic|none|both) ;;
@@ -51,6 +53,10 @@ case "$PIXEL_FORMAT" in
     yuv420p|nv12|auto) ;;
     *) PIXEL_FORMAT="yuv420p" ;;
 esac
+
+if [[ "$RECORD_AUDIO_BY_DEFAULT" != "false" ]]; then
+    RECORD_AUDIO_BY_DEFAULT="true"
+fi
 
 getdate() {
     date '+%Y-%m-%d_%H.%M.%S'
@@ -121,6 +127,13 @@ tracked_pid() {
     return 1
 }
 
+# Clean up stale combine-pids from previous crashed sessions
+if [[ -f "$COMBINE_PIDS" ]]; then
+    if ! tracked_pid > /dev/null 2>&1; then
+        cleanup_combined_audio
+    fi
+fi
+
 stop_recording() {
     local pid=""
     if pid="$(tracked_pid)"; then
@@ -167,20 +180,22 @@ run_recorder() {
 }
 
 resolve_audio_args() {
-    # Returns audio flags based on explicit flags and AUDIO_SOURCE config.
-    # Priority: --sound > --mic > AUDIO_SOURCE config
+    # Priority: --no-audio > --sound/--mic > config (recordAudioByDefault,
+    # then audioSource). Callers that omit every audio flag get the config
+    # default, so recordAudioByDefault=false must mean no audio here.
     local use_system=0
     local use_mic=0
 
-    if [[ $SOUND_FLAG -eq 1 && $MIC_FLAG -eq 1 ]]; then
+    if [[ $NO_AUDIO_FLAG -eq 1 ]]; then
+        :
+    elif [[ $SOUND_FLAG -eq 1 && $MIC_FLAG -eq 1 ]]; then
         use_system=1
         use_mic=1
     elif [[ $SOUND_FLAG -eq 1 ]]; then
         use_system=1
     elif [[ $MIC_FLAG -eq 1 ]]; then
         use_mic=1
-    else
-        # Fall back to config
+    elif [[ "$RECORD_AUDIO_BY_DEFAULT" == "true" ]]; then
         case "$AUDIO_SOURCE" in
             system) use_system=1 ;;
             mic) use_mic=1 ;;
@@ -225,6 +240,7 @@ ARGS=("$@")
 MANUAL_REGION=""
 SOUND_FLAG=0
 MIC_FLAG=0
+NO_AUDIO_FLAG=0
 FULLSCREEN_FLAG=0
 STOP_FLAG=0
 PAUSE_FLAG=0
@@ -247,7 +263,7 @@ for ((i=0;i<${#ARGS[@]};i++)); do
     elif [[ "${ARGS[i]}" == "--pause" ]]; then
         PAUSE_FLAG=1
     elif [[ "${ARGS[i]}" == "--no-audio" ]]; then
-        AUDIO_SOURCE="none"
+        NO_AUDIO_FLAG=1
     fi
 done
 

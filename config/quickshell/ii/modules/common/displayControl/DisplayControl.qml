@@ -10,6 +10,7 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 import Quickshell.Hyprland
+import "../functions/DisplayRules.js" as DisplayRules
 
 Scope {
     id: root
@@ -26,22 +27,15 @@ Scope {
     property var pendingCommand: []
 
     function quoteLua(value) {
-        return `"${String(value).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+        return DisplayRules.quoteLua(value);
     }
 
     function modeFor(monitor, width, height, refreshRate) {
-        const prefix = `${width}x${height}@`;
-        const requested = `${prefix}${Number(refreshRate).toFixed(2)}Hz`;
-        return monitor.availableModes?.includes(requested)
-            ? requested
-            : (monitor.availableModes?.find(mode => mode.startsWith(prefix)) ?? "preferred");
+        return DisplayRules.modeFor(monitor, width, height, refreshRate);
     }
 
     function monitorRule(monitor, disabled, mirror, mode = "preferred", scale = "1") {
-        let rule = `{ output = ${quoteLua(monitor.name)}, mode = ${quoteLua(mode)}, position = "auto", scale = ${quoteLua(scale)}, disabled = ${disabled ? "true" : "false"}`;
-        if (mirror)
-            rule += `, mirror = ${quoteLua(mirror)}`;
-        return `${rule} }`;
+        return DisplayRules.monitorRule(monitor, disabled, mirror, mode, scale);
     }
 
     function applyAction(action) {

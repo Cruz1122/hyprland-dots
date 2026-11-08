@@ -1,0 +1,40 @@
+{
+  "id": "about",
+  "title": "About",
+  "icon": "info",
+  "description": "Version, system and project information.",
+  "sections": [
+    {
+      "id": "distro",
+      "title": "Distro",
+      "icon": "box"
+    },
+    {
+      "id": "dotfiles",
+      "title": "Dotfiles",
+      "icon": "folder_managed"
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.about.distro",
+      "section": "distro",
+      "label": "Operating system",
+      "description": "The distribution this shell is running on.",
+      "icon": "computer",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
+      "key": "info.about.dotfiles",
+      "section": "dotfiles",
+      "label": "illogical-impulse",
+      "description": "The Quickshell configuration these settings belong to.",
+      "icon": "folder_managed",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    }
+  ]
+}

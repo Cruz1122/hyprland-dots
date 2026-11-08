@@ -1,0 +1,65 @@
+{
+  "id": "quick",
+  "title": "Quick settings",
+  "icon": "instant_mix",
+  "description": "The settings you change most, in one place.",
+  "sections": [
+    {
+      "id": "look",
+      "title": "Look",
+      "icon": "palette"
+    },
+    {
+      "id": "bar",
+      "title": "Bar",
+      "icon": "toast"
+    },
+    {
+      "id": "system",
+      "title": "System",
+      "icon": "settings"
+    }
+  ],
+  "entries": [
+    {
+      "ref": "info.background.wallpaper",
+      "section": "look"
+    },
+    {
+      "ref": "action.appearance.darkMode",
+      "section": "look"
+    },
+    {
+      "ref": "appearance.palette.type",
+      "section": "look"
+    },
+    {
+      "ref": "appearance.transparency.enable",
+      "section": "look"
+    },
+    {
+      "ref": "appearance.fakeScreenRounding",
+      "section": "look"
+    },
+    {
+      "ref": "bar.position",
+      "section": "bar"
+    },
+    {
+      "ref": "bar.cornerStyle",
+      "section": "bar"
+    },
+    {
+      "ref": "light.night.automatic",
+      "section": "system"
+    },
+    {
+      "ref": "ipc.notifications.silent",
+      "section": "system"
+    },
+    {
+      "ref": "power.profile",
+      "section": "system"
+    }
+  ]
+}

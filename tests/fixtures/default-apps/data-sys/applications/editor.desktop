@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Text Editor
+Icon=editor
+Exec=editor %F
+this line is garbage
+MimeType=text/plain;

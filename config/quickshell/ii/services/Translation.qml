@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.modules.common
+import "TranslationFallback.js" as Fallback
 
 Singleton {
     id: root
@@ -115,32 +116,49 @@ Singleton {
         }
     }
 
+    // Tries the exact locale file, then same-language files (es -> es_MX),
+    // then falls back to English source strings.
     component TranslationReader: FileView {
         id: translationReader
         required property string translationsDir
         property string languageCode: root.languageCode
+        property var candidates: []
+        property int candidateIndex: 0
         signal contentLoaded(var data)
 
         function reread() { // Proper reload in case the file was incorrect before
+            translationReader.candidates = Fallback.candidates(translationReader.languageCode, root.allAvailableLanguages);
+            translationReader.candidateIndex = 0;
+            translationReader.tryCandidate();
+        }
+
+        function tryCandidate() {
             translationReader.path = "";
-            translationReader.path = `${translationReader.translationsDir}/${translationReader.languageCode}.json`;
-            translationReader.reload();
+            if (translationReader.candidateIndex >= translationReader.candidates.length) {
+                translationReader.contentLoaded({});
+                return;
+            }
+            translationReader.path = `${translationReader.translationsDir}/${translationReader.candidates[translationReader.candidateIndex]}.json`;
         }
         path: ""
+        printErrors: false
 
         onLoaded: {
             var textContent = "";
             try {
                 textContent = text();
-                var jsonData = JSON.parse(textContent);
-                translationReader.contentLoaded(jsonData);
+                translationReader.contentLoaded(Fallback.sanitize(JSON.parse(textContent)));
             } catch (e) {
                 console.log("[Translation] Failed to load translations:", e);
                 translationReader.contentLoaded({});
             }
         }
         onLoadFailed: error => {
-            translationReader.contentLoaded({});
+            if (translationReader.path === "")
+                return;
+            translationReader.candidateIndex++;
+            // Changing path inside the failed operation's signal drops it noisily.
+            Qt.callLater(translationReader.tryCandidate);
         }
     }
 }

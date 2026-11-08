@@ -1,0 +1,186 @@
+{
+  "id": "sound",
+  "title": "Sound",
+  "icon": "volume_up",
+  "description": "Devices, hearing protection and system sounds.",
+  "sections": [
+    {
+      "id": "devices",
+      "title": "Devices",
+      "icon": "speaker"
+    },
+    {
+      "id": "protection",
+      "title": "Hearing protection",
+      "icon": "hearing",
+      "description": "Limits sudden or excessive volume changes on the output device."
+    },
+    {
+      "id": "sounds",
+      "title": "System sounds",
+      "icon": "notification_sound"
+    }
+  ],
+  "entries": [
+    {
+      "key": "audio.output",
+      "section": "devices",
+      "label": "Output device",
+      "description": "Speakers or headphones used by default.",
+      "keywords": [
+        "speaker",
+        "headphones",
+        "sink",
+        "altavoz",
+        "auriculares",
+        "salida"
+      ],
+      "icon": "speaker",
+      "backend": "audio",
+      "type": "string",
+      "widget": "device",
+      "enabledWhen": {
+        "capability": "pipewire"
+      }
+    },
+    {
+      "key": "audio.input",
+      "section": "devices",
+      "label": "Input device",
+      "description": "Microphone used by default.",
+      "keywords": [
+        "microphone",
+        "source",
+        "micrófono",
+        "entrada"
+      ],
+      "icon": "mic",
+      "backend": "audio",
+      "type": "string",
+      "widget": "device",
+      "enabledWhen": {
+        "capability": "pipewire"
+      }
+    },
+    {
+      "key": "audio.protection.enable",
+      "section": "protection",
+      "label": "Hearing protection",
+      "description": "Block volume jumps and cap the maximum volume.",
+      "keywords": [
+        "volume",
+        "limit",
+        "volumen",
+        "límite"
+      ],
+      "icon": "hearing",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/Audio.qml"
+      ]
+    },
+    {
+      "key": "audio.protection.maxAllowedIncrease",
+      "section": "protection",
+      "label": "Largest volume step",
+      "description": "Bigger single increases are undone.",
+      "icon": "trending_up",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 1,
+      "max": 100,
+      "step": 1,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "audio.protection.enable",
+        "equals": true
+      },
+      "consumers": [
+        "services/Audio.qml"
+      ]
+    },
+    {
+      "key": "audio.protection.maxAllowed",
+      "section": "protection",
+      "label": "Maximum volume",
+      "description": "The volume is never raised above this level.",
+      "icon": "volume_up",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 10,
+      "max": 200,
+      "step": 1,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "audio.protection.enable",
+        "equals": true
+      },
+      "consumers": [
+        "services/Audio.qml"
+      ]
+    },
+    {
+      "key": "sounds.theme",
+      "section": "sounds",
+      "label": "Sound theme",
+      "description": "Folder name under /usr/share/sounds used for system sounds.",
+      "keywords": [
+        "freedesktop",
+        "ocean",
+        "tema"
+      ],
+      "icon": "library_music",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "placeholder": "freedesktop",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 64,
+        "regex": "^[A-Za-z0-9._+-]+$"
+      },
+      "consumers": [
+        "services/Audio.qml"
+      ]
+    },
+    {
+      "key": "sounds.battery",
+      "section": "sounds",
+      "label": "Battery sounds",
+      "description": "Play a sound when the battery is low or charging changes.",
+      "keywords": [
+        "batería"
+      ],
+      "icon": "battery_android_full",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/Battery.qml"
+      ]
+    },
+    {
+      "key": "sounds.pomodoro",
+      "section": "sounds",
+      "label": "Pomodoro sounds",
+      "description": "Play a sound when a pomodoro phase ends.",
+      "keywords": [
+        "timer",
+        "temporizador"
+      ],
+      "icon": "av_timer",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/TimerService.qml"
+      ]
+    }
+  ]
+}

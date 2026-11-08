@@ -1,0 +1,3263 @@
+{
+ "_comment": "Generated from read-only `hyprctl -j descriptions` (Hyprland 0.57.0), keyed by getoption name. Regenerate with FIXTURE_GENERATOR in tests/test_hyprconfigurator.py. `current` is dropped because it is machine state; `type` is the JSON type of the default (floats with integral defaults show as int).",
+ "animations:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "animations:workspace_wraparound": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:allow_pin_fullscreen": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:allow_workspace_cycles": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:client_requested_fs_uses_layout_handler": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:disable_keybind_grabbing": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:drag_center_window": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:drag_threshold": {
+  "default": 0,
+  "map": null,
+  "max": 2147483647,
+  "min": 0,
+  "type": "int"
+ },
+ "binds:focus_preferred_method": {
+  "default": 0,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "binds:hide_special_on_workspace_change": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:ignore_group_lock": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:movefocus_cycles_fullscreen": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:movefocus_cycles_groupfirst": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:pass_mouse_when_bound": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:scroll_event_delay": {
+  "default": 300,
+  "map": null,
+  "max": 2000,
+  "min": 0,
+  "type": "int"
+ },
+ "binds:window_direction_monitor_fallback": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "binds:workspace_back_and_forth": {
+  "default": 0,
+  "map": [
+   {
+    "per_monitor": 2
+   },
+   {
+    "all_monitors": 1
+   },
+   {
+    "disabled": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "binds:workspace_center_on": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:default_monitor": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "cursor:enable_hyprcursor": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:hide_on_key_press": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:hide_on_tablet": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:hide_on_touch": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:hotspot_padding": {
+  "default": 0,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:inactive_timeout": {
+  "default": 0,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:invisible": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:min_refresh_rate": {
+  "default": 24,
+  "map": null,
+  "max": 500,
+  "min": 10,
+  "type": "int"
+ },
+ "cursor:no_break_fs_vrr": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:no_hardware_cursors": {
+  "default": 2,
+  "map": [
+   {
+    "Enabled": 1
+   },
+   {
+    "Auto": 2
+   },
+   {
+    "Disabled": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:no_warps": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:persistent_warps": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:sync_gsettings_theme": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:use_cpu_buffer": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:warp_back_after_non_mouse_input": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:warp_on_change_workspace": {
+  "default": 0,
+  "map": [
+   {
+    "force": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:warp_on_monitor_change": {
+  "default": -1,
+  "map": [
+   {
+    "force": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   },
+   {
+    "same_as_warp_on_change_workspace": -1
+   }
+  ],
+  "max": 2,
+  "min": -1,
+  "type": "int"
+ },
+ "cursor:warp_on_toggle_special": {
+  "default": 0,
+  "map": [
+   {
+    "force": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "cursor:zoom_detached_camera": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:zoom_disable_aa": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "cursor:zoom_factor": {
+  "default": 1,
+  "map": null,
+  "max": 10,
+  "min": 1,
+  "type": "int"
+ },
+ "cursor:zoom_rigid": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:colored_stdout_logs": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:damage_blink": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:damage_tracking": {
+  "default": 2,
+  "map": [
+   {
+    "full": 2
+   },
+   {
+    "monitor": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:disable_logs": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:disable_scale_checks": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:disable_time": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:ds_handle_same_buffer": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:ds_handle_same_buffer_fifo": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:enable_stdout_logs": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:error_limit": {
+  "default": 5,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:error_position": {
+  "default": 0,
+  "map": [
+   {
+    "bottom": 1
+   },
+   {
+    "top": 0
+   }
+  ],
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:full_cm_proto": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:gl_debugging": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:invalidate_buffers": {
+  "default": 1,
+  "map": [
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:invalidate_fp16": {
+  "default": 1,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:log_damage": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:manual_crash": {
+  "default": 0,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "debug:overlay": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:pass": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:render_solitary_wo_damage": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:suppress_errors": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "debug:vfr": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:active_opacity": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:acrylic:aberration": {
+  "default": 0.025,
+  "map": null,
+  "max": 0.25,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:acrylic:bulb": {
+  "default": 48,
+  "map": null,
+  "max": 256,
+  "min": 4,
+  "type": "int"
+ },
+ "decoration:blur:acrylic:clarity": {
+  "default": 0.82,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:acrylic:refraction": {
+  "default": 24,
+  "map": null,
+  "max": 48,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:acrylic:tint": {
+  "default": "14eef5ff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:blur:aurora:color1": {
+  "default": "29f0a0ff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:blur:aurora:color2": {
+  "default": "7a4dffff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:blur:aurora:intensity": {
+  "default": 0.35,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:aurora:speed": {
+  "default": 1,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:brightness": {
+  "default": 1,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:contrast": {
+  "default": 0.8916,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:drops:speed": {
+  "default": 3,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:fluid_jar:color": {
+  "default": "cc3399ff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:blur:fluid_jar:distortion": {
+  "default": 8,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:fluid_jar:fill_amount": {
+  "default": 0.5,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:fluid_jar:mass": {
+  "default": 1.4,
+  "map": null,
+  "max": 10,
+  "min": 0.1,
+  "type": "float"
+ },
+ "decoration:blur:fluid_jar:precision": {
+  "default": 2,
+  "map": null,
+  "max": 8,
+  "min": 0.5,
+  "type": "int"
+ },
+ "decoration:blur:fluid_jar:speed": {
+  "default": 3.7,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:fluid_jar:turbulence": {
+  "default": 1.2,
+  "map": null,
+  "max": 5,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:glass:refraction": {
+  "default": 20,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:glass:roughness": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:glass:size": {
+  "default": 40,
+  "map": null,
+  "max": 512,
+  "min": 4,
+  "type": "int"
+ },
+ "decoration:blur:haze:intensity": {
+  "default": 0.35,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:haze:iridescence": {
+  "default": 0.7,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:heat_shimmer:speed": {
+  "default": 1,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:ignore_opacity": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:input_methods": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:input_methods_ignorealpha": {
+  "default": 0.2,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:new_optimizations": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:noise": {
+  "default": 0.0117,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:passes": {
+  "default": 1,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:popups": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:popups_ignorealpha": {
+  "default": 0.2,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:proportional": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:ripple:duration": {
+  "default": 0.45,
+  "map": null,
+  "max": 5,
+  "min": 0.05,
+  "type": "float"
+ },
+ "decoration:blur:ripple:radius": {
+  "default": 400,
+  "map": null,
+  "max": 1000,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:blur:ripple:strength": {
+  "default": 30,
+  "map": null,
+  "max": 32,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:ripple:width": {
+  "default": 32,
+  "map": null,
+  "max": 200,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:blur:size": {
+  "default": 8,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:special": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:blur:variant": {
+  "default": 0,
+  "map": [
+   {
+    "haze": 10
+   },
+   {
+    "acrylic": 8
+   },
+   {
+    "prism": 6
+   },
+   {
+    "water": 4
+   },
+   {
+    "aurora": 9
+   },
+   {
+    "drops": 3
+   },
+   {
+    "heat_shimmer": 7
+   },
+   {
+    "fluid_jar": 5
+   },
+   {
+    "ripple": 2
+   },
+   {
+    "frost": 1
+   },
+   {
+    "kawase": 0
+   }
+  ],
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:vibrancy": {
+  "default": 0.1696,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:vibrancy_darkness": {
+  "default": 0,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:water:damping": {
+  "default": 0.95,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:water:duration": {
+  "default": 12,
+  "map": null,
+  "max": 60,
+  "min": 0.5,
+  "type": "int"
+ },
+ "decoration:blur:water:radius": {
+  "default": 20,
+  "map": null,
+  "max": 1000,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:blur:water:speed": {
+  "default": 0.76,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:blur:water:strength": {
+  "default": 32,
+  "map": null,
+  "max": 32,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:blur:xray": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:border_part_of_window": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:dim_around": {
+  "default": 0.4,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:dim_inactive": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:dim_modal": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:dim_special": {
+  "default": 0.2,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:dim_strength": {
+  "default": 0.5,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:fullscreen_opacity": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:glow:color": {
+  "default": "ee33ccff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:glow:color_inactive": {
+  "default": "ffffffff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:glow:enabled": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:glow:range": {
+  "default": 10,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:glow:render_power": {
+  "default": 3,
+  "map": null,
+  "max": 4,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:inactive_opacity": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:motion_blur:enabled": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:motion_blur:samples": {
+  "default": 7,
+  "map": null,
+  "max": 64,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:rounding": {
+  "default": 0,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:rounding_power": {
+  "default": 2,
+  "map": null,
+  "max": 10,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:screen_shader": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:shadow:color": {
+  "default": "ee1a1a1a 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:shadow:color_inactive": {
+  "default": "ffffffff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "decoration:shadow:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:shadow:offset": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "decoration:shadow:range": {
+  "default": 4,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:shadow:render_power": {
+  "default": 3,
+  "map": null,
+  "max": 4,
+  "min": 1,
+  "type": "int"
+ },
+ "decoration:shadow:scale": {
+  "default": 1,
+  "map": null,
+  "max": 2,
+  "min": 0.05,
+  "type": "int"
+ },
+ "decoration:shadow:sharp": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:wobble:damping": {
+  "default": 12,
+  "map": null,
+  "max": 1000,
+  "min": 0,
+  "type": "int"
+ },
+ "decoration:wobble:enabled": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "decoration:wobble:intensity": {
+  "default": 0.2,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:wobble:mass": {
+  "default": 1,
+  "map": null,
+  "max": 1000,
+  "min": 0.0001,
+  "type": "int"
+ },
+ "decoration:wobble:mesh": {
+  "default": 12,
+  "map": null,
+  "max": 32,
+  "min": 2,
+  "type": "int"
+ },
+ "decoration:wobble:stiffness": {
+  "default": 200,
+  "map": null,
+  "max": 1000,
+  "min": 0.0001,
+  "type": "int"
+ },
+ "decoration:wobble:value_epsilon": {
+  "default": 0.25,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "float"
+ },
+ "decoration:wobble:velocity_epsilon": {
+  "default": 2,
+  "map": null,
+  "max": 1000,
+  "min": 0,
+  "type": "int"
+ },
+ "dwindle:default_split_ratio": {
+  "default": 1,
+  "map": null,
+  "max": 1.9,
+  "min": 0.1,
+  "type": "int"
+ },
+ "dwindle:force_split": {
+  "default": 0,
+  "map": [
+   {
+    "right": 2
+   },
+   {
+    "left": 1
+   },
+   {
+    "follow_mouse": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "dwindle:permanent_direction_override": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "dwindle:precise_mouse_move": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "dwindle:preserve_split": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "dwindle:smart_resizing": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "dwindle:smart_split": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "dwindle:special_scale_factor": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "dwindle:split_bias": {
+  "default": 0,
+  "map": [
+   {
+    "current": 1
+   },
+   {
+    "directional": 0
+   }
+  ],
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "dwindle:split_width_multiplier": {
+  "default": 1,
+  "map": null,
+  "max": 3,
+  "min": 0.1,
+  "type": "int"
+ },
+ "dwindle:use_active_for_splits": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "ecosystem:enforce_permissions": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "ecosystem:no_donation_nag": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "ecosystem:no_update_news": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "experimental:wp_cm_1_2": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:allow_tearing": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:border_size": {
+  "default": 1,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "general:col.active_border": {
+  "default": "ffffffff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:col.inactive_border": {
+  "default": "ff444444 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:col.nogroup_border": {
+  "default": "ffffaaff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:col.nogroup_border_active": {
+  "default": "ffff00ff 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:extend_border_grab_area": {
+  "default": 15,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "general:float_gaps": {
+  "default": "0 0 0 0",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:gaps_in": {
+  "default": "5 5 5 5",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:gaps_out": {
+  "default": "20 20 20 20",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:gaps_workspaces": {
+  "default": 0,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "general:hover_icon_on_border": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:layout": {
+  "default": "dwindle",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:locale": {
+  "default": "",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "general:modal_parent_blocking": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:no_focus_fallback": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:resize_corner": {
+  "default": 0,
+  "map": [
+   {
+    "bottom_left": 4
+   },
+   {
+    "bottom_right": 3
+   },
+   {
+    "top_right": 2
+   },
+   {
+    "top_left": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 4,
+  "min": 0,
+  "type": "int"
+ },
+ "general:resize_on_border": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:snap:border_overlap": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:snap:enabled": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:snap:monitor_gap": {
+  "default": 10,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "general:snap:respect_gaps": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "general:snap:window_gap": {
+  "default": 10,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "gestures:close_max_timeout": {
+  "default": 1000,
+  "map": null,
+  "max": 2000,
+  "min": 10,
+  "type": "int"
+ },
+ "gestures:scrolling:move_snap_cursor": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:scrolling:move_snap_to_grid": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_cancel_ratio": {
+  "default": 0.5,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "gestures:workspace_swipe_create_new": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_direction_lock": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_direction_lock_threshold": {
+  "default": 10,
+  "map": null,
+  "max": 200,
+  "min": 0,
+  "type": "int"
+ },
+ "gestures:workspace_swipe_distance": {
+  "default": 300,
+  "map": null,
+  "max": 2000,
+  "min": 0,
+  "type": "int"
+ },
+ "gestures:workspace_swipe_forever": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_invert": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_min_speed_to_force": {
+  "default": 30,
+  "map": null,
+  "max": 200,
+  "min": 0,
+  "type": "int"
+ },
+ "gestures:workspace_swipe_touch": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_touch_invert": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "gestures:workspace_swipe_use_r": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:auto_group": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:col.border_active": {
+  "default": "66ffff00 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:col.border_inactive": {
+  "default": "66777700 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:col.border_locked_active": {
+  "default": "66775500 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:col.border_locked_inactive": {
+  "default": "66ff5500 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:drag_into_group": {
+  "default": 1,
+  "map": [
+   {
+    "enabled": 1
+   },
+   {
+    "only_into_groupbar": 2
+   },
+   {
+    "disabled": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "group:focus_removed_window": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:group_on_movetoworkspace": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:blur": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:col.active": {
+  "default": "66ffff00 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:col.inactive": {
+  "default": "66777700 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:col.locked_active": {
+  "default": "66ff5500 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:col.locked_inactive": {
+  "default": "66775500 0deg",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:disable_when_only": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:font_family": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:font_size": {
+  "default": 8,
+  "map": null,
+  "max": 64,
+  "min": 2,
+  "type": "int"
+ },
+ "group:groupbar:font_weight_active": {
+  "default": "400",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:font_weight_inactive": {
+  "default": "400",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:gaps_in": {
+  "default": 2,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:gaps_out": {
+  "default": 2,
+  "map": null,
+  "max": 20,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:gradient_round_only_edges": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:gradient_rounding": {
+  "default": 2,
+  "map": null,
+  "max": 40,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:gradient_rounding_power": {
+  "default": 2,
+  "map": null,
+  "max": 10,
+  "min": 1,
+  "type": "int"
+ },
+ "group:groupbar:gradients": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:height": {
+  "default": 14,
+  "map": null,
+  "max": 64,
+  "min": 1,
+  "type": "int"
+ },
+ "group:groupbar:indicator_gap": {
+  "default": 0,
+  "map": null,
+  "max": 64,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:indicator_height": {
+  "default": 3,
+  "map": null,
+  "max": 64,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:keep_upper_gap": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:middle_click_close": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:priority": {
+  "default": 3,
+  "map": null,
+  "max": 6,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:render_titles": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:round_only_edges": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:rounding": {
+  "default": 1,
+  "map": null,
+  "max": 40,
+  "min": 0,
+  "type": "int"
+ },
+ "group:groupbar:rounding_power": {
+  "default": 2,
+  "map": null,
+  "max": 10,
+  "min": 1,
+  "type": "int"
+ },
+ "group:groupbar:scrolling": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:stacked": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:groupbar:text_color": {
+  "default": "ffffffff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:text_color_inactive": {
+  "default": "-1",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:text_color_locked_active": {
+  "default": "-1",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:text_color_locked_inactive": {
+  "default": "-1",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "group:groupbar:text_offset": {
+  "default": 0,
+  "map": null,
+  "max": 20,
+  "min": -20,
+  "type": "int"
+ },
+ "group:groupbar:text_padding": {
+  "default": 0,
+  "map": null,
+  "max": 22,
+  "min": 0,
+  "type": "int"
+ },
+ "group:insert_after_current": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:merge_floated_into_tiled_on_groupbar": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:merge_groups_on_drag": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "group:merge_groups_on_groupbar": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input-capture:capture_modifiers": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input-capture:enforce_barriers": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:accel_profile": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:emulate_discrete_scroll": {
+  "default": 1,
+  "map": [
+   {
+    "force_all": 2
+   },
+   {
+    "non_standard": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "input:float_switch_override_focus": {
+  "default": 1,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "input:focus_on_close": {
+  "default": 0,
+  "map": [
+   {
+    "mru": 2
+   },
+   {
+    "cursor": 1
+   },
+   {
+    "next": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "input:follow_mouse": {
+  "default": 1,
+  "map": [
+   {
+    "separate": 3
+   },
+   {
+    "detached": 2
+   },
+   {
+    "follow": 1
+   },
+   {
+    "disabled": 0
+   }
+  ],
+  "max": 3,
+  "min": 0,
+  "type": "int"
+ },
+ "input:follow_mouse_shrink": {
+  "default": 0,
+  "map": null,
+  "max": 300,
+  "min": 0,
+  "type": "int"
+ },
+ "input:follow_mouse_threshold": {
+  "default": 0,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "int"
+ },
+ "input:force_no_accel": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:kb_file": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:kb_layout": {
+  "default": "us",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:kb_model": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:kb_options": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:kb_rules": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:kb_variant": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:left_handed": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:mouse_refocus": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:natural_scroll": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:numlock_by_default": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:off_window_axis_events": {
+  "default": 1,
+  "map": [
+   {
+    "warp": 3
+   },
+   {
+    "clamp": 2
+   },
+   {
+    "send": 1
+   },
+   {
+    "ignore": 0
+   }
+  ],
+  "max": 3,
+  "min": 0,
+  "type": "int"
+ },
+ "input:repeat_delay": {
+  "default": 600,
+  "map": null,
+  "max": 2000,
+  "min": 0,
+  "type": "int"
+ },
+ "input:repeat_rate": {
+  "default": 25,
+  "map": null,
+  "max": 200,
+  "min": 0,
+  "type": "int"
+ },
+ "input:resolve_binds_by_sym": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:rotation": {
+  "default": 0,
+  "map": null,
+  "max": 359,
+  "min": 0,
+  "type": "int"
+ },
+ "input:scroll_button": {
+  "default": 0,
+  "map": null,
+  "max": 300,
+  "min": 0,
+  "type": "int"
+ },
+ "input:scroll_button_lock": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:scroll_factor": {
+  "default": 1,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "input:scroll_method": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:scroll_points": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:sensitivity": {
+  "default": 0,
+  "map": null,
+  "max": 1,
+  "min": -1,
+  "type": "int"
+ },
+ "input:special_fallthrough": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:swallow_focus_click": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:tablet:absolute_region_position": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:tablet:active_area_position": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "input:tablet:active_area_size": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "input:tablet:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:tablet:left_handed": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:tablet:output": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:tablet:region_position": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "input:tablet:region_size": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "input:tablet:relative_input": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:tablet:transform": {
+  "default": 0,
+  "map": null,
+  "max": 6,
+  "min": 0,
+  "type": "int"
+ },
+ "input:tablettool:eraser_button_mode": {
+  "default": 0,
+  "map": null,
+  "max": 6,
+  "min": 0,
+  "type": "int"
+ },
+ "input:tablettool:eraser_button_override": {
+  "default": 0,
+  "map": null,
+  "max": null,
+  "min": 0,
+  "type": "int"
+ },
+ "input:tablettool:pressure_range_max": {
+  "default": -1,
+  "map": null,
+  "max": 1,
+  "min": -1,
+  "type": "int"
+ },
+ "input:tablettool:pressure_range_min": {
+  "default": -1,
+  "map": null,
+  "max": 1,
+  "min": -1,
+  "type": "int"
+ },
+ "input:touchdevice:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchdevice:output": {
+  "default": "[[Auto]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:touchdevice:transform": {
+  "default": 0,
+  "map": null,
+  "max": 6,
+  "min": 0,
+  "type": "int"
+ },
+ "input:touchpad:clickfinger_behavior": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:disable_while_typing": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:drag_3fg": {
+  "default": 0,
+  "map": [
+   {
+    "3_finger": 1
+   },
+   {
+    "4_finger": 2
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "input:touchpad:drag_lock": {
+  "default": 0,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "input:touchpad:flip_x": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:flip_y": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:middle_button_emulation": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:natural_scroll": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:scroll_factor": {
+  "default": 1,
+  "map": null,
+  "max": 100,
+  "min": 0,
+  "type": "int"
+ },
+ "input:touchpad:tap-and-drag": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:tap-to-click": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:touchpad:tap_button_map": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "input:virtualkeyboard:release_pressed_on_close": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "input:virtualkeyboard:share_states": {
+  "default": 2,
+  "map": [
+   {
+    "only_non_ime": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "layers:allow_new_top_layers_over_existing_fullscreen": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "layers:layers_hog_keyboard_focus": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "layout:single_window_aspect_ratio": {
+  "default": [
+   0,
+   0
+  ],
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "list"
+ },
+ "layout:single_window_aspect_ratio_tolerance": {
+  "default": 0.1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "master:allow_small_split": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:always_keep_position": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:center_ignores_reserved": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:center_master_fallback": {
+  "default": "left",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "master:drop_at_cursor": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:focus_master_on_close": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:mfact": {
+  "default": 0.55,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "master:new_on_active": {
+  "default": "none",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "master:new_on_top": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:new_status": {
+  "default": "slave",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "master:orientation": {
+  "default": "left",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "master:slave_count_for_center_master": {
+  "default": 2,
+  "map": null,
+  "max": 10,
+  "min": 0,
+  "type": "int"
+ },
+ "master:smart_resizing": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "master:special_scale_factor": {
+  "default": 1,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "misc:allow_session_lock_restore": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:always_follow_on_dnd": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:animate_manual_resizes": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:animate_mouse_windowdragging": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:anr_missed_pings": {
+  "default": 5,
+  "map": null,
+  "max": 20,
+  "min": 1,
+  "type": "int"
+ },
+ "misc:background_color": {
+  "default": "ff111111",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:bell_sound": {
+  "default": "default",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:close_special_on_empty": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:col.splash": {
+  "default": "55ffffff",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:disable_autoreload": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_hyprland_guiutils_check": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_hyprland_logo": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_scale_notification": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_splash_rendering": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_watchdog_warning": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:disable_xdg_env_checks": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:enable_anr_dialog": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:enable_swallow": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:exit_window_retains_fullscreen": {
+  "default": 0,
+  "map": [
+   {
+    "only_when_nongrouped": 3
+   },
+   {
+    "only_when_grouped": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 3,
+  "min": 0,
+  "type": "int"
+ },
+ "misc:float_force_onscreen": {
+  "default": 0,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "int"
+ },
+ "misc:focus_on_activate": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:font_family": {
+  "default": "Sans",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:force_default_wallpaper": {
+  "default": -1,
+  "map": null,
+  "max": 2,
+  "min": -1,
+  "type": "int"
+ },
+ "misc:initial_workspace_token_timeout": {
+  "default": 10,
+  "map": null,
+  "max": 3600,
+  "min": 1,
+  "type": "int"
+ },
+ "misc:initial_workspace_tracking": {
+  "default": 1,
+  "map": null,
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "misc:key_press_enables_dpms": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:layers_hog_keyboard_focus": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:lockdead_screen_delay": {
+  "default": 1000,
+  "map": null,
+  "max": 5000,
+  "min": 0,
+  "type": "int"
+ },
+ "misc:middle_click_paste": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:mouse_move_enables_dpms": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:mouse_move_focuses_monitor": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:name_vk_after_proc": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:new_float_force_onscreen": {
+  "default": 2,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "int"
+ },
+ "misc:on_focus_under_fullscreen": {
+  "default": 2,
+  "map": [
+   {
+    "exit_fullscreen": 2
+   },
+   {
+    "take_over": 1
+   },
+   {
+    "ignore": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "misc:render_unfocused_fps": {
+  "default": 15,
+  "map": null,
+  "max": 120,
+  "min": 1,
+  "type": "int"
+ },
+ "misc:screencopy_force_8b": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:session_lock_blur": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:session_lock_xray": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:size_limits_tiled": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "misc:splash_font_family": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:swallow_exception_regex": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:swallow_regex": {
+  "default": "[[EMPTY]]",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "misc:vrr": {
+  "default": 0,
+  "map": [
+   {
+    "fullscreen_game": 3
+   },
+   {
+    "fullscreen": 2
+   },
+   {
+    "on": 1
+   },
+   {
+    "off": 0
+   }
+  ],
+  "max": 3,
+  "min": 0,
+  "type": "int"
+ },
+ "opengl:nvidia_anti_flicker": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "quirks:prefer_hdr": {
+  "default": 0,
+  "map": [
+   {
+    "gamescope_only": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "quirks:skip_non_kms_dmabuf_formats": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:async_commit": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:cm_auto_hdr": {
+  "default": 1,
+  "map": [
+   {
+    "hdredid": 2
+   },
+   {
+    "hdr": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:cm_enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:cm_sdr_eotf": {
+  "default": "default",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "render:commit_timing_enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:ctm_animation": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:direct_scanout": {
+  "default": 0,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:expand_undersized_textures": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:fp16_sdr_tf": {
+  "default": 0,
+  "map": [
+   {
+    "linear": 1
+   },
+   {
+    "monitor": 0
+   }
+  ],
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "render:icc_vcgt_enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:keep_unmodified_copy": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:new_render_scheduling": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:non_shader_cm": {
+  "default": 3,
+  "map": [
+   {
+    "ignore": 3
+   },
+   {
+    "ondemand": 2
+   },
+   {
+    "always": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 3,
+  "min": 0,
+  "type": "int"
+ },
+ "render:non_shader_cm_interop": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:not_shown_fifo_lock": {
+  "default": 0,
+  "map": [
+   {
+    "ignore_unfocused": 1
+   },
+   {
+    "never": 2
+   },
+   {
+    "always": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:send_content_type": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:use_fp16": {
+  "default": 2,
+  "map": [
+   {
+    "auto": 2
+   },
+   {
+    "enable": 1
+   },
+   {
+    "disable": 0
+   }
+  ],
+  "max": 2,
+  "min": 0,
+  "type": "int"
+ },
+ "render:use_shader_blur_blend": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "render:xp_mode": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "scrolling:column_width": {
+  "default": 0.5,
+  "map": null,
+  "max": 1,
+  "min": 0.1,
+  "type": "float"
+ },
+ "scrolling:direction": {
+  "default": "right",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "scrolling:explicit_column_widths": {
+  "default": "0.333, 0.5, 0.667, 1.0",
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "string"
+ },
+ "scrolling:focus_fit_method": {
+  "default": 1,
+  "map": [
+   {
+    "fit": 1
+   },
+   {
+    "center": 0
+   }
+  ],
+  "max": 1,
+  "min": 0,
+  "type": "int"
+ },
+ "scrolling:follow_focus": {
+  "default": 1,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "int"
+ },
+ "scrolling:follow_min_visible": {
+  "default": 0.4,
+  "map": null,
+  "max": 1,
+  "min": 0,
+  "type": "float"
+ },
+ "scrolling:fullscreen_on_one_column": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "scrolling:wrap_focus": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "scrolling:wrap_swapcol": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "xwayland:create_abstract_socket": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "xwayland:enabled": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "xwayland:force_zero_scaling": {
+  "default": false,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ },
+ "xwayland:use_nearest_neighbor": {
+  "default": true,
+  "map": null,
+  "max": null,
+  "min": null,
+  "type": "bool"
+ }
+}

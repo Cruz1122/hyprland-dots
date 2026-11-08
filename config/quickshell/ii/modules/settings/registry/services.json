@@ -1,0 +1,375 @@
+{
+  "id": "services",
+  "title": "Services",
+  "icon": "settings_applications",
+  "description": "Weather, updates, resources, music recognition, Pomodoro and AI quotas.",
+  "sections": [
+    {
+      "id": "weather",
+      "title": "Weather",
+      "icon": "partly_cloudy_day"
+    },
+    {
+      "id": "updates",
+      "title": "System updates",
+      "icon": "system_update",
+      "description": "Counts pending pacman updates with checkupdates."
+    },
+    {
+      "id": "resources",
+      "title": "Resources",
+      "icon": "monitor_heart"
+    },
+    {
+      "id": "music",
+      "title": "Music recognition",
+      "icon": "music_note"
+    },
+    {
+      "id": "pomodoro",
+      "title": "Pomodoro",
+      "icon": "timer"
+    },
+    {
+      "id": "aiQuotas",
+      "title": "AI quotas and accounts",
+      "icon": "account_circle"
+    }
+  ],
+  "entries": [
+    {
+      "key": "bar.weather.enableGPS",
+      "section": "weather",
+      "label": "Locate with GPS",
+      "description": "Use the device location for the weather; the city below is used when no location is available.",
+      "keywords": [
+        "gps",
+        "ubicación",
+        "location"
+      ],
+      "icon": "my_location",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/Weather.qml"
+      ]
+    },
+    {
+      "key": "bar.weather.city",
+      "section": "weather",
+      "label": "City",
+      "description": "Used when GPS is off or cannot get a location.",
+      "keywords": [
+        "ciudad",
+        "ubicación"
+      ],
+      "icon": "location_city",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "maxLength": 100
+      },
+      "consumers": [
+        "services/Weather.qml"
+      ],
+      "placeholder": "Your city"
+    },
+    {
+      "key": "bar.weather.useUSCS",
+      "section": "weather",
+      "label": "Imperial units",
+      "description": "Show °F, mph and inches instead of metric units.",
+      "keywords": [
+        "fahrenheit",
+        "unidades"
+      ],
+      "icon": "thermostat",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/Weather.qml"
+      ]
+    },
+    {
+      "key": "bar.weather.fetchInterval",
+      "section": "weather",
+      "label": "Update interval",
+      "description": "How often the weather is refreshed.",
+      "icon": "update",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 5,
+      "max": 180,
+      "step": 5,
+      "unit": "min",
+      "consumers": [
+        "services/Weather.qml"
+      ]
+    },
+    {
+      "key": "updates.enableCheck",
+      "section": "updates",
+      "label": "Check for updates",
+      "description": "Periodically count pending package updates.",
+      "keywords": [
+        "actualizaciones",
+        "pacman"
+      ],
+      "icon": "system_update",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "enabledWhen": {
+        "capability": "checkupdates"
+      },
+      "consumers": [
+        "services/Updates.qml"
+      ]
+    },
+    {
+      "key": "updates.checkInterval",
+      "section": "updates",
+      "label": "Check interval",
+      "description": "Minutes between update checks.",
+      "icon": "update",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 10,
+      "max": 1440,
+      "step": 10,
+      "unit": "min",
+      "enabledWhen": {
+        "all": [
+          {
+            "capability": "checkupdates"
+          },
+          {
+            "key": "updates.enableCheck",
+            "equals": true
+          }
+        ]
+      },
+      "consumers": [
+        "services/Updates.qml"
+      ]
+    },
+    {
+      "key": "updates.adviseUpdateThreshold",
+      "section": "updates",
+      "label": "Suggest updating after",
+      "description": "Pending updates before the indicator suggests updating.",
+      "icon": "info",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 2000,
+      "step": 5,
+      "unit": "updates",
+      "enabledWhen": {
+        "all": [
+          {
+            "capability": "checkupdates"
+          },
+          {
+            "key": "updates.enableCheck",
+            "equals": true
+          }
+        ]
+      },
+      "consumers": [
+        "services/Updates.qml"
+      ]
+    },
+    {
+      "key": "updates.stronglyAdviseUpdateThreshold",
+      "section": "updates",
+      "label": "Insist on updating after",
+      "description": "Pending updates before the indicator strongly suggests updating.",
+      "icon": "warning",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 5000,
+      "step": 10,
+      "unit": "updates",
+      "enabledWhen": {
+        "all": [
+          {
+            "capability": "checkupdates"
+          },
+          {
+            "key": "updates.enableCheck",
+            "equals": true
+          }
+        ]
+      },
+      "consumers": [
+        "services/Updates.qml"
+      ]
+    },
+    {
+      "key": "resources.updateInterval",
+      "section": "resources",
+      "label": "Polling interval",
+      "description": "How often CPU, memory and swap usage are sampled.",
+      "icon": "speed",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 100,
+      "max": 10000,
+      "step": 100,
+      "unit": "ms",
+      "consumers": [
+        "services/ResourceUsage.qml"
+      ]
+    },
+    {
+      "key": "resources.historyLength",
+      "section": "resources",
+      "label": "History length",
+      "description": "Samples kept for the usage graphs.",
+      "icon": "show_chart",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 10,
+      "max": 600,
+      "step": 10,
+      "unit": "samples",
+      "consumers": [
+        "services/ResourceUsage.qml"
+      ]
+    },
+    {
+      "key": "musicRecognition.timeout",
+      "section": "music",
+      "label": "Give up after",
+      "description": "Total time spent listening before recognition stops.",
+      "keywords": [
+        "songrec",
+        "canción"
+      ],
+      "icon": "timer_off",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 10,
+      "max": 100,
+      "step": 2,
+      "unit": "s",
+      "consumers": [
+        "services/SongRec.qml"
+      ]
+    },
+    {
+      "key": "musicRecognition.interval",
+      "section": "music",
+      "label": "Retry interval",
+      "description": "Time between recognition attempts.",
+      "icon": "refresh",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 2,
+      "max": 10,
+      "unit": "s",
+      "consumers": [
+        "services/SongRec.qml"
+      ]
+    },
+    {
+      "key": "time.pomodoro.focus",
+      "section": "pomodoro",
+      "label": "Focus time",
+      "description": "Length of a focus session.",
+      "icon": "center_focus_strong",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 60,
+      "max": 7200,
+      "step": 60,
+      "unit": "min",
+      "uiScale": 0.016666666666666666,
+      "consumers": [
+        "services/TimerService.qml"
+      ]
+    },
+    {
+      "key": "time.pomodoro.breakTime",
+      "section": "pomodoro",
+      "label": "Short break",
+      "description": "Length of the break after a focus session.",
+      "icon": "coffee",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 60,
+      "max": 3600,
+      "step": 60,
+      "unit": "min",
+      "uiScale": 0.016666666666666666,
+      "consumers": [
+        "services/TimerService.qml"
+      ]
+    },
+    {
+      "key": "time.pomodoro.longBreak",
+      "section": "pomodoro",
+      "label": "Long break",
+      "description": "Length of the break after several focus sessions.",
+      "icon": "weekend",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 60,
+      "max": 7200,
+      "step": 60,
+      "unit": "min",
+      "uiScale": 0.016666666666666666,
+      "consumers": [
+        "services/TimerService.qml"
+      ]
+    },
+    {
+      "key": "time.pomodoro.cyclesBeforeLongBreak",
+      "section": "pomodoro",
+      "label": "Sessions before a long break",
+      "description": "Focus sessions completed before the long break.",
+      "icon": "repeat",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 12,
+      "consumers": [
+        "services/TimerService.qml"
+      ]
+    },
+    {
+      "key": "info.services.aiQuotas",
+      "section": "aiQuotas",
+      "label": "AI subscription quotas",
+      "description": "Connect accounts and choose what the bar shows in the quota panel of the shell.",
+      "keywords": [
+        "ia",
+        "ai",
+        "codex",
+        "claude",
+        "cuotas"
+      ],
+      "icon": "account_circle",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    }
+  ]
+}

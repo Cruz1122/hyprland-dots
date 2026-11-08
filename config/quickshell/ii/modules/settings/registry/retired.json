@@ -1,0 +1,52 @@
+{
+  "retired": [
+    "policies.ai",
+    "ai",
+    "sidebar.ai",
+    "sidebar.translator",
+    "language.translator",
+    "sidebar.booru",
+    "bar.utilButtons.showScreenSnip",
+    "bar.utilButtons.showColorPicker",
+    "bar.utilButtons.showPerformanceProfileToggle",
+    "bar.utilButtons.showScreenRecord",
+    "bar.utilButtons.showTaskKiller",
+    "bar.workspaces.showNumberDelay",
+    "bar.resources.alwaysShowSwap",
+    "bar.resources.alwaysShowCpu",
+    "background.widgets.clock.cookie.dateInClock",
+    "calendar.locale",
+    "panelFamily",
+    "waffles"
+  ],
+  "managedElsewhere": [
+    {
+      "path": "background.wallpaperPath",
+      "reason": "Set by switchwall.sh when a wallpaper is chosen."
+    },
+    {
+      "path": "background.thumbnailPath",
+      "reason": "Written by switchwall.sh with the wallpaper."
+    },
+    {
+      "path": "background.widgets.clock.x",
+      "reason": "Set by dragging the clock on the desktop."
+    },
+    {
+      "path": "background.widgets.clock.y",
+      "reason": "Set by dragging the clock on the desktop."
+    },
+    {
+      "path": "background.widgets.weather.x",
+      "reason": "Set by dragging the weather widget on the desktop."
+    },
+    {
+      "path": "background.widgets.weather.y",
+      "reason": "Set by dragging the weather widget on the desktop."
+    },
+    {
+      "path": "sidebar.quickToggles.android.toggles",
+      "reason": "Edited in the right sidebar's quick toggles panel."
+    }
+  ]
+}

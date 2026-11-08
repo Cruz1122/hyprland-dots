@@ -1,0 +1,294 @@
+{
+  "id": "search",
+  "title": "Search",
+  "icon": "manage_search",
+  "description": "The launcher, its prefixes and web search.",
+  "sections": [
+    {
+      "id": "launcher",
+      "title": "Launcher",
+      "icon": "apps"
+    },
+    {
+      "id": "prefixes",
+      "title": "Prefixes",
+      "icon": "keyboard_command_key",
+      "description": "Type a prefix at the start of a search to switch what it looks for."
+    },
+    {
+      "id": "web",
+      "title": "Web search",
+      "icon": "travel_explore"
+    }
+  ],
+  "entries": [
+    {
+      "key": "search.sloppy",
+      "section": "launcher",
+      "label": "Typo-tolerant matching",
+      "description": "Match apps by edit distance instead of fuzzy search; tolerates typos but may miss acronyms.",
+      "keywords": [
+        "levenshtein",
+        "fuzzy",
+        "errores"
+      ],
+      "icon": "spellcheck",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/AppSearch.qml"
+      ]
+    },
+    {
+      "key": "search.nonAppResultDelay",
+      "section": "launcher",
+      "label": "Delay for other results",
+      "description": "Wait before adding non-app results so typing stays responsive.",
+      "icon": "timer",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "unit": "ms",
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "launcher.pinnedApps",
+      "section": "launcher",
+      "label": "Pinned apps",
+      "description": "Desktop entry ids pinned in the start menu.",
+      "keywords": [
+        "anclar",
+        "fijar"
+      ],
+      "icon": "push_pin",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "validate": {
+        "regex": "^[A-Za-z0-9._-]+$"
+      },
+      "consumers": [
+        "services/LauncherApps.qml"
+      ],
+      "placeholder": "org.kde.dolphin"
+    },
+    {
+      "key": "search.prefix.showDefaultActionsWithoutPrefix",
+      "section": "prefixes",
+      "label": "Show actions without a prefix",
+      "description": "List matching actions even when the action prefix is not typed.",
+      "icon": "bolt",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.app",
+      "section": "prefixes",
+      "label": "Apps",
+      "description": "Search only applications.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "apps",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.action",
+      "section": "prefixes",
+      "label": "Actions",
+      "description": "Run shell actions such as changing the wallpaper.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "bolt",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.clipboard",
+      "section": "prefixes",
+      "label": "Clipboard",
+      "description": "Search the clipboard history.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "content_paste",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.emojis",
+      "section": "prefixes",
+      "label": "Emojis",
+      "description": "Search emojis to copy.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "mood",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.math",
+      "section": "prefixes",
+      "label": "Calculator",
+      "description": "Evaluate a math expression.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "calculate",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.shellCommand",
+      "section": "prefixes",
+      "label": "Shell command",
+      "description": "Run a command in a terminal.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "terminal",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.prefix.webSearch",
+      "section": "prefixes",
+      "label": "Web search",
+      "description": "Search the web with the engine below.",
+      "keywords": [
+        "prefijo",
+        "prefix"
+      ],
+      "icon": "travel_explore",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 3,
+        "regex": "^\\S+$",
+        "unique": "searchPrefix"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.engineBaseUrl",
+      "section": "web",
+      "label": "Search engine",
+      "description": "Address the search terms are appended to.",
+      "keywords": [
+        "google",
+        "duckduckgo",
+        "motor"
+      ],
+      "icon": "link",
+      "backend": "config",
+      "type": "url",
+      "widget": "text",
+      "validate": {
+        "regex": "^https?://\\S+$"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "search.excludedSites",
+      "section": "web",
+      "label": "Excluded sites",
+      "description": "Sites removed from web search results.",
+      "icon": "block",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "validate": {
+        "regex": "^[A-Za-z0-9.-]+$"
+      },
+      "consumers": [
+        "services/LauncherSearch.qml"
+      ],
+      "placeholder": "example.com"
+    }
+  ]
+}

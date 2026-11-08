@@ -22,6 +22,9 @@ CAPTURE_PATHS = (
 EXCLUDED = ('__pycache__', '*.pyc', '*.bak*', '*.backup*', '*.old', '*~',
             'installed_listfile', 'installed_true', 'mpvpaper_thumbnails',
             '.venv', '.git', 'states.json', 'notes.json', 'todo.json')
+# Never copied into the repository: the machine-specific monitor layout (written
+# by the settings app or nwg-displays) and Game Mode's runtime overrides.
+CAPTURE_EXCLUDED = ('hypr/monitors.lua', 'hypr/hyprland/shellOverrides/main.lua')
 
 
 def digest(path: Path) -> str:
@@ -140,16 +143,24 @@ def user_owned(relative: Path) -> bool:
     text = relative.as_posix()
     return (text.startswith('hypr/custom/') or text in (
         'illogical-impulse/config.json', 'hypr/monitors.lua', 'hypr/workspaces.lua',
-        'hypr/hyprland.conf'))
+        'hypr/hyprland.conf', 'hypr/hyprland/shellOverrides/main.lua'))
+
+
+def capture_skip(root: str) -> frozenset[str]:
+    prefix = root + '/'
+    return frozenset(path[len(prefix):] for path in CAPTURE_EXCLUDED if path.startswith(prefix))
 
 
 def transfer(source: Path, target: Path, home: Path, config: Path,
-             capture: bool, dry_run: bool, replace_user: bool) -> list[str]:
+             capture: bool, dry_run: bool, replace_user: bool,
+             skip: frozenset[str] = frozenset()) -> list[str]:
     changes = []
     if source.is_symlink():
         raise ValueError(f'Refusing source root symlink: {source}')
     paths = list(files(source))
     for relative in paths:
+        if relative.as_posix() in skip:
+            continue
         src, dst = source / relative, target / relative
         reject_target_links(target, relative, allow_leaf=src.is_symlink())
         if dst.exists() and dst.is_dir():
@@ -229,7 +240,8 @@ def main() -> int:
             for relative in CAPTURE_PATHS:
                 path = config / relative
                 if path.is_dir():
-                    transfer(path, repo / 'config' / relative, home, config, True, True, True)
+                    transfer(path, repo / 'config' / relative, home, config, True, True, True,
+                             capture_skip(relative))
                 elif path.is_symlink():
                     raise ValueError(f'Refusing capture root symlink: {path}')
                 elif path.is_file():
@@ -244,7 +256,7 @@ def main() -> int:
                 if path.is_symlink():
                     raise ValueError(f'Refusing capture root symlink: {path}')
                 if path.is_dir():
-                    transfer(path, target, home, config, True, False, True)
+                    transfer(path, target, home, config, True, False, True, capture_skip(relative))
                 elif path.is_file():
                     reject_target_links(repo / 'config', Path(relative))
                     copy_file(path, target, portable(path.read_bytes(), home, config))

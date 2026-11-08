@@ -1,0 +1,17 @@
+# Regular expressions (Python syntax, one per line) for log lines caused by the
+# sandbox itself rather than by the settings app. Every other WARN/ERROR line
+# counts as an app warning. Keep this list short and justify each entry.
+
+# No compositor inside the sandbox.
+The active compositor does not support hyprland_global_shortcuts_v1
+GlobalShortcut will not work
+Failed to create wl_display
+# The private session bus has no portal (see dbus-session.conf).
+Failed to register with host portal
+# The sandbox has no icon theme and a private XDG_DATA_HOME, so the About page
+# logos installed outside the repository (~/.local/share/icons, distro logo) are absent.
+Could not load icon "(illogical-impulse|cachyos)" at size
+# No PipeWire socket inside the sandbox (AudioBackend binds Quickshell.Services.Pipewire).
+Failed to connect pipewire context
+# No system bus inside the sandbox (PowerBackend binds Quickshell.Services.UPower).
+(UPower|PowerProfiles) services? will not work

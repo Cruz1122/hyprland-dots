@@ -664,6 +664,15 @@ class DeploymentTests(unittest.TestCase):
             self.module.deploy(self.source, self.target, self.backup, execute=True)
         self.assertEqual(elsewhere.read_text(), "unrelated code")
 
+    def test_scope_leaves_the_settings_app_to_its_own_deploy(self):
+        # AiQuotaSettings needs the settings core; shipping it alone would
+        # break the live settings app.
+        self.assertEqual([name for name in self.module.FILES if name.startswith("modules/settings/")], [])
+
+    def test_every_scoped_file_exists_in_the_repository(self):
+        missing = [name for name in self.module.FILES if not (self.module.SOURCE / name).is_file()]
+        self.assertEqual(missing, [])
+
 
 if __name__ == "__main__":
     unittest.main()

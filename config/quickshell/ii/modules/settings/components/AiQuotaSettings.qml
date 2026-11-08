@@ -1,81 +1,73 @@
 import QtQuick
 import QtQuick.Layouts
-import qs
-import qs.services
+import Quickshell
 import qs.modules.common
 import qs.modules.common.widgets
-import qs.modules.settings.components
+import qs.services
+import qs.modules.settings.core
+import "../backends/IpcLogic.js" as IpcLogic
 
-SettingsSection {
+// AI quota accounts live in the main shell (AiQuotaUsage runs the private
+// `ai-quotas.py serve` backend there). The settings process must not start a
+// second backend, so it only asks the shell's quota panel, over IPC, to
+// connect a provider or to open; accounts are chosen in that panel.
+ColumnLayout {
     id: root
-    title: "Cuotas de IA y cuentas"
-    icon: "account_circle"
+
+    property var row: null
+    readonly property bool canConnect: (SettingsStore.revision, SettingsStore.hasCapability("ipc:aiQuotaConnect"))
+    readonly property bool canOpen: (SettingsStore.revision, SettingsStore.hasCapability("ipc:aiQuotaPanelToggle"))
+    readonly property var providers: [
+        { id: "codex", name: "Codex / ChatGPT", icon: "terminal" },
+        { id: "opencode", name: "OpenCode Go", icon: "code" },
+        { id: "antigravity", name: "Antigravity · Google AI Pro", icon: "rocket_launch" },
+        { id: "zed", name: "Zed", icon: "edit_note" },
+        { id: "cursor", name: "Cursor", icon: "arrow_selector_tool" },
+        { id: "claude", name: "Claude", icon: "smart_toy" }
+    ]
+
+    function run(name, args) {
+        const argv = IpcLogic.namedCallArgv(Quickshell.shellPath(""), name, args);
+        if (argv)
+            Quickshell.execDetached(argv);
+    }
+
+    spacing: 8
 
     StyledText {
         Layout.fillWidth: true
-        text: "Conecta desde el panel para mostrar consumos reales. ChatGPT y Go pueden usar tu fork de OpenCode; las credenciales manuales se guardan en el llavero, nunca en esta configuración."
+        text: root.canConnect
+            ? Translation.tr("Credentials typed in the panel are stored in the system keyring, never in the configuration file.")
+            : Translation.tr("Start the shell to connect accounts.")
         wrapMode: Text.Wrap
-        font.pixelSize: 13
+        color: Appearance.colors.colSubtext
+        font.pixelSize: Appearance.font.pixelSize.smaller
     }
 
-    Repeater {
-        model: ["codex", "opencode", "antigravity", "zed", "cursor", "claude"]
-        delegate: SettingsCard {
-            id: card
-            required property string modelData
-            readonly property var snapshot: AiQuotaUsage.snapshot(modelData)
-            readonly property var choices: [{ id: "", alias: "Desactivado" }].concat(AiQuotaUsage.accountsFor(modelData))
+    Flow {
+        Layout.fillWidth: true
+        spacing: 8
 
-            StyledText {
-                Layout.fillWidth: true
-                text: card.snapshot.name
-                textFormat: Text.PlainText
-                font.weight: Font.DemiBold
-            }
-            StyledText {
-                Layout.fillWidth: true
-                text: card.snapshot.status === "ready" ? (card.snapshot.identityVerified ? "Conectado · identidad verificada"
-                    : "Conectado · identidad no verificada") : card.snapshot.message
-                textFormat: Text.PlainText
-                wrapMode: Text.Wrap
-                font.pixelSize: 13
-            }
-            SettingsSelectRow {
-                title: "Cuenta mostrada"
-                visible: card.choices.length > 1
-                model: card.choices
-                textRole: "alias"
-                currentIndex: Math.max(0, card.choices.findIndex(account => account.id === (AiQuotaUsage.data.selected?.[card.modelData] ?? "")))
-                onActivated: index => {
-                    const accountId = card.choices[index].id;
-                    if (accountId) AiQuotaUsage.select(card.modelData, accountId);
-                    else AiQuotaUsage.disable(card.modelData);
-                }
-            }
-            RowLayout {
-                SettingsActionButton {
-                    text: "Conectar cuentas…"
-                    enabled: AiQuotaUsage.available
-                    // Connecting happens in the quota panel, fully in the GUI.
-                    callback: () => {
-                        AiQuotaUsage.requestConnection(card.modelData);
-                        GlobalStates.openAiQuotaPanel("");
-                    }
-                }
-                SettingsActionButton {
-                    text: "Actualizar"
-                    enabled: !!card.snapshot.accountId
-                    callback: () => AiQuotaUsage.refresh(card.modelData)
-                }
+        Repeater {
+            model: root.providers
+
+            delegate: SettingsButton {
+                required property var modelData
+                kind: "tonal"
+                iconName: modelData.icon
+                text: modelData.name
+                enabled: root.canConnect
+                Accessible.name: Translation.tr("Connect %1").arg(modelData.name)
+                onClicked: root.run("aiQuotaConnect", [modelData.id])
             }
         }
     }
 
-    StyledText {
-        Layout.fillWidth: true
-        visible: AiQuotaUsage.operationError.length > 0
-        text: AiQuotaUsage.operationError
-        textFormat: Text.PlainText
-        wrapMode: Text.Wrap
+    SettingsButton {
+        kind: "text"
+        iconName: "open_in_new"
+        text: Translation.tr("Open the quota panel")
+        enabled: root.canOpen
+        onClicked: root.run("aiQuotaPanelToggle", [])
     }
 }

@@ -1,25 +1,28 @@
 pragma Singleton
-pragma ComponentBehavior: Bound
 
 import QtQuick
 
+// Shared spacing and size tokens of the settings app.
 QtObject {
-    readonly property real pageMargin: 20
-    readonly property real pageBottomPadding: 96
-    readonly property real sectionSpacing: 24
-    readonly property real cardPadding: 16
-    readonly property real cardSpacing: 12
-    readonly property real rowSpacing: 12
-    readonly property real compactRowSpacing: 8
-    readonly property real controlHeight: 40
-    readonly property real compactControlHeight: 36
-    readonly property real iconButtonSize: 40
-    readonly property real minLabelWidth: 180
-    readonly property real maxContentWidth: 960
-    readonly property real compactBreakpoint: 760
-    readonly property real mediumBreakpoint: 900
-    readonly property real cardRadius: 16
-    readonly property real controlRadius: 10
-    readonly property real dividerHeight: 1
+    readonly property real pageMargin: 28
+    readonly property real compactPageMargin: 16
+    readonly property real maxContentWidth: 880
+    readonly property real sectionSpacing: 28
+    readonly property real cardPadding: 6
+    readonly property real rowHorizontalPadding: 16
+    readonly property real rowVerticalPadding: 12
+    readonly property real rowStackWidth: 520
+    readonly property real controlHeight: 36
+    readonly property real controlRadius: 12
+    // Drop-downs share one width so a section's controls line up; long
+    // labels elide.
+    readonly property real selectWidth: 280
+    readonly property real cardRadius: 20
+    readonly property real rowRadius: 14
+    readonly property real navExpandedWidth: 248
+    readonly property real navCollapsedWidth: 60
+    readonly property real navAutoCollapseWidth: 900
+    // Height of the fades at the scrolled edges of the page list.
+    readonly property real navEdgeFadeHeight: 28
     readonly property int transitionDuration: 180
 }

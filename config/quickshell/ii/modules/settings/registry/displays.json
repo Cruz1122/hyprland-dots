@@ -1,0 +1,181 @@
+{
+  "id": "displays",
+  "title": "Displays and night light",
+  "icon": "monitor",
+  "description": "Resolution, scale, arrangement and color temperature.",
+  "sections": [
+    {
+      "id": "layout",
+      "title": "Displays",
+      "icon": "monitor"
+    },
+    {
+      "id": "nightLight",
+      "title": "Night light",
+      "icon": "nightlight"
+    },
+    {
+      "id": "antiFlashbang",
+      "title": "Anti-flashbang",
+      "icon": "flash_off"
+    }
+  ],
+  "entries": [
+    {
+      "key": "action.displays.replaceMonitors",
+      "section": "layout",
+      "label": "Display layout file edited by hand",
+      "description": "Settings will not overwrite ~/.config/hypr/monitors.lua; replacing it saves a copy next to it first.",
+      "icon": "warning",
+      "backend": "action",
+      "type": "action",
+      "action": "replaceMonitors",
+      "actionLabel": "Replace (keeps a backup)",
+      "actionIcon": "file_copy",
+      "actionKind": "danger",
+      "visibleWhen": {
+        "capability": "monitorsFileUnmanaged"
+      }
+    },
+    {
+      "key": "display.presets",
+      "section": "layout",
+      "label": "Quick layouts",
+      "description": "Extend the desktop, duplicate it or use a single display.",
+      "keywords": [
+        "extend",
+        "mirror",
+        "duplicate",
+        "extender",
+        "duplicar",
+        "proyectar",
+        "presets"
+      ],
+      "icon": "view_quilt",
+      "backend": "display",
+      "type": "custom",
+      "widget": "custom",
+      "visibleWhen": {
+        "capability": "multiMonitor"
+      }
+    },
+    {
+      "key": "display.monitors",
+      "section": "layout",
+      "label": "Connected displays",
+      "description": "Turn each display on or off and choose its resolution, scale, rotation and position.",
+      "note": "Changes are previewed and kept only if you confirm them.",
+      "keywords": [
+        "monitor",
+        "resolution",
+        "refresh rate",
+        "scale",
+        "rotation",
+        "vrr",
+        "resolución",
+        "escala",
+        "rotación",
+        "frecuencia",
+        "pantalla"
+      ],
+      "icon": "desktop_windows",
+      "backend": "display",
+      "type": "custom",
+      "widget": "custom",
+      "risky": true
+    },
+    {
+      "key": "light.night.automatic",
+      "section": "nightLight",
+      "label": "Automatic night light",
+      "description": "Warm the screen colors on a daily schedule.",
+      "keywords": [
+        "night",
+        "blue light",
+        "luz nocturna",
+        "hyprsunset"
+      ],
+      "icon": "schedule",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/models/quickToggles/NightLightToggle.qml",
+        "modules/ii/sidebarRight/nightLight/NightLightDialog.qml"
+      ]
+    },
+    {
+      "key": "light.night.from",
+      "section": "nightLight",
+      "label": "Turn on at",
+      "description": "Time when the night light turns on.",
+      "icon": "bedtime",
+      "backend": "config",
+      "type": "time",
+      "enabledWhen": {
+        "key": "light.night.automatic",
+        "equals": true
+      },
+      "consumers": [
+        "services/Hyprsunset.qml"
+      ]
+    },
+    {
+      "key": "light.night.to",
+      "section": "nightLight",
+      "label": "Turn off at",
+      "description": "Time when the night light turns off.",
+      "icon": "wb_sunny",
+      "backend": "config",
+      "type": "time",
+      "enabledWhen": {
+        "key": "light.night.automatic",
+        "equals": true
+      },
+      "consumers": [
+        "services/Hyprsunset.qml"
+      ]
+    },
+    {
+      "key": "light.night.colorTemperature",
+      "section": "nightLight",
+      "label": "Color temperature",
+      "description": "Lower values look warmer.",
+      "keywords": [
+        "kelvin",
+        "temperatura",
+        "warm",
+        "cálido"
+      ],
+      "icon": "thermostat",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 1200,
+      "max": 6500,
+      "step": 100,
+      "unit": " K",
+      "consumers": [
+        "services/Hyprsunset.qml",
+        "modules/ii/sidebarRight/nightLight/NightLightDialog.qml"
+      ]
+    },
+    {
+      "key": "light.antiFlashbang.enable",
+      "section": "antiFlashbang",
+      "label": "Dim bright windows",
+      "description": "Lower the brightness when a bright window appears in dark mode.",
+      "keywords": [
+        "flashbang",
+        "brightness",
+        "brillo",
+        "antideslumbramiento"
+      ],
+      "icon": "brightness_6",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "services/Brightness.qml"
+      ]
+    }
+  ]
+}

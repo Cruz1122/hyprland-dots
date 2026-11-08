@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Not Hyprland
+NotShowIn=Hyprland;
+Exec=nh
+MimeType=text/plain;

@@ -212,7 +212,9 @@ Slider {
         }
 
         StyledToolTip {
-            extraVisibleCondition: root.pressed
+            // The handle has no `hovered`; show while dragging.
+            extraVisibleCondition: false
+            alternativeVisibleCondition: root.pressed
             text: root.tooltipContent
             font {
                 family: Appearance.font.family.numbers

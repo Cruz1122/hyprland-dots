@@ -108,6 +108,32 @@ class DotsctlTests(unittest.TestCase):
         backup, = (self.state / 'hyprland-dots/backups').iterdir()
         self.assertEqual((backup / 'config/hypr/hyprland.lua').read_text(), '-- test\n')
 
+    def test_capture_skips_machine_layout_and_game_mode_overrides(self):
+        self.write(self.live / 'hypr/monitors.lua', 'hl.monitor({output = "HDMI-A-1"})')
+        self.write(self.live / 'hypr/hyprland/shellOverrides/main.lua', 'hl.config({animations={enabled=false}})')
+        self.write(self.live / 'hypr/custom/shell-settings.lua', 'hl.config({general={gaps_in=2}})')
+        self.require_ok(self.run_action('capture', '--yes'))
+        self.assertFalse((self.repo / 'config/hypr/monitors.lua').exists())
+        self.assertFalse((self.repo / 'config/hypr/hyprland/shellOverrides/main.lua').exists())
+        self.assertEqual((self.repo / 'config/hypr/custom/shell-settings.lua').read_text(),
+                         'hl.config({general={gaps_in=2}})')
+        dry = self.run_action('capture', '--dry-run')
+        self.require_ok(dry)
+        self.assertNotIn('monitors.lua', dry.stdout)
+        self.assertNotIn('shellOverrides', dry.stdout)
+
+    def test_install_keeps_live_game_mode_overrides_and_generated_custom_files(self):
+        self.write(self.repo / 'config/hypr/hyprland/shellOverrides/main.lua', '-- managed by the shell\n')
+        self.write(self.repo / 'config/hypr/custom/shell-idle.conf', '# never\n')
+        self.write(self.live / 'hypr/hyprland/shellOverrides/main.lua', 'game mode on')
+        self.write(self.live / 'hypr/custom/shell-settings.lua', 'mine')
+        self.require_ok(self.run_action('install', '--yes'))
+        self.assertEqual((self.live / 'hypr/hyprland/shellOverrides/main.lua').read_text(), 'game mode on')
+        self.assertEqual((self.live / 'hypr/custom/shell-settings.lua').read_text(), 'mine')
+        self.assertEqual((self.live / 'hypr/custom/shell-idle.conf').read_text(), '# never\n')
+        self.require_ok(self.run_action('install', '--yes', '--replace-user'))
+        self.assertEqual((self.live / 'hypr/hyprland/shellOverrides/main.lua').read_text(), '-- managed by the shell\n')
+
     def test_capture_dry_run_does_not_write(self):
         self.write(self.live / 'hypr/hyprland.lua', 'changed')
         before = dotsctl.inventory(self.home)

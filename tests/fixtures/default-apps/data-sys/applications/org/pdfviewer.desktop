@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=PDF Viewer
+Icon=pdf
+Exec=pdf %f
+MimeType=application/pdf;

@@ -1,0 +1,559 @@
+{
+  "id": "capture",
+  "title": "Capture and recording",
+  "icon": "screen_record",
+  "description": "Screenshots, the region selector and screen recording.",
+  "sections": [
+    {
+      "id": "screenshots",
+      "title": "Screenshots",
+      "icon": "screenshot_region"
+    },
+    {
+      "id": "imageSearch",
+      "title": "Image search",
+      "icon": "image_search"
+    },
+    {
+      "id": "regionSelector",
+      "title": "Region selector",
+      "icon": "select",
+      "description": "The overlay used to pick a window, a layer or a free region."
+    },
+    {
+      "id": "recordingActions",
+      "title": "Recording controls",
+      "icon": "radio_button_checked"
+    },
+    {
+      "id": "recording",
+      "title": "Screen recording",
+      "icon": "videocam"
+    }
+  ],
+  "entries": [
+    {
+      "key": "screenSnip.savePath",
+      "section": "screenshots",
+      "label": "Screenshot folder",
+      "description": "Folder where region screenshots are saved; leave empty to only copy them to the clipboard.",
+      "icon": "folder",
+      "keywords": [
+        "captura",
+        "carpeta",
+        "screenshot"
+      ],
+      "backend": "config",
+      "type": "path",
+      "widget": "path",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ],
+      "placeholder": "Clipboard only",
+      "pick": "folder"
+    },
+    {
+      "key": "regionSelector.annotation.useSatty",
+      "section": "screenshots",
+      "label": "Annotate with Satty",
+      "description": "Open screenshots for editing in Satty instead of Swappy.",
+      "icon": "draw",
+      "keywords": [
+        "swappy",
+        "editar",
+        "anotar"
+      ],
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "enabledWhen": {
+        "capability": "satty"
+      },
+      "consumers": [
+        "modules/common/utils/ScreenshotAction.qml"
+      ]
+    },
+    {
+      "key": "search.imageSearch.imageSearchEngineBaseUrl",
+      "section": "imageSearch",
+      "label": "Image search engine",
+      "description": "Address the uploaded screenshot link is appended to.",
+      "icon": "travel_explore",
+      "keywords": [
+        "lens",
+        "google",
+        "buscar imagen"
+      ],
+      "backend": "config",
+      "type": "url",
+      "widget": "text",
+      "validate": {
+        "regex": "^https?://\\S+$"
+      },
+      "consumers": [
+        "modules/common/utils/ScreenshotAction.qml"
+      ]
+    },
+    {
+      "key": "search.imageSearch.useCircleSelection",
+      "section": "imageSearch",
+      "label": "Circle to search",
+      "description": "Select the area to search by drawing around it instead of a rectangle.",
+      "icon": "gesture",
+      "keywords": [
+        "círculo",
+        "circle"
+      ],
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelector.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.windows",
+      "section": "regionSelector",
+      "label": "Snap to windows",
+      "description": "Offer open windows as ready-made regions.",
+      "icon": "select_window",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.layers",
+      "section": "regionSelector",
+      "label": "Snap to shell layers",
+      "description": "Offer panels and bars as ready-made regions.",
+      "icon": "layers",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.content",
+      "section": "regionSelector",
+      "label": "Snap to content",
+      "description": "Offer detected images and text blocks as ready-made regions.",
+      "icon": "image",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.showLabel",
+      "section": "regionSelector",
+      "label": "Show region labels",
+      "description": "Name each ready-made region while selecting.",
+      "icon": "label",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/TargetRegion.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.opacity",
+      "section": "regionSelector",
+      "label": "Region highlight opacity",
+      "description": "Opacity of the window and layer highlights.",
+      "icon": "opacity",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "unit": "%",
+      "uiScale": 100,
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.contentRegionOpacity",
+      "section": "regionSelector",
+      "label": "Content highlight opacity",
+      "description": "Opacity of the detected content highlights.",
+      "icon": "opacity",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "unit": "%",
+      "uiScale": 100,
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.targetRegions.selectionPadding",
+      "section": "regionSelector",
+      "label": "Region padding",
+      "description": "Extra space added around a ready-made region.",
+      "icon": "padding",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 50,
+      "unit": "px",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.rect.showAimLines",
+      "section": "regionSelector",
+      "label": "Aim lines",
+      "description": "Show crosshair lines while drawing a rectangle.",
+      "icon": "center_focus_weak",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/ii/regionSelector/RectCornersSelectionDetails.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.circle.strokeWidth",
+      "section": "regionSelector",
+      "label": "Circle stroke width",
+      "description": "Thickness of the line drawn in circle selection.",
+      "icon": "line_weight",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 20,
+      "unit": "px",
+      "consumers": [
+        "modules/ii/regionSelector/CircleSelectionDetails.qml"
+      ]
+    },
+    {
+      "key": "regionSelector.circle.padding",
+      "section": "regionSelector",
+      "label": "Circle padding",
+      "description": "Extra space added around a circled area.",
+      "icon": "padding",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 50,
+      "unit": "px",
+      "consumers": [
+        "modules/ii/regionSelector/RegionSelection.qml"
+      ]
+    },
+    {
+      "key": "action.capture.recordScreen",
+      "section": "recordingActions",
+      "label": "Record the screen",
+      "description": "Start recording the whole screen, or stop the current recording.",
+      "icon": "screen_record",
+      "backend": "action",
+      "type": "action",
+      "action": "recordScreen",
+      "actionLabel": "Record",
+      "actionIcon": "screen_record"
+    },
+    {
+      "key": "action.capture.recordRegion",
+      "section": "recordingActions",
+      "label": "Record a region",
+      "description": "Pick a region with the selector and record it.",
+      "icon": "screenshot_region",
+      "note": "Needs the shell to be running.",
+      "backend": "action",
+      "type": "action",
+      "enabledWhen": {
+        "capability": "ipc:regionRecord"
+      },
+      "action": "recordRegion",
+      "actionLabel": "Select",
+      "actionIcon": "screenshot_region"
+    },
+    {
+      "key": "action.capture.pauseRecording",
+      "section": "recordingActions",
+      "label": "Pause or resume",
+      "description": "Pause the current recording, or resume it.",
+      "icon": "pause",
+      "backend": "action",
+      "type": "action",
+      "action": "pauseRecording",
+      "actionLabel": "Pause or resume",
+      "actionIcon": "pause"
+    },
+    {
+      "key": "action.capture.stopRecording",
+      "section": "recordingActions",
+      "label": "Stop recording",
+      "description": "Stop the current recording and save the file.",
+      "icon": "stop_circle",
+      "backend": "action",
+      "type": "action",
+      "action": "stopRecording",
+      "actionLabel": "Stop",
+      "actionIcon": "stop_circle",
+      "actionKind": "danger"
+    },
+    {
+      "key": "screenRecord.barButtonAction",
+      "section": "recordingActions",
+      "label": "Left sidebar record button",
+      "description": "What the screen record button in the left sidebar does when clicked.",
+      "icon": "radio_button_checked",
+      "keywords": [
+        "record",
+        "grabar",
+        "grabación",
+        "sidebar",
+        "barra lateral"
+      ],
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "fullscreen",
+          "label": "Record the full screen",
+          "icon": "fullscreen"
+        },
+        {
+          "value": "region",
+          "label": "Record a region",
+          "icon": "crop_free"
+        },
+        {
+          "value": "pause",
+          "label": "Pause or resume",
+          "icon": "pause"
+        },
+        {
+          "value": "stop",
+          "label": "Stop recording",
+          "icon": "stop"
+        }
+      ],
+      "consumers": [
+        "modules/ii/sidebarLeft/SidebarLeftContent.qml"
+      ]
+    },
+    {
+      "key": "screenRecord.savePath",
+      "section": "recording",
+      "label": "Video folder",
+      "description": "Folder where recordings are saved.",
+      "icon": "folder",
+      "backend": "config",
+      "type": "path",
+      "widget": "path",
+      "validate": {
+        "nonEmpty": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ],
+      "pick": "folder"
+    },
+    {
+      "key": "screenRecord.fileFormat",
+      "section": "recording",
+      "label": "File format",
+      "description": "Container of the recorded file.",
+      "icon": "movie",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "mp4",
+          "label": "MP4"
+        },
+        {
+          "value": "mkv",
+          "label": "MKV"
+        },
+        {
+          "value": "webm",
+          "label": "WebM"
+        }
+      ],
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.fps",
+      "section": "recording",
+      "label": "Frame rate",
+      "description": "Frames recorded per second.",
+      "icon": "speed",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 240,
+      "unit": "fps",
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.pixelFormat",
+      "section": "recording",
+      "label": "Pixel format",
+      "description": "Pixel format passed to the encoder; Automatic lets wf-recorder choose.",
+      "icon": "palette",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "yuv420p",
+          "label": "yuv420p (most compatible)"
+        },
+        {
+          "value": "nv12",
+          "label": "nv12"
+        },
+        {
+          "value": "auto",
+          "label": "Automatic"
+        }
+      ],
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.fullscreenUsesFocusedMonitor",
+      "section": "recording",
+      "label": "Record the focused monitor",
+      "description": "Full-screen recordings capture only the monitor that has focus.",
+      "icon": "select_window",
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.recordAudioByDefault",
+      "section": "recording",
+      "label": "Record audio by default",
+      "description": "Include audio when a recording is started without choosing.",
+      "icon": "mic",
+      "keywords": [
+        "sonido",
+        "audio"
+      ],
+      "backend": "config",
+      "type": "bool",
+      "widget": "switch",
+      "consumers": [
+        "modules/common/utils/ScreenshotAction.qml",
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.audioSource",
+      "section": "recording",
+      "label": "Audio source",
+      "description": "What is recorded when audio is included.",
+      "icon": "graphic_eq",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "system",
+          "label": "System",
+          "icon": "speaker"
+        },
+        {
+          "value": "mic",
+          "label": "Microphone",
+          "icon": "mic"
+        },
+        {
+          "value": "both",
+          "label": "Both",
+          "icon": "join"
+        },
+        {
+          "value": "none",
+          "label": "None",
+          "icon": "volume_off"
+        }
+      ],
+      "consumers": [
+        "modules/common/utils/ScreenshotAction.qml",
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ]
+    },
+    {
+      "key": "screenRecord.systemAudioDevice",
+      "section": "recording",
+      "label": "System audio device",
+      "description": "Output whose sound is recorded; Default follows the current output.",
+      "icon": "speaker",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "visibleWhen": {
+        "key": "screenRecord.audioSource",
+        "in": [
+          "system",
+          "both"
+        ]
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ],
+      "keys": [
+        "screenRecord.systemAudioDevice"
+      ]
+    },
+    {
+      "key": "screenRecord.micDevice",
+      "section": "recording",
+      "label": "Microphone device",
+      "description": "Microphone that is recorded; Default follows the current input.",
+      "icon": "mic",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "visibleWhen": {
+        "key": "screenRecord.audioSource",
+        "in": [
+          "mic",
+          "both"
+        ]
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/videos/record.sh"
+      ],
+      "keys": [
+        "screenRecord.micDevice"
+      ]
+    }
+  ]
+}

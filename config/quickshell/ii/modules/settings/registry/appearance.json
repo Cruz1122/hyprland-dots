@@ -1,0 +1,539 @@
+{
+  "id": "appearance",
+  "title": "Appearance",
+  "icon": "palette",
+  "description": "Colors, transparency, fonts and theming from the wallpaper.",
+  "sections": [
+    {
+      "id": "color",
+      "title": "Color",
+      "icon": "format_paint"
+    },
+    {
+      "id": "transparency",
+      "title": "Transparency",
+      "icon": "opacity"
+    },
+    {
+      "id": "fonts",
+      "title": "Typography",
+      "icon": "font_download",
+      "description": "Font families used across the shell."
+    },
+    {
+      "id": "wallpaperTheming",
+      "title": "Colors from the wallpaper",
+      "icon": "auto_awesome",
+      "description": "Generated each time the wallpaper changes."
+    },
+    {
+      "id": "shellWindows",
+      "title": "Shell windows",
+      "icon": "web_asset"
+    }
+  ],
+  "entries": [
+    {
+      "key": "action.appearance.darkMode",
+      "section": "color",
+      "label": "Theme",
+      "description": "Light or dark colors, generated from the current wallpaper.",
+      "keywords": [
+        "dark mode",
+        "light mode",
+        "modo oscuro",
+        "modo claro",
+        "tema"
+      ],
+      "icon": "contrast",
+      "backend": "action",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
+      "key": "appearance.palette.type",
+      "section": "color",
+      "label": "Color scheme",
+      "description": "How colors are picked from the wallpaper; the palette is regenerated on change.",
+      "keywords": [
+        "material you",
+        "matugen",
+        "paleta"
+      ],
+      "icon": "palette",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "keys": [
+        "appearance.palette.type"
+      ],
+      "options": [
+        {
+          "value": "auto",
+          "label": "Auto"
+        },
+        {
+          "value": "scheme-content",
+          "label": "Content"
+        },
+        {
+          "value": "scheme-expressive",
+          "label": "Expressive"
+        },
+        {
+          "value": "scheme-fidelity",
+          "label": "Fidelity"
+        },
+        {
+          "value": "scheme-fruit-salad",
+          "label": "Fruit Salad"
+        },
+        {
+          "value": "scheme-monochrome",
+          "label": "Monochrome"
+        },
+        {
+          "value": "scheme-neutral",
+          "label": "Neutral"
+        },
+        {
+          "value": "scheme-rainbow",
+          "label": "Rainbow"
+        },
+        {
+          "value": "scheme-tonal-spot",
+          "label": "Tonal Spot"
+        }
+      ],
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.palette.accentColor",
+      "section": "color",
+      "label": "Accent color",
+      "description": "Base the palette on this color instead of the wallpaper; leave empty to follow the wallpaper.",
+      "keywords": [
+        "accent",
+        "acento",
+        "hex"
+      ],
+      "icon": "colorize",
+      "backend": "config",
+      "type": "color",
+      "widget": "color",
+      "note": "Applied the next time colors are generated, or with Apply now.",
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.extraBackgroundTint",
+      "section": "color",
+      "label": "Extra background tint",
+      "description": "Tint panel backgrounds a little more with the accent color.",
+      "icon": "format_color_fill",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.transparency.enable",
+      "section": "transparency",
+      "label": "Transparency",
+      "description": "Make panels and the bar see-through.",
+      "keywords": [
+        "translucent",
+        "translúcido",
+        "transparencia"
+      ],
+      "icon": "opacity",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/Appearance.qml",
+        "modules/waffle/looks/Looks.qml"
+      ]
+    },
+    {
+      "key": "appearance.transparency.automatic",
+      "section": "transparency",
+      "label": "Automatic amount",
+      "description": "Pick the transparency from the wallpaper colors.",
+      "icon": "auto_awesome",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "appearance.transparency.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.transparency.backgroundTransparency",
+      "section": "transparency",
+      "label": "Background transparency",
+      "description": "Transparency of panel backgrounds.",
+      "icon": "gradient",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "appearance.transparency.enable",
+            "equals": true
+          },
+          {
+            "key": "appearance.transparency.automatic",
+            "equals": false
+          }
+        ]
+      },
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.transparency.contentTransparency",
+      "section": "transparency",
+      "label": "Content transparency",
+      "description": "Transparency of cards and buttons inside panels.",
+      "icon": "layers",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "appearance.transparency.enable",
+            "equals": true
+          },
+          {
+            "key": "appearance.transparency.automatic",
+            "equals": false
+          }
+        ]
+      },
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.main",
+      "section": "fonts",
+      "label": "Main",
+      "description": "Text of most of the shell.",
+      "icon": "text_fields",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.title",
+      "section": "fonts",
+      "label": "Titles",
+      "description": "Headings and titles.",
+      "icon": "title",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.numbers",
+      "section": "fonts",
+      "label": "Numbers",
+      "description": "Clocks, percentages and other figures.",
+      "icon": "123",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.monospace",
+      "section": "fonts",
+      "label": "Monospace",
+      "description": "Code and terminal-like text.",
+      "icon": "code",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.iconNerd",
+      "section": "fonts",
+      "label": "Nerd Font icons",
+      "description": "Font that provides Nerd Font glyphs.",
+      "icon": "emoji_symbols",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.reading",
+      "section": "fonts",
+      "label": "Reading",
+      "description": "Long text such as notes and chat.",
+      "icon": "menu_book",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.fonts.expressive",
+      "section": "fonts",
+      "label": "Expressive",
+      "description": "Decorative text such as the welcome screen.",
+      "icon": "brush",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "consumers": [
+        "modules/common/Appearance.qml"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.enableAppsAndShell",
+      "section": "wallpaperTheming",
+      "label": "Shell and apps",
+      "description": "Color the shell, GTK apps and tools from the wallpaper.",
+      "keywords": [
+        "gtk",
+        "matugen",
+        "theming"
+      ],
+      "icon": "auto_awesome",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.enableQtApps",
+      "section": "wallpaperTheming",
+      "label": "Qt apps",
+      "description": "Also color Qt and KDE apps.",
+      "icon": "widgets",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableAppsAndShell",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.enableTerminal",
+      "section": "wallpaperTheming",
+      "label": "Terminal",
+      "description": "Also generate terminal colors.",
+      "icon": "terminal",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableAppsAndShell",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/applycolor.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.terminalGenerationProps.harmony",
+      "section": "wallpaperTheming",
+      "label": "Terminal harmony",
+      "description": "How much terminal colors lean towards the accent.",
+      "icon": "tune",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableTerminal",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.terminalGenerationProps.harmonizeThreshold",
+      "section": "wallpaperTheming",
+      "label": "Harmonize threshold",
+      "description": "Colors further than this from the accent are left as they are.",
+      "icon": "linear_scale",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "decimals": 0,
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableTerminal",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.terminalGenerationProps.termFgBoost",
+      "section": "wallpaperTheming",
+      "label": "Text contrast boost",
+      "description": "Make terminal text stand out more from its background.",
+      "icon": "contrast",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableTerminal",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "appearance.wallpaperTheming.terminalGenerationProps.forceDarkMode",
+      "section": "wallpaperTheming",
+      "label": "Dark terminal in light mode",
+      "description": "Keep terminal colors dark even when the shell is light.",
+      "icon": "dark_mode",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "appearance.wallpaperTheming.enableTerminal",
+        "equals": true
+      },
+      "consumers": [
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "action.appearance.applyTheme",
+      "section": "wallpaperTheming",
+      "label": "Apply to the current wallpaper",
+      "description": "Regenerate the colors now instead of waiting for the next wallpaper change.",
+      "icon": "refresh",
+      "backend": "action",
+      "type": "action",
+      "action": "applyTheme",
+      "actionLabel": "Apply now",
+      "actionIcon": "refresh"
+    },
+    {
+      "key": "windows.showTitlebar",
+      "section": "shellWindows",
+      "label": "Title bar",
+      "description": "Show a title bar on windows of the shell such as Settings.",
+      "icon": "title",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "killDialog.qml",
+        "settings.qml",
+        "welcome.qml"
+      ]
+    },
+    {
+      "key": "windows.centerTitle",
+      "section": "shellWindows",
+      "label": "Center the title",
+      "description": "Center the text of that title bar.",
+      "icon": "format_align_center",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "windows.showTitlebar",
+        "equals": true
+      },
+      "consumers": [
+        "killDialog.qml",
+        "settings.qml",
+        "welcome.qml"
+      ]
+    },
+    {
+      "key": "appearance.fakeScreenRounding",
+      "section": "shellWindows",
+      "label": "Rounded screen corners",
+      "description": "Draw rounded corners on the edges of the screen.",
+      "keywords": [
+        "corners",
+        "esquinas",
+        "rounding"
+      ],
+      "icon": "rounded_corner",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": 0,
+          "label": "Never"
+        },
+        {
+          "value": 1,
+          "label": "Always"
+        },
+        {
+          "value": 2,
+          "label": "Not in fullscreen"
+        }
+      ],
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    }
+  ]
+}

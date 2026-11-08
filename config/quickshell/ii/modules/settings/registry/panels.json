@@ -1,0 +1,876 @@
+{
+  "id": "panels",
+  "title": "Panels and overlays",
+  "icon": "dock_to_right",
+  "description": "Sidebars, dock, overview, overlay, on-screen displays and keyboard.",
+  "sections": [
+    {
+      "id": "rightSidebar",
+      "title": "Right sidebar",
+      "icon": "dock_to_left"
+    },
+    {
+      "id": "cornerOpen",
+      "title": "Open from screen corners",
+      "icon": "rounded_corner",
+      "description": "Open the sidebars by reaching the top corners."
+    },
+    {
+      "id": "dock",
+      "title": "Dock",
+      "icon": "call_to_action"
+    },
+    {
+      "id": "overview",
+      "title": "Overview",
+      "icon": "overview_key"
+    },
+    {
+      "id": "overlay",
+      "title": "Overlay",
+      "icon": "layers"
+    },
+    {
+      "id": "osd",
+      "title": "On-screen display",
+      "icon": "tune"
+    },
+    {
+      "id": "osk",
+      "title": "On-screen keyboard",
+      "icon": "keyboard"
+    },
+    {
+      "id": "cheatsheet",
+      "title": "Shortcut cheat sheet",
+      "icon": "keyboard_command_key"
+    },
+    {
+      "id": "media",
+      "title": "Media",
+      "icon": "music_note"
+    }
+  ],
+  "entries": [
+    {
+      "key": "sidebar.keepRightSidebarLoaded",
+      "section": "rightSidebar",
+      "label": "Keep loaded",
+      "description": "Open faster at the cost of some memory.",
+      "icon": "bolt",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/sidebarRight/SidebarRight.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickToggles.style",
+      "section": "rightSidebar",
+      "label": "Quick toggles",
+      "icon": "toggle_on",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "android",
+          "label": "Android"
+        },
+        {
+          "value": "classic",
+          "label": "Classic"
+        }
+      ],
+      "consumers": [
+        "modules/ii/sidebarRight/SidebarRightContent.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickToggles.android.columns",
+      "section": "rightSidebar",
+      "label": "Columns",
+      "icon": "view_column",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 8,
+      "visibleWhen": {
+        "key": "sidebar.quickToggles.style",
+        "equals": "android"
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/quickToggles/AndroidQuickPanel.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickSliders.enable",
+      "section": "rightSidebar",
+      "label": "Quick sliders",
+      "description": "Show sliders under the quick toggles.",
+      "icon": "tune",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/sidebarRight/SidebarRightContent.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickSliders.showBrightness",
+      "section": "rightSidebar",
+      "label": "Brightness slider",
+      "icon": "brightness_6",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.quickSliders.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/QuickSliders.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickSliders.showVolume",
+      "section": "rightSidebar",
+      "label": "Volume slider",
+      "icon": "volume_up",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.quickSliders.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/QuickSliders.qml"
+      ]
+    },
+    {
+      "key": "sidebar.quickSliders.showMic",
+      "section": "rightSidebar",
+      "label": "Microphone slider",
+      "icon": "mic",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.quickSliders.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/QuickSliders.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.enable",
+      "section": "cornerOpen",
+      "label": "Open from corners",
+      "icon": "rounded_corner",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.bottom",
+      "section": "cornerOpen",
+      "label": "Use the bottom corners",
+      "icon": "vertical_align_bottom",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.clickless",
+      "section": "cornerOpen",
+      "label": "Open on hover",
+      "description": "Open without clicking.",
+      "icon": "near_me",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.clicklessCornerEnd",
+      "section": "cornerOpen",
+      "label": "Hover the very corner",
+      "description": "Without hover opening, still open when the pointer reaches the exact corner.",
+      "icon": "north_west",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "sidebar.cornerOpen.enable",
+            "equals": true
+          },
+          {
+            "key": "sidebar.cornerOpen.clickless",
+            "equals": false
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.clicklessCornerVerticalOffset",
+      "section": "cornerOpen",
+      "label": "Corner offset",
+      "description": "Ignore the corner while the pointer moves along the top edge.",
+      "icon": "height",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 20,
+      "unit": "px",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "sidebar.cornerOpen.enable",
+            "equals": true
+          },
+          {
+            "key": "sidebar.cornerOpen.clickless",
+            "equals": false
+          },
+          {
+            "key": "sidebar.cornerOpen.clicklessCornerEnd",
+            "equals": true
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.valueScroll",
+      "section": "cornerOpen",
+      "label": "Scroll to adjust",
+      "description": "Scroll on a corner to change brightness or volume.",
+      "icon": "swap_vert",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.cornerRegionWidth",
+      "section": "cornerOpen",
+      "label": "Zone width",
+      "icon": "width",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 300,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.cornerRegionHeight",
+      "section": "cornerOpen",
+      "label": "Zone height",
+      "icon": "height",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 300,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "sidebar.cornerOpen.visualize",
+      "section": "cornerOpen",
+      "label": "Show the zones",
+      "description": "Draw the corner zones to help adjust them.",
+      "icon": "visibility",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "sidebar.cornerOpen.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/screenCorners/ScreenCorners.qml"
+      ]
+    },
+    {
+      "key": "dock.enable",
+      "section": "dock",
+      "label": "Dock",
+      "description": "Show a dock at the bottom of the screen.",
+      "icon": "call_to_action",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "panelFamilies/IllogicalImpulseFamily.qml"
+      ]
+    },
+    {
+      "key": "dock.hoverToReveal",
+      "section": "dock",
+      "label": "Reveal on hover",
+      "icon": "near_me",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "dock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/dock/Dock.qml"
+      ]
+    },
+    {
+      "key": "dock.pinnedOnStartup",
+      "section": "dock",
+      "label": "Pinned on startup",
+      "description": "Start with the dock always visible.",
+      "icon": "push_pin",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "dock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/dock/Dock.qml"
+      ]
+    },
+    {
+      "key": "dock.monochromeIcons",
+      "section": "dock",
+      "label": "Tint app icons",
+      "icon": "format_color_fill",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "dock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/dock/DockAppButton.qml"
+      ]
+    },
+    {
+      "key": "dock.height",
+      "section": "dock",
+      "label": "Height",
+      "icon": "height",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 40,
+      "max": 120,
+      "step": 2,
+      "decimals": 0,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "dock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/dock/Dock.qml"
+      ]
+    },
+    {
+      "key": "dock.hoverRegionHeight",
+      "section": "dock",
+      "label": "Reveal zone",
+      "description": "Thickness of the bottom edge that reveals the dock.",
+      "icon": "border_bottom",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 1,
+      "max": 20,
+      "step": 1,
+      "decimals": 0,
+      "unit": "px",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "dock.enable",
+            "equals": true
+          },
+          {
+            "key": "dock.hoverToReveal",
+            "equals": true
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/dock/Dock.qml"
+      ]
+    },
+    {
+      "key": "dock.pinnedApps",
+      "section": "dock",
+      "label": "Pinned apps",
+      "description": "Desktop entry ids kept in the dock.",
+      "icon": "keep",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "placeholder": "org.kde.dolphin",
+      "validate": {
+        "regex": "^[A-Za-z0-9._-]+$"
+      },
+      "consumers": [
+        "modules/waffle/startMenu/searchPage/SearchResults.qml",
+        "services/TaskbarApps.qml"
+      ]
+    },
+    {
+      "key": "dock.ignoredAppRegexes",
+      "section": "dock",
+      "label": "Ignored apps",
+      "description": "Window classes matching these patterns stay out of the dock.",
+      "icon": "block",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "placeholder": "^steam_app_.*$",
+      "consumers": [
+        "services/TaskbarApps.qml"
+      ]
+    },
+    {
+      "key": "overview.enable",
+      "section": "overview",
+      "label": "Overview",
+      "description": "Show all workspaces with Super.",
+      "icon": "overview_key",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/overview/Overview.qml"
+      ]
+    },
+    {
+      "key": "overview.scale",
+      "section": "overview",
+      "label": "Size",
+      "description": "Size of each workspace preview.",
+      "icon": "zoom_in",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0.05,
+      "max": 0.5,
+      "step": 0.01,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWidget.qml"
+      ]
+    },
+    {
+      "key": "overview.rows",
+      "section": "overview",
+      "label": "Rows",
+      "icon": "table_rows",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 20,
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWidget.qml"
+      ]
+    },
+    {
+      "key": "overview.columns",
+      "section": "overview",
+      "label": "Columns",
+      "icon": "view_column",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 20,
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWidget.qml"
+      ]
+    },
+    {
+      "key": "overview.orderRightLeft",
+      "section": "overview",
+      "label": "Horizontal order",
+      "icon": "swap_horiz",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": false,
+          "label": "Left to right"
+        },
+        {
+          "value": true,
+          "label": "Right to left"
+        }
+      ],
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWidget.qml"
+      ]
+    },
+    {
+      "key": "overview.orderBottomUp",
+      "section": "overview",
+      "label": "Vertical order",
+      "icon": "swap_vert",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": false,
+          "label": "Top down"
+        },
+        {
+          "value": true,
+          "label": "Bottom up"
+        }
+      ],
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWidget.qml"
+      ]
+    },
+    {
+      "key": "overview.centerIcons",
+      "section": "overview",
+      "label": "Center icons",
+      "description": "Center app icons on window previews.",
+      "icon": "center_focus_strong",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "overview.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/overview/OverviewWindow.qml"
+      ]
+    },
+    {
+      "key": "overlay.openingZoomAnimation",
+      "section": "overlay",
+      "label": "Zoom when opening",
+      "icon": "zoom_out_map",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/overlay/OverlayContent.qml"
+      ]
+    },
+    {
+      "key": "overlay.darkenScreen",
+      "section": "overlay",
+      "label": "Darken the screen",
+      "icon": "brightness_4",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/overlay/OverlayContent.qml"
+      ]
+    },
+    {
+      "key": "overlay.clickthroughOpacity",
+      "section": "overlay",
+      "label": "Pinned widget opacity",
+      "description": "Opacity of pinned widgets while the overlay is closed.",
+      "icon": "opacity",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0.1,
+      "max": 1,
+      "step": 0.05,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "consumers": [
+        "modules/ii/overlay/StyledOverlayWidget.qml"
+      ]
+    },
+    {
+      "key": "overlay.floatingImage.imageSource",
+      "section": "overlay",
+      "label": "Floating image",
+      "description": "Address of the image widget.",
+      "icon": "image",
+      "backend": "config",
+      "type": "url",
+      "widget": "text",
+      "validate": {
+        "regex": "^(https?|file)://\\S+$"
+      },
+      "placeholder": "https://…",
+      "consumers": [
+        "modules/ii/overlay/floatingImage/FloatingImage.qml"
+      ]
+    },
+    {
+      "key": "overlay.floatingImage.scale",
+      "section": "overlay",
+      "label": "Image scale",
+      "icon": "photo_size_select_large",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0.1,
+      "max": 2,
+      "step": 0.05,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "consumers": [
+        "modules/ii/overlay/floatingImage/FloatingImage.qml"
+      ]
+    },
+    {
+      "key": "crosshair.code",
+      "section": "overlay",
+      "label": "Crosshair code",
+      "description": "Valorant crosshair code drawn by the crosshair widget.",
+      "keywords": [
+        "crosshair",
+        "mira",
+        "valorant"
+      ],
+      "icon": "point_scan",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true
+      },
+      "consumers": [
+        "modules/ii/overlay/crosshair/CrosshairContent.qml"
+      ]
+    },
+    {
+      "key": "osd.timeout",
+      "section": "osd",
+      "label": "Duration",
+      "description": "How long volume and brightness indicators stay.",
+      "icon": "timer",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 100,
+      "max": 3000,
+      "step": 100,
+      "unit": "ms",
+      "consumers": [
+        "modules/ii/onScreenDisplay/OnScreenDisplay.qml",
+        "modules/waffle/onScreenDisplay/OSDValue.qml"
+      ]
+    },
+    {
+      "key": "osk.layout",
+      "section": "osk",
+      "label": "Layout",
+      "icon": "keyboard",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "qwerty_full",
+          "label": "Default"
+        },
+        {
+          "value": "English (US)",
+          "label": "English (US)"
+        },
+        {
+          "value": "German",
+          "label": "German"
+        },
+        {
+          "value": "Russian",
+          "label": "Russian"
+        }
+      ],
+      "note": "Switching the keyboard layout changes it too.",
+      "consumers": [
+        "modules/ii/onScreenKeyboard/OskContent.qml",
+        "services/HyprlandXkb.qml"
+      ]
+    },
+    {
+      "key": "osk.pinnedOnStartup",
+      "section": "osk",
+      "label": "Pinned on startup",
+      "icon": "push_pin",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/onScreenKeyboard/OnScreenKeyboard.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.superKey",
+      "section": "cheatsheet",
+      "label": "Super key symbol",
+      "description": "Leave empty to show the default symbol.",
+      "icon": "keyboard_command_key",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "maxLength": 4
+      },
+      "placeholder": "󰖳",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.useMacSymbol",
+      "section": "cheatsheet",
+      "label": "Modifier symbols",
+      "description": "Show symbols such as 󰘴 for Ctrl.",
+      "icon": "keyboard_option_key",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.useFnSymbol",
+      "section": "cheatsheet",
+      "label": "Function key symbols",
+      "icon": "function",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.useMouseSymbol",
+      "section": "cheatsheet",
+      "label": "Mouse symbols",
+      "icon": "mouse",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.splitButtons",
+      "section": "cheatsheet",
+      "label": "Separate keycaps",
+      "description": "Draw each key of a shortcut on its own keycap.",
+      "icon": "keyboard",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.fontSize.key",
+      "section": "cheatsheet",
+      "label": "Key text size",
+      "icon": "format_size",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 8,
+      "max": 30,
+      "unit": "px",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "cheatsheet.fontSize.comment",
+      "section": "cheatsheet",
+      "label": "Description text size",
+      "icon": "format_size",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 8,
+      "max": 30,
+      "unit": "px",
+      "consumers": [
+        "modules/ii/cheatsheet/CheatsheetKeybindsCategory.qml"
+      ]
+    },
+    {
+      "key": "media.filterDuplicatePlayers",
+      "section": "media",
+      "label": "Merge duplicate players",
+      "description": "Show one player when an app exposes the same media twice.",
+      "icon": "queue_music",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "services/MprisController.qml"
+      ]
+    }
+  ]
+}

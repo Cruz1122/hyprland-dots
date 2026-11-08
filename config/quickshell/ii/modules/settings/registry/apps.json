@@ -1,0 +1,420 @@
+{
+  "id": "apps",
+  "title": "Applications",
+  "icon": "apps",
+  "description": "Default applications and the commands the shell launches.",
+  "sections": [
+    {
+      "id": "defaults",
+      "title": "Default applications",
+      "icon": "open_in_new",
+      "description": "Applications that open links and files of each kind."
+    },
+    {
+      "id": "commands",
+      "title": "Shell commands",
+      "icon": "terminal",
+      "description": "Commands the shell runs from its buttons and menus."
+    },
+    {
+      "id": "hyprland",
+      "title": "Hyprland variables",
+      "icon": "code",
+      "description": "Apps launched by keybinds, read from variables.lua; edit ~/.config/hypr/custom/variables.lua to change them."
+    }
+  ],
+  "entries": [
+    {
+      "key": "mime.browser",
+      "section": "defaults",
+      "label": "Web browser",
+      "description": "Opens links and web pages.",
+      "keywords": [
+        "navegador",
+        "http"
+      ],
+      "icon": "public",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.fileManager",
+      "section": "defaults",
+      "label": "File manager",
+      "description": "Opens folders.",
+      "keywords": [
+        "archivos",
+        "carpetas",
+        "directory"
+      ],
+      "icon": "folder",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.mail",
+      "section": "defaults",
+      "label": "Email",
+      "description": "Opens mailto: links.",
+      "keywords": [
+        "correo",
+        "mailto"
+      ],
+      "icon": "mail",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.image",
+      "section": "defaults",
+      "label": "Images",
+      "description": "Opens pictures such as PNG, JPEG and WebP.",
+      "keywords": [
+        "imágenes",
+        "fotos",
+        "viewer"
+      ],
+      "icon": "image",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.video",
+      "section": "defaults",
+      "label": "Video",
+      "description": "Plays video files.",
+      "keywords": [
+        "vídeo",
+        "player"
+      ],
+      "icon": "movie",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.audio",
+      "section": "defaults",
+      "label": "Music",
+      "description": "Plays audio files.",
+      "keywords": [
+        "audio",
+        "música"
+      ],
+      "icon": "music_note",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.text",
+      "section": "defaults",
+      "label": "Text",
+      "description": "Opens plain text files.",
+      "keywords": [
+        "texto",
+        "editor"
+      ],
+      "icon": "description",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "mime.pdf",
+      "section": "defaults",
+      "label": "PDF",
+      "description": "Opens PDF documents.",
+      "keywords": [
+        "documento"
+      ],
+      "icon": "picture_as_pdf",
+      "backend": "mime",
+      "type": "string",
+      "widget": "device"
+    },
+    {
+      "key": "apps.terminal",
+      "section": "commands",
+      "label": "Terminal",
+      "description": "Terminal opened by the shell.",
+      "icon": "terminal",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/waffle/bar/StartButton.qml",
+        "services/LauncherSearch.qml"
+      ]
+    },
+    {
+      "key": "apps.taskManager",
+      "section": "commands",
+      "label": "Task manager",
+      "description": "Opened from the session menu and the start button.",
+      "icon": "monitoring",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/common/functions/Session.qml",
+        "modules/waffle/bar/StartButton.qml"
+      ]
+    },
+    {
+      "key": "apps.volumeMixer",
+      "section": "commands",
+      "label": "Volume mixer",
+      "description": "Opened from the volume dialogs.",
+      "icon": "tune",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/volumeMixer/VolumeDialog.qml",
+        "modules/waffle/actionCenter/volumeControl/VolumeControl.qml"
+      ]
+    },
+    {
+      "key": "apps.network",
+      "section": "commands",
+      "label": "Network settings",
+      "description": "Opened from the Wi-Fi dialog and network toggle.",
+      "icon": "wifi",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/quickToggles/classicStyle/NetworkToggle.qml",
+        "modules/ii/sidebarRight/wifiNetworks/WifiDialog.qml",
+        "modules/waffle/actionCenter/wifi/WifiControl.qml"
+      ]
+    },
+    {
+      "key": "apps.networkEthernet",
+      "section": "commands",
+      "label": "Wired network settings",
+      "description": "Opened from the network toggle when connected by cable.",
+      "icon": "lan",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/quickToggles/classicStyle/NetworkToggle.qml",
+        "modules/ii/sidebarRight/wifiNetworks/WifiDialog.qml"
+      ]
+    },
+    {
+      "key": "apps.bluetooth",
+      "section": "commands",
+      "label": "Bluetooth settings",
+      "description": "Opened from the Bluetooth dialog and toggle.",
+      "icon": "bluetooth",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/ii/sidebarRight/bluetoothDevices/BluetoothDialog.qml",
+        "modules/ii/sidebarRight/quickToggles/classicStyle/BluetoothToggle.qml",
+        "modules/waffle/actionCenter/bluetooth/BluetoothControl.qml"
+      ]
+    },
+    {
+      "key": "apps.manageUser",
+      "section": "commands",
+      "label": "User accounts",
+      "description": "Opened from the user button of the start menu.",
+      "icon": "manage_accounts",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/waffle/startMenu/searchPage/TagStrip.qml",
+        "modules/waffle/startMenu/startPage/StartUserButton.qml"
+      ]
+    },
+    {
+      "key": "apps.changePassword",
+      "section": "commands",
+      "label": "Change password",
+      "description": "Opened from the session menu.",
+      "icon": "password",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/common/functions/Session.qml"
+      ]
+    },
+    {
+      "key": "apps.update",
+      "section": "commands",
+      "label": "System update",
+      "description": "Opened from the updates button.",
+      "icon": "system_update",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "validate": {
+        "nonEmpty": true,
+        "maxLength": 500
+      },
+      "consumers": [
+        "modules/waffle/bar/UpdatesButton.qml"
+      ]
+    },
+    {
+      "key": "info.apps.terminal",
+      "section": "hyprland",
+      "label": "Terminal",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "terminal"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.fileManager",
+      "section": "hyprland",
+      "label": "File manager",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "fileManager"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.browser",
+      "section": "hyprland",
+      "label": "Browser",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "browser"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.codeEditor",
+      "section": "hyprland",
+      "label": "Code editor",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "codeEditor"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.textEditor",
+      "section": "hyprland",
+      "label": "Text editor",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "textEditor"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.officeSoftware",
+      "section": "hyprland",
+      "label": "Office suite",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "officeSoftware"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.volumeMixer",
+      "section": "hyprland",
+      "label": "Volume mixer",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "volumeMixer"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.taskManager",
+      "section": "hyprland",
+      "label": "Task manager",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "taskManager"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    },
+    {
+      "key": "info.apps.settingsApp",
+      "section": "hyprland",
+      "label": "Settings app",
+      "keywords": [
+        "hyprland",
+        "variables.lua",
+        "settingsApp"
+      ],
+      "backend": "readonly",
+      "type": "info",
+      "widget": "info"
+    }
+  ]
+}

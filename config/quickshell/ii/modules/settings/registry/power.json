@@ -1,0 +1,498 @@
+{
+  "id": "power",
+  "title": "Power and lock",
+  "icon": "power_settings_new",
+  "description": "Power profile, battery, idle timeouts and the lock screen.",
+  "sections": [
+    {
+      "id": "profile",
+      "title": "Power profile",
+      "icon": "speed"
+    },
+    {
+      "id": "battery",
+      "title": "Battery",
+      "icon": "battery_full"
+    },
+    {
+      "id": "idle",
+      "title": "When idle",
+      "icon": "timer",
+      "description": "Each step must happen at the same time or after the one above it."
+    },
+    {
+      "id": "lock",
+      "title": "Lock screen",
+      "icon": "lock"
+    },
+    {
+      "id": "lockStyle",
+      "title": "Lock screen style",
+      "icon": "palette"
+    }
+  ],
+  "entries": [
+    {
+      "key": "power.profile",
+      "section": "profile",
+      "label": "Power mode",
+      "description": "Balance performance against battery life and heat.",
+      "keywords": [
+        "performance",
+        "power saver",
+        "rendimiento",
+        "ahorro",
+        "energía"
+      ],
+      "icon": "bolt",
+      "backend": "power",
+      "type": "enum",
+      "widget": "device",
+      "options": [
+        {
+          "value": "power-saver",
+          "label": "Power saver",
+          "icon": "energy_savings_leaf"
+        },
+        {
+          "value": "balanced",
+          "label": "Balanced",
+          "icon": "airwave"
+        },
+        {
+          "value": "performance",
+          "label": "Performance",
+          "icon": "local_fire_department"
+        }
+      ]
+    },
+    {
+      "key": "battery.low",
+      "section": "battery",
+      "label": "Low battery warning",
+      "description": "Battery level that shows the low battery warning.",
+      "icon": "battery_3_bar",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "capability": "battery"
+      },
+      "consumers": [
+        "services/Battery.qml",
+        "modules/ii/bar/BatteryIndicator.qml"
+      ]
+    },
+    {
+      "key": "battery.critical",
+      "section": "battery",
+      "label": "Critical battery warning",
+      "description": "Battery level that shows the critical battery warning.",
+      "icon": "battery_alert",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "capability": "battery"
+      },
+      "consumers": [
+        "services/Battery.qml"
+      ]
+    },
+    {
+      "key": "battery.full",
+      "section": "battery",
+      "label": "Full charge notice",
+      "description": "Battery level that shows the fully charged notice.",
+      "note": "101% turns the notice off.",
+      "icon": "battery_full",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 101,
+      "step": 1,
+      "unit": "%",
+      "visibleWhen": {
+        "capability": "battery"
+      },
+      "consumers": [
+        "services/Battery.qml"
+      ]
+    },
+    {
+      "key": "battery.automaticSuspend",
+      "section": "battery",
+      "label": "Suspend on low battery",
+      "description": "Suspend the system automatically when the battery runs out.",
+      "icon": "bedtime",
+      "backend": "config",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "battery"
+      },
+      "consumers": [
+        "services/Battery.qml"
+      ]
+    },
+    {
+      "key": "battery.suspend",
+      "section": "battery",
+      "label": "Suspend at",
+      "description": "Battery level that triggers the automatic suspend.",
+      "icon": "battery_0_bar",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "visibleWhen": {
+        "capability": "battery"
+      },
+      "enabledWhen": {
+        "key": "battery.automaticSuspend",
+        "equals": true
+      },
+      "consumers": [
+        "services/Battery.qml"
+      ]
+    },
+    {
+      "key": "action.power.applyIdle",
+      "section": "idle",
+      "label": "Idle timeouts are not applied",
+      "description": "The hypridle file does not match these settings.",
+      "icon": "sync_problem",
+      "backend": "action",
+      "type": "action",
+      "action": "applyIdle",
+      "actionLabel": "Apply",
+      "actionIcon": "sync",
+      "visibleWhen": {
+        "capability": "idleOutOfSync"
+      }
+    },
+    {
+      "key": "action.power.replaceIdle",
+      "section": "idle",
+      "label": "Idle file edited by hand",
+      "description": "~/.config/hypr/custom/shell-idle.conf was not written by Settings; replacing it discards those edits.",
+      "icon": "warning",
+      "backend": "action",
+      "type": "action",
+      "action": "replaceIdle",
+      "actionLabel": "Replace",
+      "actionIcon": "sync",
+      "actionKind": "danger",
+      "visibleWhen": {
+        "capability": "idleUnmanaged"
+      }
+    },
+    {
+      "key": "idle.lockTimeout",
+      "section": "idle",
+      "label": "Lock the screen after",
+      "description": "Lock the session after this much inactivity.",
+      "keywords": [
+        "idle",
+        "inactividad",
+        "bloquear",
+        "hypridle"
+      ],
+      "icon": "lock_clock",
+      "backend": "idle",
+      "type": "enum",
+      "widget": "device",
+      "risky": true,
+      "options": [
+        {
+          "value": 0,
+          "label": "Never"
+        },
+        {
+          "value": 60,
+          "label": "1 minute"
+        },
+        {
+          "value": 120,
+          "label": "2 minutes"
+        },
+        {
+          "value": 300,
+          "label": "5 minutes"
+        },
+        {
+          "value": 600,
+          "label": "10 minutes"
+        },
+        {
+          "value": 900,
+          "label": "15 minutes"
+        },
+        {
+          "value": 1800,
+          "label": "30 minutes"
+        },
+        {
+          "value": 3600,
+          "label": "1 hour"
+        }
+      ]
+    },
+    {
+      "key": "idle.dpmsTimeout",
+      "section": "idle",
+      "label": "Turn the screen off after",
+      "description": "Turn the displays off after this much inactivity.",
+      "keywords": [
+        "idle",
+        "dpms",
+        "inactividad",
+        "apagar pantalla",
+        "hypridle"
+      ],
+      "icon": "desktop_access_disabled",
+      "backend": "idle",
+      "type": "enum",
+      "widget": "device",
+      "risky": true,
+      "options": [
+        {
+          "value": 0,
+          "label": "Never"
+        },
+        {
+          "value": 60,
+          "label": "1 minute"
+        },
+        {
+          "value": 120,
+          "label": "2 minutes"
+        },
+        {
+          "value": 300,
+          "label": "5 minutes"
+        },
+        {
+          "value": 600,
+          "label": "10 minutes"
+        },
+        {
+          "value": 900,
+          "label": "15 minutes"
+        },
+        {
+          "value": 1800,
+          "label": "30 minutes"
+        },
+        {
+          "value": 3600,
+          "label": "1 hour"
+        }
+      ]
+    },
+    {
+      "key": "idle.suspendTimeout",
+      "section": "idle",
+      "label": "Suspend after",
+      "description": "Suspend the system after this much inactivity.",
+      "keywords": [
+        "idle",
+        "sleep",
+        "inactividad",
+        "suspender",
+        "hypridle"
+      ],
+      "icon": "bedtime",
+      "backend": "idle",
+      "type": "enum",
+      "widget": "device",
+      "risky": true,
+      "options": [
+        {
+          "value": 0,
+          "label": "Never"
+        },
+        {
+          "value": 60,
+          "label": "1 minute"
+        },
+        {
+          "value": 120,
+          "label": "2 minutes"
+        },
+        {
+          "value": 300,
+          "label": "5 minutes"
+        },
+        {
+          "value": 600,
+          "label": "10 minutes"
+        },
+        {
+          "value": 900,
+          "label": "15 minutes"
+        },
+        {
+          "value": 1800,
+          "label": "30 minutes"
+        },
+        {
+          "value": 3600,
+          "label": "1 hour"
+        }
+      ]
+    },
+    {
+      "key": "lock.useHyprlock",
+      "section": "lock",
+      "label": "Use Hyprlock",
+      "description": "Lock with Hyprlock instead of the shell lock screen.",
+      "note": "Useful for fingerprint unlock.",
+      "icon": "fingerprint",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/panels/lock/LockScreen.qml"
+      ]
+    },
+    {
+      "key": "lock.launchOnStartup",
+      "section": "lock",
+      "label": "Lock on startup",
+      "description": "Lock the session as soon as the shell starts.",
+      "icon": "login",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/panels/lock/LockScreen.qml"
+      ]
+    },
+    {
+      "key": "lock.security.unlockKeyring",
+      "section": "lock",
+      "label": "Also unlock the keyring",
+      "description": "Unlock the GNOME keyring with your password when unlocking.",
+      "icon": "key",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/panels/lock/LockScreen.qml"
+      ]
+    },
+    {
+      "key": "lock.security.requirePasswordToPower",
+      "section": "lock",
+      "label": "Password for power actions",
+      "description": "Require the password to shut down or restart from the lock screen.",
+      "note": "Holding the power button still forces a shutdown.",
+      "icon": "power_settings_new",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/lock/LockSurface.qml"
+      ]
+    },
+    {
+      "key": "lock.centerClock",
+      "section": "lockStyle",
+      "label": "Center the clock",
+      "description": "Show the clock in the middle of the lock screen.",
+      "icon": "schedule",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "lock.showLockedText",
+      "section": "lockStyle",
+      "label": "Show “Locked” text",
+      "description": "Show a “Locked” label under the clock.",
+      "icon": "text_fields",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "lock.materialShapeChars",
+      "section": "lockStyle",
+      "label": "Shapes for password characters",
+      "description": "Draw each typed character as a different shape.",
+      "icon": "interests",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/lock/LockSurface.qml"
+      ]
+    },
+    {
+      "key": "lock.blur.enable",
+      "section": "lockStyle",
+      "label": "Blur the wallpaper",
+      "description": "Blur the wallpaper while the screen is locked.",
+      "icon": "blur_on",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "lock.blur.radius",
+      "section": "lockStyle",
+      "label": "Blur strength",
+      "description": "How strongly the wallpaper is blurred.",
+      "icon": "blur_medium",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 200,
+      "step": 5,
+      "decimals": 0,
+      "enabledWhen": {
+        "key": "lock.blur.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "lock.blur.extraZoom",
+      "section": "lockStyle",
+      "label": "Wallpaper zoom",
+      "description": "Zoom the blurred wallpaper to hide its edges.",
+      "icon": "zoom_in",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 1,
+      "max": 1.5,
+      "step": 0.02,
+      "uiScale": 100,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "lock.blur.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    }
+  ]
+}

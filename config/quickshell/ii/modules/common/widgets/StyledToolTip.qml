@@ -9,7 +9,9 @@ ToolTip {
     property bool extraVisibleCondition: true
     property bool alternativeVisibleCondition: false
 
-    readonly property bool internalVisibleCondition: (extraVisibleCondition && (parent.hovered === undefined || parent?.hovered)) || alternativeVisibleCondition
+    // A parent without a `hovered` property (a layout, a plain Item) never
+    // shows the tooltip by itself; use alternativeVisibleCondition there.
+    readonly property bool internalVisibleCondition: (extraVisibleCondition && parent?.hovered === true) || alternativeVisibleCondition
     verticalPadding: 5
     horizontalPadding: 10
     background: null
