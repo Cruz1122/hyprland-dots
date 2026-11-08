@@ -1,0 +1,4 @@
+[
+	"Config error in file /home/user/.config/hypr/hyprland/general.lua at line 12: unknown config key 'general.gaps_inn'",
+	"Config error in file /home/user/.config/hypr/custom/rules.lua at line 3: invalid value for 'float': expected a boolean"
+]

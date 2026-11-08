@@ -57,6 +57,36 @@ TestCase {
         verify(!DisplayLogic.isManagedText("hl.monitor({})\n"));
     }
 
+    // tests/fixtures/hyprctl-monitors-all.json: DP-2 reports vrrCapable,
+    // eDP-1 and HDMI-A-1 do not. Needs QML_XHR_ALLOW_FILE_READ (test_settings_qml.py).
+    function monitorsFixture() {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", Qt.resolvedUrl("../fixtures/hyprctl-monitors-all.json"), false);
+        xhr.send();
+        return JSON.parse(xhr.responseText);
+    }
+
+    function test_vrr_capability_from_the_monitors_fixture() {
+        const monitors = monitorsFixture();
+        compare(monitors.length, 3);
+        compare(DisplayLogic.anyVrrCapable(monitors), true);
+        const withoutDp = monitors.filter(m => m.name !== "DP-2");
+        compare(DisplayLogic.anyVrrCapable(withoutDp), false, "eDP-1 and HDMI-A-1 cannot do VRR");
+        compare(DisplayLogic.anyVrrCapable(monitors.filter(m => m.name === "eDP-1")), false, "the laptop panel alone");
+    }
+
+    function test_vrr_capability_variants() {
+        compare(DisplayLogic.anyVrrCapable([]), false);
+        compare(DisplayLogic.anyVrrCapable(undefined), false);
+        compare(DisplayLogic.anyVrrCapable([null, 3, "x"]), false);
+        compare(DisplayLogic.anyVrrCapable([{ name: "A", vrr: false }]), false, "no hardwareDetails, not active");
+        compare(DisplayLogic.anyVrrCapable([{ name: "A", vrr: true }]), true, "active VRR proves support");
+        compare(DisplayLogic.anyVrrCapable([{ name: "A", vrr: false, hardwareDetails: { vrrCapable: true } }]), true);
+        compare(DisplayLogic.anyVrrCapable([{ name: "A", hardwareDetails: { vrrCapable: "true" } }]), false, "only a JSON true counts");
+        compare(DisplayLogic.anyVrrCapable([{ name: "A", disabled: true, hardwareDetails: { vrrCapable: true } }]), true,
+            "a disabled output that can do it still counts: misc:vrr applies when it is turned on");
+    }
+
     function test_power_profiles() {
         compare(PowerLogic.profileName(0, 0, 2), "power-saver");
         compare(PowerLogic.profileName(1, 0, 2), "balanced");

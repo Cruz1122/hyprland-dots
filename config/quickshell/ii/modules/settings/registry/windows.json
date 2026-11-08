@@ -2,52 +2,67 @@
   "id": "windows",
   "title": "Windows and effects",
   "icon": "select_window",
-  "description": "Gaps, borders, blur, shadows and window behavior.",
+  "description": "Gaps, borders, blur, shadows and how windows behave; changes apply instantly.",
   "sections": [
     {
       "id": "gameMode",
       "title": "Game Mode",
-      "icon": "sports_esports"
+      "icon": "sports_esports",
+      "description": "Game Mode temporarily replaces some of these effects for performance."
     },
     {
       "id": "spacing",
       "title": "Spacing and borders",
-      "icon": "padding"
+      "icon": "padding",
+      "description": "Space around windows and the shape of their borders."
     },
     {
       "id": "blur",
       "title": "Blur",
-      "icon": "blur_on"
+      "icon": "blur_on",
+      "description": "Frosted-glass effect behind the bar, panels, dock, notifications and launcher; windows themselves are never blurred."
     },
     {
       "id": "shadows",
       "title": "Shadows",
-      "icon": "shadow"
+      "icon": "shadow",
+      "description": "Soft shadow around floating windows; tiled windows have none."
     },
     {
       "id": "dimming",
       "title": "Dimming",
-      "icon": "brightness_medium"
+      "icon": "brightness_medium",
+      "description": "Darken windows you are not using to keep attention on the active one."
     },
     {
       "id": "opacity",
       "title": "Opacity",
-      "icon": "opacity"
+      "icon": "opacity",
+      "description": "Make windows see-through; 100 % is fully solid."
     },
     {
       "id": "behavior",
       "title": "Behavior",
-      "icon": "tune"
+      "icon": "tune",
+      "description": "How new windows are placed and focused, plus display options for games."
+    },
+    {
+      "id": "workspaces",
+      "title": "Workspaces",
+      "icon": "view_carousel",
+      "description": "How you move between workspaces and where new apps open."
     },
     {
       "id": "gestures",
       "title": "Gestures",
-      "icon": "swipe"
+      "icon": "swipe",
+      "description": "Four-finger horizontal swipes on the touchpad switch workspaces."
     },
     {
       "id": "rules",
       "title": "Window rules",
-      "icon": "rule"
+      "icon": "rule",
+      "description": "Per-app rules such as always floating or a fixed workspace."
     }
   ],
   "entries": [
@@ -55,7 +70,7 @@
       "key": "info.windows.gameMode",
       "section": "gameMode",
       "label": "Game Mode is on",
-      "description": "Game Mode turns off blur, shadows, gaps and rounding while it is on; your values are kept and come back when you turn it off.",
+      "description": "While it is on, Game Mode turns off blur, shadows and animations, removes gaps and rounding, makes borders 1 px thin and allows tearing; your values are kept and come back when you turn it off.",
       "icon": "sports_esports",
       "backend": "readonly",
       "type": "info",
@@ -65,11 +80,27 @@
       }
     },
     {
+      "key": "info.windows.preview",
+      "section": "spacing",
+      "label": "Preview",
+      "description": "A sketch of your desktop with these values; the magnifier shows one window corner at its real size.",
+      "keywords": [
+        "preview",
+        "vista previa",
+        "lupa",
+        "magnifier"
+      ],
+      "icon": "preview",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
       "key": "hyprland.general.gaps_in",
       "section": "spacing",
       "label": "Gaps between windows",
-      "description": "Space between tiled windows, in pixels.",
-      "help": "Screen edges have their own gap (next setting). The same value is used on all four sides; separate values per side cannot be set here.",
+      "description": "Space on each side of a tiled window that faces another window, in pixels.",
+      "help": "Two neighbors each keep this gap, so the space between them is twice the value. The same value is used on all four sides.",
       "icon": "space_bar",
       "backend": "hyprland",
       "path": "general.gaps_in",
@@ -77,14 +108,17 @@
       "type": "int",
       "min": 0,
       "max": 40,
-      "unit": "px"
+      "unit": "px",
+      "keywords": [
+        "Espacio entre ventanas"
+      ]
     },
     {
       "key": "hyprland.general.gaps_out",
       "section": "spacing",
       "label": "Gaps at the screen edges",
       "description": "Space between windows and the edges of the monitor, in pixels.",
-      "help": "The same value is used on all four edges; separate values per edge cannot be set here.",
+      "help": "The same value is used on all four edges. The bar keeps its own space on top of it.",
       "icon": "fit_screen",
       "backend": "hyprland",
       "path": "general.gaps_out",
@@ -92,13 +126,16 @@
       "type": "int",
       "min": 0,
       "max": 60,
-      "unit": "px"
+      "unit": "px",
+      "keywords": [
+        "Espacio en los bordes de la pantalla"
+      ]
     },
     {
       "key": "hyprland.general.border_size",
       "section": "spacing",
       "label": "Border width",
-      "description": "Width of the border around windows, in pixels.",
+      "description": "Colored line drawn outside each window, in pixels; 0 hides it.",
       "icon": "border_outer",
       "backend": "hyprland",
       "path": "general.border_size",
@@ -112,7 +149,7 @@
       "key": "hyprland.decoration.rounding",
       "section": "spacing",
       "label": "Corner radius",
-      "description": "Rounding of window corners, in pixels.",
+      "description": "How far the rounding of each window corner reaches, in pixels; 0 gives square corners.",
       "icon": "rounded_corner",
       "backend": "hyprland",
       "path": "decoration.rounding",
@@ -126,7 +163,7 @@
       "key": "hyprland.decoration.rounding_power",
       "section": "spacing",
       "label": "Corner curve",
-      "description": "Shape of rounded corners: 2 is a circle, higher values are squarer.",
+      "description": "Shape of the rounding: 2 is a quarter circle, 4 or more gives smooth squircle corners like phone icons.",
       "icon": "line_curve",
       "backend": "hyprland",
       "path": "decoration.rounding_power",
@@ -135,13 +172,15 @@
       "min": 1,
       "max": 10,
       "step": 0.1,
-      "decimals": 1
+      "decimals": 1,
+      "minLabel": "Rounder",
+      "maxLabel": "Squarer"
     },
     {
       "key": "hyprland.general.resize_on_border",
       "section": "spacing",
       "label": "Resize from borders",
-      "description": "Drag window borders and gaps to resize windows.",
+      "description": "Drag a window's border or the gap next to it to change its size.",
       "icon": "open_in_full",
       "backend": "hyprland",
       "path": "general.resize_on_border",
@@ -149,21 +188,40 @@
       "type": "bool"
     },
     {
+      "key": "info.windows.effectsPreview",
+      "section": "blur",
+      "label": "Effects preview",
+      "description": "The same sketch with blur behind the bar and panels, the floating window's shadow, opacity and dimming.",
+      "keywords": [
+        "preview",
+        "vista previa"
+      ],
+      "icon": "preview",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
       "key": "hyprland.decoration.blur.enabled",
       "section": "blur",
-      "label": "Blur",
-      "description": "Blur what is behind transparent windows.",
+      "label": "Blur the bar and panels",
+      "description": "What is behind the bar, panels, dock, notifications and launcher looks frosted.",
       "icon": "blur_on",
       "backend": "hyprland",
       "path": "decoration.blur.enabled",
       "option": "decoration:blur:enabled",
-      "type": "bool"
+      "type": "bool",
+      "cost": "gpu",
+      "keywords": [
+        "Blur",
+        "Desenfoque"
+      ]
     },
     {
       "key": "hyprland.decoration.blur.size",
       "section": "blur",
-      "label": "Blur size",
-      "description": "Radius of the blur.",
+      "label": "Size",
+      "description": "How far each pass spreads; bigger looks softer.",
       "icon": "blur_circular",
       "backend": "hyprland",
       "path": "decoration.blur.size",
@@ -174,13 +232,19 @@
       "enabledWhen": {
         "key": "hyprland.decoration.blur.enabled",
         "equals": true
-      }
+      },
+      "minLabel": "Sharp",
+      "maxLabel": "Soft",
+      "keywords": [
+        "Blur size",
+        "Tamaño del desenfoque"
+      ]
     },
     {
       "key": "hyprland.decoration.blur.passes",
       "section": "blur",
-      "label": "Blur passes",
-      "description": "More passes give a stronger blur and use more GPU.",
+      "label": "Passes",
+      "description": "Each pass blurs the result again: stronger blur, more GPU work.",
       "icon": "layers",
       "backend": "hyprland",
       "path": "decoration.blur.passes",
@@ -191,13 +255,18 @@
       "enabledWhen": {
         "key": "hyprland.decoration.blur.enabled",
         "equals": true
-      }
+      },
+      "cost": "gpu",
+      "keywords": [
+        "Blur passes",
+        "Pasadas de desenfoque"
+      ]
     },
     {
       "key": "hyprland.decoration.blur.xray",
       "section": "blur",
-      "label": "X-ray blur",
-      "description": "Floating windows blur the wallpaper instead of the windows below them.",
+      "label": "Blur only the wallpaper",
+      "description": "Blurred surfaces show the wallpaper behind them and ignore the windows in between.",
       "icon": "visibility",
       "backend": "hyprland",
       "path": "decoration.blur.xray",
@@ -206,13 +275,19 @@
       "enabledWhen": {
         "key": "hyprland.decoration.blur.enabled",
         "equals": true
-      }
+      },
+      "help": "The dotfiles turn this on for every shell panel in rules.lua, so panels already show only the wallpaper.",
+      "keywords": [
+        "X-ray blur",
+        "Desenfoque de rayos X",
+        "xray"
+      ]
     },
     {
       "key": "hyprland.decoration.blur.popups",
       "section": "blur",
-      "label": "Blur popups",
-      "description": "Also blur menus and popups.",
+      "label": "Blur menus and popups",
+      "description": "Also blur behind right-click menus and other popups of apps.",
       "icon": "menu",
       "backend": "hyprland",
       "path": "decoration.blur.popups",
@@ -221,24 +296,32 @@
       "enabledWhen": {
         "key": "hyprland.decoration.blur.enabled",
         "equals": true
-      }
+      },
+      "keywords": [
+        "Blur popups",
+        "Desenfocar ventanas emergentes"
+      ]
     },
     {
       "key": "hyprland.decoration.shadow.enabled",
       "section": "shadows",
-      "label": "Shadows",
-      "description": "Draw a shadow behind windows.",
+      "label": "Shadow behind floating windows",
+      "description": "Draw a soft shadow around floating windows and dialogs.",
       "icon": "shadow",
       "backend": "hyprland",
       "path": "decoration.shadow.enabled",
       "option": "decoration:shadow:enabled",
-      "type": "bool"
+      "type": "bool",
+      "keywords": [
+        "Shadows",
+        "Sombras"
+      ]
     },
     {
       "key": "hyprland.decoration.shadow.range",
       "section": "shadows",
-      "label": "Shadow size",
-      "description": "How far the shadow spreads, in pixels.",
+      "label": "Size",
+      "description": "How far the shadow reaches from the window edge, in pixels.",
       "icon": "expand",
       "backend": "hyprland",
       "path": "decoration.shadow.range",
@@ -250,13 +333,17 @@
       "enabledWhen": {
         "key": "hyprland.decoration.shadow.enabled",
         "equals": true
-      }
+      },
+      "keywords": [
+        "Shadow size",
+        "Tamaño de la sombra"
+      ]
     },
     {
       "key": "hyprland.decoration.shadow.render_power",
       "section": "shadows",
-      "label": "Shadow falloff",
-      "description": "Higher values make the shadow fade faster.",
+      "label": "Sharpness",
+      "description": "Higher values make the shadow edge sharper and shorter.",
       "icon": "gradient",
       "backend": "hyprland",
       "path": "decoration.shadow.render_power",
@@ -267,13 +354,19 @@
       "enabledWhen": {
         "key": "hyprland.decoration.shadow.enabled",
         "equals": true
-      }
+      },
+      "minLabel": "Soft",
+      "maxLabel": "Sharp",
+      "keywords": [
+        "Shadow falloff",
+        "Difuminado de la sombra"
+      ]
     },
     {
       "key": "hyprland.decoration.dim_inactive",
       "section": "dimming",
       "label": "Dim inactive windows",
-      "description": "Darken windows that do not have focus.",
+      "description": "Darken every window except the one you are typing in.",
       "icon": "brightness_6",
       "backend": "hyprland",
       "path": "decoration.dim_inactive",
@@ -283,8 +376,8 @@
     {
       "key": "hyprland.decoration.dim_strength",
       "section": "dimming",
-      "label": "Inactive dim strength",
-      "description": "How much inactive windows are darkened.",
+      "label": "Strength",
+      "description": "How dark inactive windows become; 100 % would make them black.",
       "icon": "contrast",
       "backend": "hyprland",
       "path": "decoration.dim_strength",
@@ -299,13 +392,17 @@
       "enabledWhen": {
         "key": "hyprland.decoration.dim_inactive",
         "equals": true
-      }
+      },
+      "keywords": [
+        "Inactive dim strength",
+        "Intensidad de la atenuación"
+      ]
     },
     {
       "key": "hyprland.decoration.dim_special",
       "section": "dimming",
-      "label": "Special workspace dim",
-      "description": "How much the screen behind a special workspace is darkened.",
+      "label": "Dim behind the scratchpad",
+      "description": "How much the screen darkens behind the scratchpad workspace (Super+S).",
       "icon": "flip_to_back",
       "backend": "hyprland",
       "path": "decoration.dim_special",
@@ -316,13 +413,20 @@
       "step": 0.01,
       "decimals": 2,
       "uiScale": 100,
-      "unit": "%"
+      "unit": "%",
+      "help": "The scratchpad is a hidden workspace that appears over the current one; Super+S shows or hides it.",
+      "keywords": [
+        "Special workspace dim",
+        "Atenuación del espacio especial",
+        "scratchpad",
+        "special"
+      ]
     },
     {
       "key": "hyprland.decoration.active_opacity",
       "section": "opacity",
-      "label": "Focused windows",
-      "description": "Opacity of the focused window.",
+      "label": "Active window",
+      "description": "How solid the window you are using looks.",
       "icon": "select_window",
       "backend": "hyprland",
       "path": "decoration.active_opacity",
@@ -333,13 +437,17 @@
       "step": 0.01,
       "decimals": 2,
       "uiScale": 100,
-      "unit": "%"
+      "unit": "%",
+      "keywords": [
+        "Focused windows",
+        "Ventana con foco"
+      ]
     },
     {
       "key": "hyprland.decoration.inactive_opacity",
       "section": "opacity",
-      "label": "Unfocused windows",
-      "description": "Opacity of windows without focus.",
+      "label": "Inactive windows",
+      "description": "How solid the other windows look; lower lets the wallpaper show through.",
       "icon": "tab_unselected",
       "backend": "hyprland",
       "path": "decoration.inactive_opacity",
@@ -350,13 +458,17 @@
       "step": 0.01,
       "decimals": 2,
       "uiScale": 100,
-      "unit": "%"
+      "unit": "%",
+      "keywords": [
+        "Unfocused windows",
+        "Ventanas sin foco"
+      ]
     },
     {
       "key": "hyprland.decoration.fullscreen_opacity",
       "section": "opacity",
       "label": "Fullscreen windows",
-      "description": "Opacity of fullscreen windows.",
+      "description": "How solid a window looks while it fills the screen.",
       "icon": "fullscreen",
       "backend": "hyprland",
       "path": "decoration.fullscreen_opacity",
@@ -373,7 +485,7 @@
       "key": "hyprland.dwindle.preserve_split",
       "section": "behavior",
       "label": "Keep split direction",
-      "description": "Keep the split direction of a window when its neighbors change.",
+      "description": "A window keeps its side-by-side or stacked split when its neighbors open, close or resize.",
       "icon": "vertical_split",
       "backend": "hyprland",
       "path": "dwindle.preserve_split",
@@ -383,19 +495,23 @@
     {
       "key": "hyprland.dwindle.smart_split",
       "section": "behavior",
-      "label": "Split by cursor position",
-      "description": "Choose the split direction from where the cursor is on the window.",
+      "label": "Split by pointer position",
+      "description": "A new window opens on the side of the current one where the pointer is.",
       "icon": "splitscreen",
       "backend": "hyprland",
       "path": "dwindle.smart_split",
       "option": "dwindle:smart_split",
-      "type": "bool"
+      "type": "bool",
+      "keywords": [
+        "Split by cursor position",
+        "Dividir según el cursor"
+      ]
     },
     {
       "key": "hyprland.misc.focus_on_activate",
       "section": "behavior",
       "label": "Focus windows that ask for it",
-      "description": "Give focus to windows that request activation.",
+      "description": "Jump to a window when an app asks for attention, e.g. opening a link brings the browser forward.",
       "icon": "ads_click",
       "backend": "hyprland",
       "path": "misc.focus_on_activate",
@@ -405,30 +521,55 @@
     {
       "key": "hyprland.misc.enable_swallow",
       "section": "behavior",
-      "label": "Window swallowing",
-      "description": "A terminal hides while an app it launched is open.",
+      "label": "Hide the terminal behind apps it opens",
+      "description": "Starting a graphical app from foot, kitty or Alacritty hides the terminal until the app closes.",
       "icon": "terminal",
       "backend": "hyprland",
       "path": "misc.enable_swallow",
       "option": "misc:enable_swallow",
-      "type": "bool"
+      "type": "bool",
+      "keywords": [
+        "Window swallowing",
+        "Absorción de ventanas",
+        "swallow"
+      ]
     },
     {
       "key": "hyprland.general.snap.enabled",
       "section": "behavior",
       "label": "Snap floating windows",
-      "description": "Floating windows snap to edges and other windows.",
+      "description": "Floating windows stick to screen edges and to other windows while you drag them.",
       "icon": "grid_guides",
       "backend": "hyprland",
       "path": "general.snap.enabled",
       "option": "general:snap:enabled",
+      "type": "bool",
+      "keywords": [
+        "Ajustar ventanas flotantes"
+      ]
+    },
+    {
+      "key": "hyprland.misc.middle_click_paste",
+      "section": "behavior",
+      "label": "Paste with middle click",
+      "description": "Middle-clicking pastes the text you last selected, without copying it first.",
+      "keywords": [
+        "primary selection",
+        "selección primaria",
+        "middle click",
+        "clic central"
+      ],
+      "icon": "content_paste",
+      "backend": "hyprland",
+      "path": "misc.middle_click_paste",
+      "option": "misc:middle_click_paste",
       "type": "bool"
     },
     {
       "key": "hyprland.misc.vrr",
       "section": "behavior",
-      "label": "Variable refresh rate",
-      "description": "Adaptive sync for monitors that support it.",
+      "label": "Variable refresh rate (FreeSync/G-Sync)",
+      "description": "Lets the monitor follow the frame rate of games and videos to avoid stutter.",
       "icon": "speed",
       "backend": "hyprland",
       "path": "misc.vrr",
@@ -442,16 +583,31 @@
         },
         {
           "value": 1,
-          "label": "On"
+          "label": "Always",
+          "description": "Always on; some screens flicker in menus or on the desktop."
         },
         {
           "value": 2,
-          "label": "Fullscreen only"
+          "label": "Fullscreen only",
+          "description": "On while any window fills the screen."
         },
         {
           "value": 3,
-          "label": "Fullscreen games only"
+          "label": "Fullscreen games only",
+          "description": "On only for fullscreen windows that report game or video content."
         }
+      ],
+      "help": "“Fullscreen games only” is the safest choice: some screens flicker with it always on. A display's own setting on the Displays page wins over this one.",
+      "enabledWhen": {
+        "capability": "vrr"
+      },
+      "keywords": [
+        "Variable refresh rate",
+        "Frecuencia de actualización variable",
+        "vrr",
+        "adaptive sync",
+        "freesync",
+        "gsync"
       ]
     },
     {
@@ -474,10 +630,79 @@
       "type": "bool"
     },
     {
+      "key": "hyprland.binds.workspace_back_and_forth",
+      "section": "workspaces",
+      "label": "Back to the previous workspace",
+      "description": "Going to the workspace you are already on takes you back to the one you came from.",
+      "keywords": [
+        "back and forth",
+        "ida y vuelta",
+        "previous workspace"
+      ],
+      "help": "For example, on workspace 3, press Super+3 to return to the workspace you were on before.",
+      "icon": "keyboard_return",
+      "backend": "hyprland",
+      "path": "binds.workspace_back_and_forth",
+      "option": "binds:workspace_back_and_forth",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Off"
+        },
+        {
+          "value": 1,
+          "label": "Across all monitors",
+          "description": "Goes back to the last workspace you used on any monitor."
+        },
+        {
+          "value": 2,
+          "label": "Per monitor",
+          "description": "Each monitor remembers its own previous workspace."
+        }
+      ]
+    },
+    {
+      "key": "hyprland.misc.initial_workspace_tracking",
+      "section": "workspaces",
+      "label": "Open apps where you launched them",
+      "description": "A slow app opens on the workspace you started it from, even if you switched workspaces meanwhile.",
+      "keywords": [
+        "initial workspace",
+        "espacio inicial",
+        "launch workspace"
+      ],
+      "applies": "newWindows",
+      "icon": "location_searching",
+      "backend": "hyprland",
+      "path": "misc.initial_workspace_tracking",
+      "option": "misc:initial_workspace_tracking",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Off",
+          "description": "Windows open on the workspace you are on when they appear."
+        },
+        {
+          "value": 1,
+          "label": "First window",
+          "description": "Only the app's first window goes to the workspace it was started from."
+        },
+        {
+          "value": 2,
+          "label": "Every window",
+          "description": "Every window of the app, including later ones, goes there."
+        }
+      ]
+    },
+    {
       "key": "hyprland.gestures.workspace_swipe_invert",
       "section": "gestures",
       "label": "Invert workspace swipe",
-      "description": "Swipe direction follows the content instead of the fingers.",
+      "description": "Swap which way a four-finger swipe moves between workspaces.",
       "icon": "swap_horiz",
       "backend": "hyprland",
       "path": "gestures.workspace_swipe_invert",
@@ -491,7 +716,7 @@
       "key": "hyprland.gestures.workspace_swipe_distance",
       "section": "gestures",
       "label": "Swipe distance",
-      "description": "Distance of a full workspace swipe, in pixels.",
+      "description": "How far your fingers travel for a full workspace change, in pixels.",
       "icon": "straighten",
       "backend": "hyprland",
       "path": "gestures.workspace_swipe_distance",
@@ -509,7 +734,7 @@
       "key": "hyprland.gestures.workspace_swipe_create_new",
       "section": "gestures",
       "label": "Swipe to a new workspace",
-      "description": "Swiping past the last workspace creates a new one.",
+      "description": "Swiping right past the last workspace creates a new one.",
       "icon": "add_box",
       "backend": "hyprland",
       "path": "gestures.workspace_swipe_create_new",
@@ -522,15 +747,19 @@
     {
       "key": "action.windows.openRules",
       "section": "rules",
-      "label": "Window rules",
-      "description": "Window rules are kept in Lua files; open your custom rules to review or edit them.",
-      "note": "Changes apply when you save the file.",
+      "label": "Custom rules file",
+      "description": "Opens hypr/custom/rules.lua, where your own rules go; the built-in ones stay in the dotfiles.",
       "icon": "rule",
       "backend": "action",
       "type": "action",
       "action": "openRules",
       "actionLabel": "Open file",
-      "actionIcon": "open_in_new"
+      "actionIcon": "open_in_new",
+      "applies": "onSave",
+      "keywords": [
+        "Window rules",
+        "Reglas de ventanas"
+      ]
     }
   ]
 }

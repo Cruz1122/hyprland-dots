@@ -1048,6 +1048,90 @@ with a config seeded at 0.5 (elementMove 250 ms, velocities doubled), then
 `Appearance.scaled()` returns -1, Infinity and NaN unchanged, and renders the Animations page in
 strict mode with the packaged config, which has neither key.
 
+## Windows preview and system checks
+
+**Window preview.** `components/SettingsWindowPreview.qml` is a `custom`
+delegate of the Windows page, used twice: `info.windows.preview` at the top of
+Spacing and borders (with the magnifier) and `info.windows.effectsPreview` at
+the top of Blur (without it). It reads the page's values with
+`SettingsStore.value()` and draws a 1280×800 desktop scaled to the row width:
+the bar's 40 px strip, three dwindle tiles (gaps_out from the work area,
+gaps_in on each side of a split, so neighbors are 2 × gaps_in apart; the
+border outside the content, as `hyprctl -j clients` places windows), a
+floating window with its shadow (range, render power; shadows only apply to
+floating windows), active and inactive opacity, blur behind the bar and a
+panel (the dotfiles' layer rules use xray, so they blur only the wallpaper)
+and the dim of inactive windows, exaggerated ×3 and labelled so. The
+magnifier is a 184×150 crop at 1:1 around the main window's top-right
+corner, with the real gap, border, radius and rounding power (the
+superellipse |x|^p + |y|^p = r^p; a dashed quarter circle shows p = 2), and
+the sizes as text. Border colours come from `hyprctl -j getoption
+general:col.active_border` / `col.inactive_border` (first colour of the
+gradient), with the theme's colours until then. The page passes
+`highlightKey`, the hovered row or else the row with focus; the preview
+outlines the part that row changes (`WindowPreviewLogic.KEY_PARTS`) and
+emphasises its magnifier label. Drawing is two `Canvas` items repainted only
+when a value, the theme or the highlight changes: nothing animates. Without
+Hyprland the preview shows example values (the dotfiles' own) and says so.
+The geometry is pure (`components/WindowPreviewLogic.js`,
+`tests/qml_settings/tst_SettingsWindowPreview.qml`).
+
+**VRR capability.** `DisplayBackend` publishes `vrr` when an output of
+`hyprctl -j monitors all` reports `hardwareDetails.vrrCapable` true or has
+VRR active (`DisplayLogic.anyVrrCapable`; disabled outputs count, since
+`misc:vrr` applies when they are turned on). `hyprland.misc.vrr` has
+`enabledWhen: {"capability": "vrr"}`: the row stays visible and is disabled
+with "No connected display supports variable refresh rate" when no output
+can do it.
+
+**Hyprland configuration errors.** `info.advanced.hyprlandErrors` (Advanced >
+Diagnostics) runs `hyprctl -j configerrors` (argv, read-only) when the page
+opens and on "Check again".
+`pages/AdvancedLogic.js` `parseConfigErrors()` drops the empty strings of
+Hyprland's `[""]` ("no errors"), keeps at most 100 lines and rejects anything
+that is not a JSON list of strings ("Could not read the errors from
+Hyprland."). The errors are shown as selectable, wrapped monospace text.
+Without Hyprland the row says "Hyprland is not running" and has no button.
+
+**Options added in this phase.** All are plain `hyprland` entries written to
+`custom/shell-settings.lua`; none needed backend changes.
+
+| Key | Page › section | Hyprland option | Model |
+|---|---|---|---|
+| `hyprland.input.scroll_factor` | Input › Mouse | `input:scroll_factor` | real 0.1–3 × |
+| `hyprland.input.focus_on_close` | Input › Mouse | `input:focus_on_close` | enum next 0 · under the pointer 1 · last used 2 |
+| `hyprland.cursor.hide_on_key_press` | Input › Mouse | `cursor:hide_on_key_press` | bool |
+| `hyprland.input.touchpad.tap_and_drag` | Input › Touchpad | `input:touchpad:tap-and-drag` (Lua `tap_and_drag`) | bool, `touchpad` capability |
+| `hyprland.input.touchpad.drag_lock` | Input › Touchpad | `input:touchpad:drag_lock` | enum 0–2, enabled while tap-and-drag is on |
+| `hyprland.misc.middle_click_paste` | Windows › Behavior | `misc:middle_click_paste` | bool |
+| `hyprland.binds.workspace_back_and_forth` | Windows › Workspaces | `binds:workspace_back_and_forth` | enum off 0 · all monitors 1 · per monitor 2 |
+| `hyprland.misc.initial_workspace_tracking` | Windows › Workspaces | `misc:initial_workspace_tracking` | enum 0–2; the dotfiles' `false` reads as 0 |
+| `hyprland.ecosystem.no_update_news` | Advanced › Hyprland notices | `ecosystem:no_update_news` | bool («Hide …») |
+| `hyprland.ecosystem.no_donation_nag` | Advanced › Hyprland notices | `ecosystem:no_donation_nag` | bool («Hide …») |
+
+The Windows page's Game Mode banner says what Game Mode overrides (blur,
+shadows, animations, gaps, rounding, 1 px borders, tearing allowed); those
+rows keep the stored value and say "Paused by Game Mode".
+
+**Tests.** `tests/test_window_preview.py` runs
+`tests/harness/drivers/window-preview.qml` (stub): 2 previews, writes of gaps,
+border, rounding and rounding power reach the drawing (geometry checks, and
+pixel checks of the 1:1 magnifier with Pillow), the focused row highlights
+its part, real pointer moves (QtTest events) over previewed rows move the
+highlight and leaving them falls back to the focused row
+(`WindowsLogic.nextHoveredKey`, unit-tested in
+`tst_SettingsWindowPreview.qml`), and Game Mode pauses the overridden rows
+with their stored values. `tests/test_hyprland_e14.py` checks the registry entries, runs
+`tests/harness/drivers/hyprland-e14.qml` (each option written, read back,
+modified and reset through `HyprlandBackend`, one `hl.config` line each in
+the generated file, which must pass `Hyprland --verify-config` in a private
+HOME when Hyprland is installed), and runs
+`tests/harness/drivers/config-errors.qml` with each
+`tests/fixtures/hyprctl-configerrors-*.json` (none, two, malformed), the
+stub's default and without the stub. The VRR capability is unit-tested in
+`tst_DisplayPowerLogic.qml` with `tests/fixtures/hyprctl-monitors-all.json`
+and variants; the parser in `tst_SettingsAdvancedLogic.qml`.
+
 ## Config schema version
 
 `scripts/settingsctl.py validate|migrate [--dry-run] <config.json>` is a
