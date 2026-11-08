@@ -4,9 +4,15 @@
 // backends. No Quickshell or QML object dependencies, so tests/qml_settings
 // can exercise it with plain qmltestrunner.
 
-var BACKENDS = ["config", "hyprland", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"];
+var BACKENDS = ["config", "hyprland", "animation", "idle", "display", "mime", "audio", "power", "ipc", "action", "readonly"];
 var TYPES = ["bool", "int", "real", "enum", "string", "path", "font", "color", "list", "time", "url", "action", "info", "custom"];
-var WIDGETS = ["switch", "slider", "spin", "segmented", "select", "text", "textarea", "path", "font", "color", "list", "time", "device", "action", "info", "custom"];
+var WIDGETS = ["switch", "slider", "spin", "segmented", "select", "text", "textarea", "path", "font", "color", "list", "time", "device", "action", "info", "custom",
+    "animation", "animationPreset", "curveLibrary", "banner"];
+// When a change takes effect, shown as a chip (docs/settings.md "Entry
+// fields"); instant changes have no `applies`.
+var APPLIES = ["newWindows", "nextStart", "nextLogin", "confirm", "onSave"];
+// Resource a setting costs while it is on.
+var COSTS = ["gpu", "battery"];
 // Backends that never persist anything: their rows render from the page.
 var PASSIVE_BACKENDS = ["action", "readonly"];
 var CONFIRM_SECONDS = 15;
@@ -254,7 +260,9 @@ var CAPABILITY_REASONS = {
     "satty": "Requires satty, which is not installed",
     "checkupdates": "Requires checkupdates (pacman-contrib), which is not installed",
     "pipewire": "PipeWire is not running",
-    "touchpad": "No touchpad detected"
+    "touchpad": "No touchpad detected",
+    "animationsLoaded": "Hyprland does not load the animation settings yet: update the dotfiles",
+    "vrr": "No connected display supports variable refresh rate (FreeSync/G-Sync)"
 };
 
 function capabilityReason(name) {
@@ -478,6 +486,10 @@ function entryProblem(raw, sectionIds, retired) {
         return "unknown type " + JSON.stringify(raw.type);
     if (raw.widget !== undefined && WIDGETS.indexOf(raw.widget) < 0)
         return "unknown widget " + JSON.stringify(raw.widget);
+    if (raw.applies !== undefined && APPLIES.indexOf(raw.applies) < 0)
+        return "unknown applies " + JSON.stringify(raw.applies);
+    if (raw.cost !== undefined && COSTS.indexOf(raw.cost) < 0)
+        return "unknown cost " + JSON.stringify(raw.cost);
     if (raw.type === "enum" && (!isArrayLike(raw.options) || raw.options.length === 0))
         return "enum without options";
     var path = raw.path || raw.key;
@@ -496,6 +508,11 @@ function normalizeEntry(raw, page) {
     entry.path = raw.path || raw.key;
     entry.description = raw.description || "";
     entry.note = raw.note || "";
+    entry.help = raw.help || "";
+    entry.applies = raw.applies || "";
+    entry.cost = raw.cost || "";
+    entry.minLabel = raw.minLabel || "";
+    entry.maxLabel = raw.maxLabel || "";
     entry.keywords = isArrayLike(raw.keywords) ? raw.keywords.map(String) : [];
     entry.icon = raw.icon || "";
     entry.risky = raw.risky === true;

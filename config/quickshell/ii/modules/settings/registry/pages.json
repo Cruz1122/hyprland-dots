@@ -16,6 +16,7 @@
       "title": "Desktop",
       "pages": [
         "windows",
+        "animations",
         "input",
         "displays"
       ]

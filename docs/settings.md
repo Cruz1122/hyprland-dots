@@ -60,7 +60,7 @@ scripts/settings/                    idlegen.py, monitorsgen.py, default-apps.py
 | Group | Pages |
 |---|---|
 | `personalization` | `quick`, `appearance`, `background`, `bar`, `panels` |
-| `desktop` | `windows`, `input`, `displays` |
+| `desktop` | `windows`, `animations`, `input`, `displays` |
 | `system` | `sound`, `power`, `notifications`, `apps`, `region` |
 | `tools` | `capture`, `search`, `services` |
 | footer | `advanced`, `about` |
@@ -68,7 +68,9 @@ scripts/settings/                    idlegen.py, monitorsgen.py, default-apps.py
 Each page id has `registry/<id>.json` and `pages/<Id>Page.qml`.
 
 Sections per page, in order (the registry files are authoritative; the last
-column counts entries, including actions and read-only rows):
+column counts entries, including actions and read-only rows; sections without
+visible entries stay hidden, as most `animations` sections do until their
+entries land):
 
 | Page | Title | Sections | Entries |
 |---|---|---|---|
@@ -77,7 +79,8 @@ column counts entries, including actions and read-only rows):
 | `background` | Wallpaper and widgets | Wallpaper, Parallax, Clock, Cookie clock, Digital clock, Quote, Weather widget | 39 |
 | `bar` | Bar | Layout, Auto-hide, Workspaces, Buttons, Indicators and tooltips, Resources, Weather, System tray | 34 |
 | `panels` | Panels and overlays | Right sidebar, Open from screen corners, Dock, Overview, Overlay, On-screen display, On-screen keyboard, Shortcut cheat sheet, Media | 48 |
-| `windows` | Windows and effects | Game Mode, Spacing and borders, Blur, Shadows, Dimming, Opacity, Animations, Behavior, Gestures, Window rules | 35 |
+| `windows` | Windows and effects | Game Mode, Spacing and borders, Blur, Shadows, Dimming, Opacity, Behavior, Gestures, Window rules | 32 |
+| `animations` | Animations | What each part controls, General, Windows, Workspaces, Shell panels, Details, My curves, Motion inside the shell | 6 |
 | `input` | Keyboard and input | Keyboard, Mouse and pointer, Touchpad, Scrolling in the shell, Keyboard shortcuts | 21 |
 | `displays` | Displays and night light | Displays, Night light, Anti-flashbang | 8 |
 | `sound` | Sound | Devices, Hearing protection, System sounds | 8 |
@@ -124,19 +127,23 @@ Entry fields:
 
 | Field | Meaning |
 |---|---|
-| `key` | Globally unique id. For `config` it is the config path. Other backends use a prefix: `hyprland.<lua path>`, `display.<field>`, `mime.<role>`, `audio.<x>`, `power.<x>`, `ipc.<x>`, `action.<page>.<name>`, `info.<page>.<name>`. |
+| `key` | Globally unique id. For `config` it is the config path. Other backends use a prefix: `hyprland.<lua path>`, `animation.<x>`, `display.<field>`, `mime.<role>`, `audio.<x>`, `power.<x>`, `ipc.<x>`, `action.<page>.<name>`, `info.<page>.<name>`. |
 | `section` | Section id of the same page. |
 | `label`, `description` | English source strings, translated with `Translation.tr`. Description is one sentence. |
 | `note` | Optional English hint shown under the description (for example "Applies to new windows"). |
+| `help` | Optional English longer explanation (1–3 sentences: what it does, when to use it, what to watch out for), shown on demand; never repeats the description. |
+| `applies` | Optional: when a change takes effect, shown as a chip. One of `newWindows`, `nextStart` (next shell start), `nextLogin`, `confirm` (keep-or-revert), `onSave`. Instant changes have none. |
+| `cost` | Optional resource the setting costs while on: `gpu` or `battery`. |
+| `minLabel`, `maxLabel` | Optional English captions for the two ends of a slider without a unit ("Subtle" … "Strong"). |
 | `keywords` | Optional extra search terms (any language). |
 | `icon` | Optional Material Symbols name. |
-| `backend` | `config`, `hyprland`, `idle`, `display`, `mime`, `audio`, `power`, `ipc`, `action`, `readonly`. |
+| `backend` | `config`, `hyprland`, `animation`, `idle`, `display`, `mime`, `audio`, `power`, `ipc`, `action`, `readonly`. |
 | `path` | Backend address. Defaults to `key` for `config`. Hyprland: Lua path such as `input.touchpad.tap_to_click`. |
 | `option` | Hyprland only: `hyprctl getoption` name, such as `input:touchpad:tap-to-click`. Lua keys use `_`, option names may use `-`. |
 | `type` | `bool`, `int`, `real`, `enum`, `string`, `path`, `font`, `color`, `list`, `time`, `url`, `action`, `info`, `custom`. |
-| `widget` | Optional rendering hint: `switch`, `slider`, `spin`, `segmented`, `select`, `text`, `textarea`, `path`, `font`, `color`, `list`, `time`, `device`, `action`, `info`, `custom`. |
+| `widget` | Optional rendering hint: `switch`, `slider`, `spin`, `segmented`, `select`, `text`, `textarea`, `path`, `font`, `color`, `list`, `time`, `device`, `action`, `info`, `custom`, `animation`, `animationPreset`, `curveLibrary`, `banner`. A widget without a row file in `SettingsPage.rowSources` renders as `SettingsCustomRow`. |
 | `min`, `max`, `step`, `unit`, `uiScale`, `decimals` | Numeric range and display. `uiScale` multiplies the stored value for display (0.5 shown as 50 with `unit: "%"`); `min`/`max`/`step` stay in stored units. Spin boxes round the displayed value and write it divided back and rounded (seconds shown as minutes with `uiScale: 1/60`). |
-| `options` | Enum values: `[{ "value": <json>, "label": "English", "icon": "optional" }]`. |
+| `options` | Enum values: `[{ "value": <json>, "label": "English", "icon": "optional", "description": "Optional English sentence" }]`; no other option fields. |
 | `validate` | `{ "regex": "...", "maxLength": n, "nonEmpty": true, "unique": "<group>" }`. |
 | `enabledWhen`, `visibleWhen` | Conditions, below. |
 | `risky` | Needs the 15 s keep-or-revert confirmation. |
@@ -149,7 +156,10 @@ Entry fields:
 | `pick` | Path rows: `"folder"` (default) or `"file"` for the picker button. |
 
 A page object may also carry `iconRotation` (degrees, for example `bar`).
-Unknown entry fields are rejected by the contract test.
+Unknown entry fields are rejected by the contract test. An `applies` or
+`cost` value outside its list skips the entry with a `loadErrors` message, like
+an unknown backend, type or widget. `help`, `minLabel`, `maxLabel` and option
+descriptions are translated like labels (`es_MX` is required).
 
 Aliases repeat a setting whose canonical home is another page (the Quick
 page does this). An alias entry is exactly `{ "ref": "<canonical key>",
@@ -176,12 +186,12 @@ Conditions:
 ```
 
 Capabilities are published by backends (for example `battery`, `touchpad`,
-`multiMonitor`; `satty` and `checkupdates` come from the `system` backend,
+`multiMonitor`, `gameMode`; `satty` and `checkupdates` come from the `system` backend,
 `ipc:<target>` from the `ipc` backend). An entry whose backend is not
 available renders disabled with the backend's `unavailableReason`. An entry
 disabled by a missing capability shows `capabilityReason(name)` from
 `core/SettingsLogic.js` ("Requires satty, which is not installed", "No
-touchpad detected", …); a capability used in `enabledWhen` needs its own text
+touchpad detected", `animationsLoaded`, `vrr`, …); a capability used in `enabledWhen` needs its own text
 there (contract test), while `visibleWhen` simply hides the row.
 
 `registry/retired.json` lists config paths or prefixes of retired features.
@@ -313,6 +323,7 @@ fail synchronously; the commands they start run asynchronously. The
 | `audio` | `Quickshell.Services.Pipewire` preferred default sink and source; duplicate HDMI nodes are merged. Capability `pipewire`. |
 | `power` | `Quickshell.Services.UPower` power profiles (the performance profile only when offered) and the `battery` capability (`UPower.displayDevice.isLaptopBattery`). |
 | `system` | No entries. Probes optional tools once at start with `which <tool>` (argv) and publishes the found ones as capabilities (`satty`, `checkupdates`), independent of the main shell. Always available. |
+| `animation` | Hyprland animations and curves (keys `animation.*`). Placeholder for now: `AnimationBackend` is never available ("Animation settings are not available yet"), holds no values, and every `write`/`reset` fails; see `AnimationBackend` once the real backend lands. |
 | `ipc` | `qs -p <shell dir> ipc call …` to the main shell, which is the same instance as `qs -c ii` (Do Not Disturb through `notifications`, AI quota connect through `aiQuotaPanel.connectProvider`, region recording through `region`). Available while `ipc show` answers; polled every 10 s while the app is open. The app never starts `ai-quotas.py serve` itself. |
 
 Helper scripts (`scripts/settings/`, run as `python3 <script>` with argv;
@@ -451,13 +462,48 @@ shape. `migrate` writes atomically and keeps a
 `currentPage` index and `pageReady` (false while a page loads). The harness
 (`scripts/settings-harness/run.sh`) renders pages offscreen in a sandbox and,
 with `--strict`, fails on QML warnings, overlapping or overflowing `row:*`
-items, popups open after load, and any `config.json` write during the run.
+items, popups open after load, any `config.json` write during the run, and
+any file created, changed or removed under the sandbox's `hypr/custom/` or
+`hypr/monitors.lua` ("unexpected write to hypr/custom/<name>"; run.sh records
+sha256 manifests in `hypr.before.json`/`hypr.after.json`).
 `--discard` deletes the output when the run passes. One page:
 `scripts/settings-harness/run.sh --strict --pages bar --sizes 1100x760`.
 
+Without Hyprland in the sandbox every Hyprland row renders unavailable
+("Hyprland is not running"). `--hyprland-stub` puts
+`tests/harness/stubs/hyprctl` first on `PATH` (a test's own `--env PATH=…`
+still wins), sets `HYPRLAND_INSTANCE_SIGNATURE=settings-harness` and seeds the
+sandbox config with copies of the repository's `config/hypr/hyprland.lua`,
+`hyprland/general.lua`, `hyprland/colors.lua` and `hyprland/lib/` (never the
+live `~/.config`). The stub logs each call's argv to `<out>/hyprctl.log`
+(`HYPRCTL_LOG`) and answers from fixtures copied into the sandbox
+(`HYPRCTL_FIXTURES`):
+
+| Call | Answer |
+|---|---|
+| `-j descriptions` | Every option of `tests/fixtures/hyprland-options.json`, `current` = `default`. |
+| `-j devices` | `tests/fixtures/hyprctl-devices.json` (keyboard, mouse, ELAN touchpad, lid switch). |
+| `-j monitors [all]` | `tests/fixtures/hyprctl-monitors-all.json` (without `all`, enabled outputs only). |
+| `-j animations` | `tests/fixtures/hyprctl-animations.json` (Hyprland 0.57 with these dotfiles). |
+| `-j configerrors` | `[""]`, or the file named by `HYPRCTL_CONFIGERRORS`. |
+| `[-j] getoption NAME` | The fixture default. |
+| `eval EXPR` | `ok`, exit 0; when the regex `HYPRCTL_FAIL_MATCH` matches `EXPR`, `error: stub failure for <EXPR>` on stderr and exit 7. |
+| other `-j` queries | `[]` or `{}` (binds, clients, workspaces, layers, …). |
+| `reload`, `dispatch`, `keyword`, anything else | `ok`. |
+
+With `--strict`, a `--hyprland-stub` run also fails when the stub never
+answered `-j descriptions` or when a captured page shows Hyprland rows whose
+backend is unavailable: `settings-shot.qml` reports, per page, the visible rows
+whose backend is unavailable (`unavailable: {backend: count}`), and run.sh
+passes `--hyprctl-log` to `summarize.py`. A run that silently fell back to the
+"Hyprland is not running" state therefore cannot pass.
+
+The stub has no event socket, so Quickshell.Hyprland's "Unable to find
+hyprland socket" is listed in `tests/harness/known-env-warnings.txt`.
+
 `tests/harness/settings-interact.qml` is the interaction driver:
-`scripts/settings-harness/run.sh --strict --allow-config-writes --driver
-tests/harness/settings-interact.qml`. It checks that accented and
+`scripts/settings-harness/run.sh --strict --allow-config-writes
+--hyprland-stub --driver tests/harness/settings-interact.qml`. It checks that accented and
 unaccented searches return the same results and that activating one reveals
 and highlights its row, that opening a page scrolls the page list so the page
 clears the edge fade (the first page of a group with its group title), then,
@@ -465,7 +511,8 @@ for every visible and enabled `config` entry of
 type `bool` or `enum`, calls `row.interact()`, checks that `config.json`
 changed only that key, restores the original value (through the row's reset
 when the original is the default) and checks the file again.
-`--allow-config-writes` turns the strict config-write check into a note.
+`--allow-config-writes` turns the strict `config.json` and `hypr/custom`
+write checks into notes.
 See `scripts/settings-harness/run.sh --help`.
 
 ## Tests
@@ -503,5 +550,8 @@ See `scripts/settings-harness/run.sh --help`.
 - `test_settings_video_wallpaper.py` renders the pages with the wallpaper card
   in strict mode with a seeded video wallpaper (`run.sh --config`): the card
   previews `background.thumbnailPath`, never the video itself.
-- `scripts/verify.sh` runs everything, including the strict harness and the
-  interaction driver.
+- `test_settings_harness.py`: the summarizer (including the `hypr/custom`
+  check), `run.sh` arguments and the `hyprctl` stub.
+- `scripts/verify.sh` runs everything, including the strict harness with
+  `--hyprland-stub` at every size, one strict run without it at 1100x760 (the
+  unavailable state) and the interaction driver with the stub.

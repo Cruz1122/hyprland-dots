@@ -45,6 +45,7 @@ Singleton {
 
     ConfigBackend { id: configBackend }
     HyprlandBackend { id: hyprlandBackend }
+    AnimationBackend { id: animationBackend }
     IdleBackend { id: idleBackend }
     DisplayBackend { id: displayBackend }
     MimeBackend { id: mimeBackend }
@@ -59,6 +60,7 @@ Singleton {
         backends: ({
             config: configBackend,
             hyprland: hyprlandBackend,
+            animation: animationBackend,
             idle: idleBackend,
             display: displayBackend,
             mime: mimeBackend,

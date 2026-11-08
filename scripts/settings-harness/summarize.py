@@ -4,7 +4,8 @@
 The QML driver logs one "[harness:report] <json>" line per event. This script
 collects them, separates app warnings from known sandbox noise, attributes
 each warning to the page being visited, and compares config.json before and
-after the run (loading pages must never write the config).
+after the run (loading pages must never write the config), as well as the
+sha256 manifests run.sh takes of hypr/custom/* and hypr/monitors.lua.
 """
 from __future__ import annotations
 
@@ -56,6 +57,17 @@ def config_changes(before: Path | None, after: Path | None) -> dict[str, Any]:
     return {"checked": True, "rewritten": True, "changed": changed}
 
 
+def hypr_changes(before: Path | None, after: Path | None) -> dict[str, Any]:
+    """Compares two {relative path: sha256} manifests of the sandbox's Hyprland files."""
+    if before is None or after is None or not before.exists() or not after.exists():
+        return {"checked": False}
+    old = json.loads(before.read_text(encoding="utf-8"))
+    new = json.loads(after.read_text(encoding="utf-8"))
+    written = sorted(path for path in new if old.get(path) != new[path])
+    removed = sorted(path for path in old if path not in new)
+    return {"checked": True, "written": written, "removed": removed}
+
+
 def parse_log(log: Path, known: list[re.Pattern[str]]) -> dict[str, Any]:
     events: list[dict[str, Any]] = []
     app_warnings: list[dict[str, str]] = []
@@ -88,11 +100,17 @@ def main() -> int:
     parser.add_argument("--known", type=Path, required=True)
     parser.add_argument("--config-before", type=Path)
     parser.add_argument("--config-after", type=Path)
+    parser.add_argument("--hypr-before", type=Path, help="run.sh manifest of hypr/custom/* and hypr/monitors.lua")
+    parser.add_argument("--hypr-after", type=Path)
     parser.add_argument("--out", type=Path, required=True, help="report.json destination")
     parser.add_argument("--exit-code", type=int, default=0, help="exit status of the app process")
     parser.add_argument("--strict", action="store_true", help="fail on warnings, layout findings and config writes")
     parser.add_argument("--allow-config-writes", action="store_true",
-                        help="report config.json writes as a note instead of a strict failure (interaction drivers)")
+                        help="report config.json and hypr/custom writes as a note instead of a strict failure"
+                             " (interaction drivers)")
+    parser.add_argument("--hyprctl-log", type=Path,
+                        help="hyprctl.log of a --hyprland-stub run: with --strict, the stub must have answered"
+                             " '-j descriptions' and no captured page may show unavailable Hyprland rows")
     args = parser.parse_args()
 
     parsed = parse_log(args.log, load_known(args.known))
@@ -101,6 +119,7 @@ def main() -> int:
     fatal = [event for event in events if event.get("type") == "fatal"]
     done = any(event.get("type") == "done" for event in events)
     config = config_changes(args.config_before, args.config_after)
+    hypr = hypr_changes(args.hypr_before, args.hypr_after)
 
     problems: list[str] = []
     if args.exit_code != 0:
@@ -124,8 +143,19 @@ def main() -> int:
             strict_problems.append(f"{where}: {len(page['overflowX'])} row(s) overflow horizontally")
         if page.get("openPopups", 0) > 0:
             strict_problems.append(f"{where}: {page['openPopups']} popup(s) open after load")
+        hyprland_down = (page.get("unavailable") or {}).get("hyprland", 0)
+        if args.hyprctl_log is not None and hyprland_down:
+            strict_problems.append(f"{where}: {hyprland_down} Hyprland row(s) unavailable with the Hyprland stub")
+    if args.hyprctl_log is not None:
+        calls = args.hyprctl_log.read_text(encoding="utf-8").splitlines() if args.hyprctl_log.exists() else []
+        if not any(call.split() == ["-j", "descriptions"] for call in calls):
+            strict_problems.append("the Hyprland stub never answered '-j descriptions' (see hyprctl.log)")
     if config.get("rewritten") and not args.allow_config_writes:
         strict_problems.append(f"config.json written during the run ({len(config.get('changed', []))} key(s) changed)")
+    hypr_writes = [f"unexpected write to {path}" for path in hypr.get("written", [])]
+    hypr_writes += [f"unexpected removal of {path}" for path in hypr.get("removed", [])]
+    if not args.allow_config_writes:
+        strict_problems.extend(hypr_writes)
 
     report = {
         "ok": not problems and (not args.strict or not strict_problems),
@@ -136,6 +166,7 @@ def main() -> int:
         "appWarnings": parsed["app_warnings"],
         "envWarnings": parsed["env_warnings"],
         "config": config,
+        "hyprConfig": hypr,
     }
     args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
@@ -158,6 +189,9 @@ def main() -> int:
         print(f"config.json was written; {len(config.get('changed', []))} key(s) changed:")
         for change in config.get("changed", [])[:20]:
             print(f"  {change['key']}: {change['before']!r} -> {change['after']!r}")
+    if args.allow_config_writes:
+        for note in hypr_writes:
+            print(f"NOTE: {note}")
     for problem in problems:
         print(f"FAIL: {problem}")
     for problem in strict_problems:

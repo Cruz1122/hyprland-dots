@@ -126,7 +126,20 @@ ShellRoot {
             }
         }
         const overflowX = rows.filter(r => r.x < -1 || r.x + r.w > root.frame.width + 1).map(r => r.key);
-        return { rows: rows.length, overlaps: overlaps, overflowX: overflowX };
+        return { rows: rows.length, overlaps: overlaps, overflowX: overflowX, unavailable: root.unavailableByBackend(rows) };
+    }
+
+    // backend name -> number of visible rows whose backend is unavailable.
+    // summarize.py uses it to prove the --hyprland-stub run really rendered
+    // the Hyprland rows available instead of their "not running" state.
+    function unavailableByBackend(rows) {
+        const counts = {};
+        for (const r of rows) {
+            const e = SettingsStore.entry(r.key);
+            if (e && !SettingsStore.isAvailable(r.key))
+                counts[e.backend] = (counts[e.backend] ?? 0) + 1;
+        }
+        return counts;
     }
 
     // Visible children of the window overlay are open popups (tooltips,

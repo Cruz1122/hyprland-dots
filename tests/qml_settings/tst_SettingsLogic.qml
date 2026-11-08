@@ -141,6 +141,37 @@ TestCase {
         compare(Logic.capabilityReason("constructor"), "Not supported on this system");
     }
 
+    // applies/cost typos must surface in loadErrors instead of rendering a
+    // row with an unknown chip.
+    function test_registry_validates_guidance_fields() {
+        const pages = { groups: [{ id: "g", title: "G", pages: ["one"] }], footer: [] };
+        const entry = (key, extra) => Object.assign({ key: key, section: "s", label: key, backend: "animation", type: "custom", widget: "animation" }, extra);
+        const docs = {
+            one: {
+                id: "one", title: "One", icon: "animation",
+                sections: [{ id: "s", title: "S" }],
+                entries: [
+                    entry("animation.ok", { applies: "newWindows", cost: "gpu", help: "Why.", minLabel: "Fast", maxLabel: "Slow" }),
+                    entry("animation.plain", {}),
+                    entry("animation.badApplies", { applies: "later" }),
+                    entry("animation.badCost", { cost: "cpu" }),
+                    entry("animation.badWidget", { widget: "sparkle" })
+                ]
+            }
+        };
+        const model = Logic.buildRegistry(pages, docs, { retired: [], managedElsewhere: [] });
+        compare(Object.keys(model.entryByKey).sort(), ["animation.ok", "animation.plain"]);
+        compare(model.errors.length, 3, JSON.stringify(model.errors));
+        verify(model.errors.some(e => e.indexOf("unknown applies \"later\"") >= 0), JSON.stringify(model.errors));
+        verify(model.errors.some(e => e.indexOf("unknown cost \"cpu\"") >= 0), JSON.stringify(model.errors));
+        const ok = model.entryByKey["animation.ok"];
+        compare([ok.applies, ok.cost, ok.help, ok.minLabel, ok.maxLabel], ["newWindows", "gpu", "Why.", "Fast", "Slow"]);
+        const plain = model.entryByKey["animation.plain"];
+        compare([plain.applies, plain.cost, plain.help, plain.minLabel, plain.maxLabel], ["", "", "", "", ""]);
+        compare(Logic.capabilityReason("animationsLoaded"), "Hyprland does not load the animation settings yet: update the dotfiles");
+        compare(Logic.capabilityReason("vrr"), "No connected display supports variable refresh rate (FreeSync/G-Sync)");
+    }
+
     function test_registry_skips_broken_parts() {
         const model = registry();
         compare(model.pages.map(p => p.id), ["one", "two", "three"]);

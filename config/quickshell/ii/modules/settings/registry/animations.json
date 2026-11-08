@@ -1,0 +1,179 @@
+{
+  "id": "animations",
+  "title": "Animations",
+  "icon": "animation",
+  "description": "How windows, workspaces and shell panels move, and the motion inside the shell.",
+  "sections": [
+    {
+      "id": "intro",
+      "title": "What each part controls",
+      "icon": "info",
+      "description": "Hyprland animates windows, workspaces and shell panels; the shell animates its own menus and controls."
+    },
+    {
+      "id": "general",
+      "title": "General",
+      "icon": "tune",
+      "description": "Turn every desktop animation on or off at once."
+    },
+    {
+      "id": "windows",
+      "title": "Windows",
+      "icon": "select_window",
+      "description": "How windows open, close and move, and whether resizing and dragging are animated."
+    },
+    {
+      "id": "workspaces",
+      "title": "Workspaces",
+      "icon": "view_carousel",
+      "description": "How you move between workspaces and how the auxiliary workspace (Super+S) appears."
+    },
+    {
+      "id": "panels",
+      "title": "Shell panels",
+      "icon": "side_navigation",
+      "description": "How long shell panels such as the sidebars take to open and close, and with which curve."
+    },
+    {
+      "id": "details",
+      "title": "Details",
+      "icon": "more_horiz",
+      "description": "The color change of the active window border and the screen zoom (Super + = / Super + -)."
+    },
+    {
+      "id": "curves",
+      "title": "My curves",
+      "icon": "timeline",
+      "description": "Curves you create here, ready to use in any animation on this page."
+    },
+    {
+      "id": "shellMotion",
+      "title": "Motion inside the shell",
+      "icon": "motion_mode",
+      "description": "Speed of the menus, buttons and panels drawn by the shell; it does not change Hyprland animations."
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.animations.gameMode",
+      "section": "general",
+      "label": "Game Mode is on",
+      "description": "Game Mode turns off desktop animations while it is on; your changes are saved and apply when you turn it off.",
+      "icon": "sports_esports",
+      "backend": "readonly",
+      "type": "info",
+      "visibleWhen": {
+        "capability": "gameMode"
+      }
+    },
+    {
+      "key": "hyprland.animations.enabled",
+      "section": "general",
+      "label": "Desktop animations",
+      "description": "Animate windows, workspaces and shell panels; motion inside the shell has its own setting below.",
+      "keywords": [
+        "Animations",
+        "animaciones",
+        "desactivar animaciones",
+        "quitar animaciones",
+        "disable animations",
+        "rendimiento",
+        "performance"
+      ],
+      "icon": "animation",
+      "backend": "hyprland",
+      "path": "animations.enabled",
+      "option": "animations:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.misc.animate_manual_resizes",
+      "section": "windows",
+      "label": "Animate manual resizing",
+      "description": "When you resize a window yourself, the change is animated instead of instant.",
+      "keywords": [
+        "Animate manual resizes",
+        "Animar al redimensionar",
+        "redimensionar",
+        "resize",
+        "tamaño"
+      ],
+      "icon": "aspect_ratio",
+      "backend": "hyprland",
+      "path": "misc.animate_manual_resizes",
+      "option": "misc:animate_manual_resizes",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.misc.animate_mouse_windowdragging",
+      "section": "windows",
+      "label": "Animate windows dragged with the mouse",
+      "description": "A window you drag follows the pointer with an animation instead of sticking to it.",
+      "help": "Some curves make the dragged window wobble or lag behind; turn this off if dragging feels unsteady.",
+      "keywords": [
+        "Animate window dragging",
+        "Animar al arrastrar",
+        "arrastrar",
+        "drag",
+        "mover"
+      ],
+      "icon": "drag_pan",
+      "backend": "hyprland",
+      "path": "misc.animate_mouse_windowdragging",
+      "option": "misc:animate_mouse_windowdragging",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.animations.workspace_wraparound",
+      "section": "workspaces",
+      "label": "Wraparound workspace slide",
+      "description": "Moving between the last and the first workspace slides as if they were next to each other.",
+      "keywords": [
+        "wraparound",
+        "workspace wraparound",
+        "circular",
+        "bucle",
+        "vuelta",
+        "deslizar"
+      ],
+      "icon": "all_inclusive",
+      "backend": "hyprland",
+      "path": "animations.workspace_wraparound",
+      "option": "animations:workspace_wraparound",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.general.gaps_workspaces",
+      "section": "workspaces",
+      "label": "Gap between workspaces while sliding",
+      "description": "Empty space between two workspaces during the slide animation, in pixels.",
+      "help": "It adds to the gap at the screen edges.",
+      "keywords": [
+        "gaps_workspaces",
+        "separación",
+        "espacio",
+        "hueco"
+      ],
+      "icon": "width",
+      "backend": "hyprland",
+      "path": "general.gaps_workspaces",
+      "option": "general:gaps_workspaces",
+      "type": "int",
+      "min": 0,
+      "max": 100,
+      "unit": "px"
+    }
+  ]
+}

@@ -43,7 +43,10 @@ run_harness() {
         exit "$status"
     fi
 }
-run_harness --strict --discard
-run_harness --strict --discard --allow-config-writes --sizes 1100x760 --driver tests/harness/settings-interact.qml
+# Main run with the fake hyprctl, so the Hyprland rows render available.
+run_harness --strict --discard --hyprland-stub
+# Without Hyprland: every Hyprland row renders its unavailable state.
+run_harness --strict --discard --sizes 1100x760
+run_harness --strict --discard --allow-config-writes --hyprland-stub --sizes 1100x760 --driver tests/harness/settings-interact.qml
 
 printf 'Verification passed.\n'

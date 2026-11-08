@@ -2,7 +2,7 @@
   "id": "windows",
   "title": "Windows and effects",
   "icon": "select_window",
-  "description": "Gaps, borders, blur, shadows, animations and window behavior.",
+  "description": "Gaps, borders, blur, shadows and window behavior.",
   "sections": [
     {
       "id": "gameMode",
@@ -33,11 +33,6 @@
       "id": "opacity",
       "title": "Opacity",
       "icon": "opacity"
-    },
-    {
-      "id": "animations",
-      "title": "Animations",
-      "icon": "animation"
     },
     {
       "id": "behavior",
@@ -372,47 +367,6 @@
       "decimals": 2,
       "uiScale": 100,
       "unit": "%"
-    },
-    {
-      "key": "hyprland.animations.enabled",
-      "section": "animations",
-      "label": "Animations",
-      "description": "Animate windows, workspaces and layers.",
-      "icon": "animation",
-      "backend": "hyprland",
-      "path": "animations.enabled",
-      "option": "animations:enabled",
-      "type": "bool"
-    },
-    {
-      "key": "hyprland.misc.animate_manual_resizes",
-      "section": "animations",
-      "label": "Animate manual resizes",
-      "description": "Animate windows while you resize them.",
-      "icon": "aspect_ratio",
-      "backend": "hyprland",
-      "path": "misc.animate_manual_resizes",
-      "option": "misc:animate_manual_resizes",
-      "type": "bool",
-      "enabledWhen": {
-        "key": "hyprland.animations.enabled",
-        "equals": true
-      }
-    },
-    {
-      "key": "hyprland.misc.animate_mouse_windowdragging",
-      "section": "animations",
-      "label": "Animate window dragging",
-      "description": "Animate windows while you drag them with the mouse.",
-      "icon": "drag_pan",
-      "backend": "hyprland",
-      "path": "misc.animate_mouse_windowdragging",
-      "option": "misc:animate_mouse_windowdragging",
-      "type": "bool",
-      "enabledWhen": {
-        "key": "hyprland.animations.enabled",
-        "equals": true
-      }
     },
     {
       "key": "hyprland.dwindle.preserve_split",

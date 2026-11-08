@@ -15,3 +15,6 @@ Could not load icon "(illogical-impulse|cachyos)" at size
 Failed to connect pipewire context
 # No system bus inside the sandbox (PowerBackend binds Quickshell.Services.UPower).
 (UPower|PowerProfiles) services? will not work
+# --hyprland-stub sets HYPRLAND_INSTANCE_SIGNATURE so the Hyprland rows render
+# available, but the stub hyprctl has no event socket for Quickshell.Hyprland.
+Unable to find hyprland socket
