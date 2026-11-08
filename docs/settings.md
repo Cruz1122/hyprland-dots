@@ -697,6 +697,82 @@ Revert/Keep), `SettingsErrorToast` (failed writes, 5 s), plus
 (`iconName`, `tooltip`), `SettingsTextField`, `SettingsFocusRing` and the
 `SettingsMetrics` singleton.
 
+## Animation visuals
+
+Standalone building blocks for the Animations page (plain properties and
+signals; no registry, store or backend access). Curve descriptors are
+`{ name, type: "bezier", points: [x1, y1, x2, y2] }` or
+`{ name, type: "spring", mass, stiffness, damping }`, plus `label` (English
+source string; `group: "user"` labels are shown as typed).
+
+`CurveMath.js` (`.pragma library`, pure) ports hyprutils v0.14.3, the version
+Hyprland 0.57 uses, in doubles (hyprutils uses floats; the difference is below
+1e-6):
+
+| Function | Meaning |
+|---|---|
+| `bezierY(points, x)` | `CBezierCurve::getYForPoint`: 255 baked points at t = 1/255..1, binary search, linear interpolation; 0 for x ≤ 0, 1 for x ≥ 1. |
+| `advanceSpring(value, velocity, spring, dt)` | The closed-form damped-oscillator step of `Spring.cpp`. |
+| `springProgress(spring, tMs)` | Position tMs after a start at rest; 1 from the tick Hyprland ends it. Frame-rate independent (closed form). |
+| `springSettleMs(spring)` | When Hyprland ends a spring: the first 1 ms tick (Hyprland ticks animations from a 1 ms timer) with \|1 − value\| ≤ 0.001 and \|velocity\| ≤ 0.001. Soft spring 647 ms, bouncy spring 924 ms (the visible motion is mostly over by ~240/~360 ms). |
+| `valueAt(curve, progress, durationMs)`, `durationMs(curve, speed)` | Animated value for a linear progress; a spring ignores `speed`. |
+| `sample(curve, n)` | n evenly spaced `{x, y}` for thumbnails (a spring's x spans its settle time). |
+| `speedToMs(speed)`, `msToSpeed(ms)` | speed × 100 (deciseconds); inverse rounded to 2 decimals. |
+| `clampPoint(points)` | x in [0, 1], y in [-1, 2]; non-numbers become the lower bound. |
+
+Golden values: `tests/curve_reference.py` (an independent Python port)
+writes `tests/fixtures/curve-golden.json` with `--write`;
+`tests/test_curve_math.py` fails when the fixture drifts from the reference
+or from `config/hypr/hyprland/general.lua`, and runs
+`tests/qml_settings/tst_CurveMath.qml` (JS vs fixture within 1e-6) with
+`QML_XHR_ALLOW_FILE_READ=1` (Qt blocks local file reads without it).
+`tests/test_settings_qml.py` sets the same variable for the whole
+`qml_settings` suite and requires 0 skipped tests, so these fixture checks
+and the `AnimationLogic` parity cases cannot be skipped silently.
+
+Components:
+
+- `SettingsCurveThumb { curve, selected, forceHovered, focusShown }`: the
+  timing drawn with `QtQuick.Shapes` (curve renderer), y fitted inside
+  [-1, 2] with faint guides at 0 and 1; `curve: null` shows a question mark.
+- `SettingsCurvePicker { curves, value, accessibleName; activated(name) }`:
+  radio group of thumbnails with translated labels. One Tab stop; arrows
+  move, Home/End jump, Space/Enter choose; the picker never changes `value`
+  itself. A value missing from `curves` gets an extra "Not recognized: X"
+  item, selected, that keeps the value when chosen.
+- `SettingsCurveEditor { points, originalPoints, baseCurves, durationMs;
+  changed(points), accepted(points) }`: bezier only. Drag the two handles or
+  type x/y (Up/Down step 0.01, Shift 0.1); x stays in [0, 1], y in [-1, 2],
+  values round to 2 decimals, out-of-range text shows a hint and is not
+  applied. `changed` fires on every edit, `accepted` at the end of each one
+  (release, Enter/focus loss, a step, "Start from…"). The original curve is
+  drawn in grey; ▶ moves a ball along the curve for `durationMs`. Stacks
+  below 560 px.
+- `SettingsAnimationPreview` (contract in section 5 of the phase-A
+  contracts): `family`, `kind`, `percent` (< 0 = not given), `direction`,
+  `durationMs`, `curve`, `enabled` (false: jumps to the end, "No animation"),
+  `reduceMotion`, `startAtEnd`, `play(automatic)`, `seek(progress)`,
+  `playing`. A mini screen per family: windows (popin N%, 100% = fade only;
+  slide from a forced or the nearest edge; GNOME style), window move,
+  workspaces (slide, slidevert, fade, slidefade/slidefadevert N%, forced
+  direction), special workspace in/out over the dimmed workspace, shell
+  panels entering from the screen edge, active border colour, zoom around the
+  cursor. Geometry follows Hyprland's animation controllers. A linear
+  `NumberAnimation` drives `progress` (marked `// motion-ok: Hyprland
+  preview`, outside the shell motion scale) and `CurveMath.valueAt` maps it;
+  springs last `springSettleMs` and carry an "Approximate" chip. It never
+  loops; `play(true)` (an automatic replay) only jumps to the end when
+  `reduceMotion` is set.
+
+`tests/harness/drivers/animation-visuals.qml` (run by
+`tests/test_animation_visuals.py`) renders every component and state at 760
+and 1100 px in the dark fixture theme and a light theme, fails on clipped
+text or items past the edge, checks the picker keyboard, the editor's
+clamping and validation, and plays one preview to its end:
+`scripts/settings-harness/run.sh --strict --driver
+tests/harness/drivers/animation-visuals.qml --sizes 1100x760 --out DIR`
+leaves the screenshots in `DIR`.
+
 ## App entry point
 
 `settings.qml` is an `ApplicationWindow` (title "illogical-impulse

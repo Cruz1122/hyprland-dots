@@ -1829,5 +1829,17 @@
   "Suspend the system when the battery drops to the level below and it is not charging.": "Suspende el sistema cuando la batería baja al nivel de abajo y no se está cargando.",
   "Show every tray item in the bar; the items in the list below go to the overflow menu instead.": "Muestra todos los elementos de la bandeja en la barra; los de la lista de abajo pasan al menú de elementos ocultos.",
   "Ids of the tray items shown in the bar; the other items go to the overflow menu.": "IDs de los elementos de la bandeja que se muestran en la barra; los demás van al menú de elementos ocultos.",
-  "With “Pin by default” on, the list works the other way round: these items go to the overflow menu and the rest stay in the bar.": "Con «Fijar por defecto» activado, la lista funciona al revés: estos elementos van al menú de elementos ocultos y el resto se queda en la barra."
+  "With “Pin by default” on, the list works the other way round: these items go to the overflow menu and the rest stay in the bar.": "Con «Fijar por defecto» activado, la lista funciona al revés: estos elementos van al menú de elementos ocultos y el resto se queda en la barra.",
+  "Curve": "Curva",
+  "Start position": "Posición inicial",
+  "End position": "Posición final",
+  "Preview the motion": "Ver el movimiento",
+  "Start from…": "Partir de…",
+  "First point": "Primer punto",
+  "Second point": "Segundo punto",
+  "Use a number from 0 to 1": "Usa un número de 0 a 1",
+  "Use a number from -1 to 2": "Usa un número de -1 a 2",
+  "Animation preview": "Vista previa de la animación",
+  "No animation": "Sin animación",
+  "Approximate": "Aproximada"
 }
