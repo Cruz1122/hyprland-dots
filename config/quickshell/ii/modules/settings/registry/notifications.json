@@ -7,18 +7,20 @@
     {
       "id": "behavior",
       "title": "Behavior",
-      "icon": "notifications_active"
+      "icon": "notifications_active",
+      "description": "Whether notifications pop up and how long they stay."
     },
     {
       "id": "placement",
       "title": "Placement",
-      "icon": "monitor"
+      "icon": "monitor",
+      "description": "Which monitor shows the notification pop-ups."
     },
     {
       "id": "conflicts",
       "title": "Other notification services",
       "icon": "block",
-      "description": "Other daemons and tray hosts can take over notifications or the system tray."
+      "description": "Programs such as mako, dunst or KDE's kded6 can take over notifications or the tray."
     }
   ],
   "entries": [
@@ -26,7 +28,7 @@
       "key": "ipc.notifications.silent",
       "section": "behavior",
       "label": "Do Not Disturb",
-      "description": "Keep notifications in the list without showing popups.",
+      "description": "New notifications go silently to the list in the right sidebar, without pop-ups.",
       "keywords": [
         "dnd",
         "silent",
@@ -102,12 +104,15 @@
     {
       "key": "conflictKiller.autoKillNotificationDaemons",
       "section": "conflicts",
-      "label": "Close other notification daemons",
-      "description": "Stop daemons such as mako or dunst when the shell starts.",
+      "label": "Close mako and dunst without asking",
+      "description": "If the shell finds them running when it starts, it closes them instead of asking you.",
+      "applies": "nextStart",
       "keywords": [
         "mako",
         "dunst",
-        "kded"
+        "kded",
+        "Close other notification daemons",
+        "Cerrar otros demonios de notificaciones"
       ],
       "icon": "notifications_off",
       "backend": "config",
@@ -121,11 +126,14 @@
     {
       "key": "conflictKiller.autoKillTrays",
       "section": "conflicts",
-      "label": "Close other tray hosts",
-      "description": "Stop other system tray hosts when the shell starts.",
+      "label": "Close KDE's tray service without asking",
+      "description": "If the shell finds kded6 running when it starts, it closes it so tray icons show in the bar.",
+      "applies": "nextStart",
       "keywords": [
         "tray",
-        "bandeja"
+        "bandeja",
+        "Close other tray hosts",
+        "Cerrar otras bandejas del sistema"
       ],
       "icon": "cancel",
       "backend": "config",

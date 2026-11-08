@@ -7,17 +7,20 @@
     {
       "id": "layout",
       "title": "Displays",
-      "icon": "monitor"
+      "icon": "monitor",
+      "description": "Arrange your displays; each change is tried for 15 s and undone unless you keep it."
     },
     {
       "id": "nightLight",
       "title": "Night light",
-      "icon": "nightlight"
+      "icon": "nightlight",
+      "description": "Warmer screen colors with less blue light, by hand from the right sidebar or on a schedule."
     },
     {
       "id": "antiFlashbang",
-      "title": "Anti-flashbang",
-      "icon": "flash_off"
+      "title": "Bright flash protection",
+      "icon": "flash_off",
+      "description": "Protects your eyes from sudden white screens while you use dark mode."
     }
   ],
   "entries": [
@@ -25,7 +28,7 @@
       "key": "action.displays.replaceMonitors",
       "section": "layout",
       "label": "Display layout file edited by hand",
-      "description": "Settings will not overwrite ~/.config/hypr/monitors.lua; replacing it saves a copy next to it first.",
+      "description": "Layout changes are not saved to ~/.config/hypr/monitors.lua until you replace it; a backup is made first.",
       "icon": "warning",
       "backend": "action",
       "type": "action",
@@ -42,6 +45,7 @@
       "section": "layout",
       "label": "Quick layouts",
       "description": "Extend the desktop, duplicate it or use a single display.",
+      "applies": "confirm",
       "keywords": [
         "extend",
         "mirror",
@@ -64,7 +68,7 @@
       "section": "layout",
       "label": "Connected displays",
       "description": "Turn each display on or off and choose its resolution, scale, rotation and position.",
-      "note": "Changes are previewed and kept only if you confirm them.",
+      "help": "Displays that support it also offer variable refresh rate (FreeSync/G-Sync).",
       "keywords": [
         "monitor",
         "resolution",
@@ -88,7 +92,8 @@
       "key": "light.night.automatic",
       "section": "nightLight",
       "label": "Automatic night light",
-      "description": "Warm the screen colors on a daily schedule.",
+      "description": "Turns the night light on and off every day at the set times.",
+      "help": "You can still switch it by hand with the night light button in the right sidebar (Super+N).",
       "keywords": [
         "night",
         "blue light",
@@ -107,7 +112,7 @@
       "key": "light.night.from",
       "section": "nightLight",
       "label": "Turn on at",
-      "description": "Time when the night light turns on.",
+      "description": "Start of the night light period, in 24-hour time; it may end the next day.",
       "icon": "bedtime",
       "backend": "config",
       "type": "time",
@@ -123,7 +128,7 @@
       "key": "light.night.to",
       "section": "nightLight",
       "label": "Turn off at",
-      "description": "Time when the night light turns off.",
+      "description": "End of the period; a time earlier than the start means the next morning.",
       "icon": "wb_sunny",
       "backend": "config",
       "type": "time",
@@ -139,7 +144,7 @@
       "key": "light.night.colorTemperature",
       "section": "nightLight",
       "label": "Color temperature",
-      "description": "Lower values look warmer.",
+      "description": "Lower values look more orange: 6500 K is like daylight, around 4000 K is a usual night value.",
       "keywords": [
         "kelvin",
         "temperatura",
@@ -163,12 +168,15 @@
       "key": "light.antiFlashbang.enable",
       "section": "antiFlashbang",
       "label": "Dim bright windows",
-      "description": "Lower the brightness when a bright window appears in dark mode.",
+      "description": "Only in dark mode: after each window or workspace change it checks the screen and dims it if it is bright.",
+      "help": "It takes a screenshot to measure the brightness and changes the real brightness of the display.",
       "keywords": [
         "flashbang",
         "brightness",
         "brillo",
-        "antideslumbramiento"
+        "antideslumbramiento",
+        "Anti-flashbang",
+        "Anti-destello"
       ],
       "icon": "brightness_6",
       "backend": "config",

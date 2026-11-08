@@ -2,53 +2,61 @@
   "id": "panels",
   "title": "Panels and overlays",
   "icon": "dock_to_right",
-  "description": "Sidebars, dock, overview, overlay, on-screen displays and keyboard.",
+  "description": "The right sidebar, dock, overview, widget layer, on-screen keyboard and other shell panels.",
   "sections": [
     {
       "id": "rightSidebar",
       "title": "Right sidebar",
-      "icon": "dock_to_left"
+      "icon": "dock_to_left",
+      "description": "The panel that opens on the right with Super+N: quick toggles, sliders, notifications and calendar."
     },
     {
       "id": "cornerOpen",
       "title": "Open from screen corners",
       "icon": "rounded_corner",
-      "description": "Open the sidebars by reaching the top corners."
+      "description": "Click a screen corner to open the sidebar on that side: left (Super+A) or right (Super+N)."
     },
     {
       "id": "dock",
       "title": "Dock",
-      "icon": "call_to_action"
+      "icon": "call_to_action",
+      "description": "A bar at the bottom of the screen with your pinned apps and open windows."
     },
     {
       "id": "overview",
       "title": "Overview",
-      "icon": "overview_key"
+      "icon": "overview_key",
+      "description": "The search with a grid of your workspaces that opens with Super or Super+Tab."
     },
     {
       "id": "overlay",
-      "title": "Overlay",
-      "icon": "layers"
+      "title": "Widget layer",
+      "icon": "layers",
+      "description": "Widgets such as a crosshair, an image or notes that you open over everything with Super+G."
     },
     {
       "id": "osd",
-      "title": "On-screen display",
-      "icon": "tune"
+      "title": "Volume and brightness indicator",
+      "icon": "tune",
+      "description": "The small indicator that shows the level when you change the volume or the brightness."
     },
     {
       "id": "osk",
       "title": "On-screen keyboard",
-      "icon": "keyboard"
+      "icon": "keyboard",
+      "description": "A keyboard you use with the mouse or a touch screen; it opens with Super+K."
     },
     {
       "id": "cheatsheet",
-      "title": "Shortcut cheat sheet",
-      "icon": "keyboard_command_key"
+      "title": "Shortcut guide",
+      "icon": "keyboard_command_key",
+      "description": "How the list of keyboard shortcuts that opens with Super+F1 looks."
     },
     {
       "id": "media",
       "title": "Media",
-      "icon": "music_note"
+      "icon": "music_note",
+      "description": "Music and video players shown in the bar and in the media controls."
     }
   ],
   "entries": [
@@ -56,7 +64,7 @@
       "key": "sidebar.keepRightSidebarLoaded",
       "section": "rightSidebar",
       "label": "Keep loaded",
-      "description": "Open faster at the cost of some memory.",
+      "description": "The sidebar opens instantly, but it keeps using memory while it is closed.",
       "icon": "bolt",
       "backend": "config",
       "type": "bool",
@@ -68,6 +76,7 @@
       "key": "sidebar.quickToggles.style",
       "section": "rightSidebar",
       "label": "Quick toggles",
+      "description": "Look of the Wi-Fi, Bluetooth, night light and other quick buttons.",
       "icon": "toggle_on",
       "backend": "config",
       "type": "enum",
@@ -75,11 +84,13 @@
       "options": [
         {
           "value": "android",
-          "label": "Android"
+          "label": "Android",
+          "description": "Large tiles in a grid; the pencil button lets you add, move and resize them."
         },
         {
           "value": "classic",
-          "label": "Classic"
+          "label": "Classic",
+          "description": "One row of small icon buttons with a fixed set of toggles."
         }
       ],
       "consumers": [
@@ -89,7 +100,12 @@
     {
       "key": "sidebar.quickToggles.android.columns",
       "section": "rightSidebar",
-      "label": "Columns",
+      "label": "Tile columns",
+      "description": "How many tiles fit in each row; a wide tile takes two places.",
+      "keywords": [
+        "Columns",
+        "Columnas"
+      ],
       "icon": "view_column",
       "backend": "config",
       "type": "int",
@@ -108,7 +124,7 @@
       "key": "sidebar.quickSliders.enable",
       "section": "rightSidebar",
       "label": "Quick sliders",
-      "description": "Show sliders under the quick toggles.",
+      "description": "Brightness, volume and microphone sliders above the quick toggles.",
       "icon": "tune",
       "backend": "config",
       "type": "bool",
@@ -120,6 +136,7 @@
       "key": "sidebar.quickSliders.showBrightness",
       "section": "rightSidebar",
       "label": "Brightness slider",
+      "description": "Brightness of the display that shows the sidebar.",
       "icon": "brightness_6",
       "backend": "config",
       "type": "bool",
@@ -135,6 +152,7 @@
       "key": "sidebar.quickSliders.showVolume",
       "section": "rightSidebar",
       "label": "Volume slider",
+      "description": "Volume of the default output device.",
       "icon": "volume_up",
       "backend": "config",
       "type": "bool",
@@ -150,6 +168,7 @@
       "key": "sidebar.quickSliders.showMic",
       "section": "rightSidebar",
       "label": "Microphone slider",
+      "description": "Input level of the default microphone.",
       "icon": "mic",
       "backend": "config",
       "type": "bool",
@@ -164,7 +183,12 @@
     {
       "key": "sidebar.cornerOpen.enable",
       "section": "cornerOpen",
-      "label": "Open from corners",
+      "label": "Active corners",
+      "description": "Clicking a top corner opens the sidebar on that side; it does not work over fullscreen windows.",
+      "keywords": [
+        "Open from corners",
+        "Abrir desde las esquinas"
+      ],
       "icon": "rounded_corner",
       "backend": "config",
       "type": "bool",
@@ -176,6 +200,7 @@
       "key": "sidebar.cornerOpen.bottom",
       "section": "cornerOpen",
       "label": "Use the bottom corners",
+      "description": "The bottom corners open the sidebars instead of the top ones.",
       "icon": "vertical_align_bottom",
       "backend": "config",
       "type": "bool",
@@ -191,7 +216,7 @@
       "key": "sidebar.cornerOpen.clickless",
       "section": "cornerOpen",
       "label": "Open on hover",
-      "description": "Open without clicking.",
+      "description": "The sidebar opens as soon as the pointer enters the corner zone, without clicking.",
       "icon": "near_me",
       "backend": "config",
       "type": "bool",
@@ -206,8 +231,12 @@
     {
       "key": "sidebar.cornerOpen.clicklessCornerEnd",
       "section": "cornerOpen",
-      "label": "Hover the very corner",
-      "description": "Without hover opening, still open when the pointer reaches the exact corner.",
+      "label": "Open at the screen edge",
+      "description": "Pushing the pointer against the left or right screen edge inside the zone opens the sidebar.",
+      "keywords": [
+        "Hover the very corner",
+        "Pasar por la esquina exacta"
+      ],
       "icon": "north_west",
       "backend": "config",
       "type": "bool",
@@ -230,8 +259,12 @@
     {
       "key": "sidebar.cornerOpen.clicklessCornerVerticalOffset",
       "section": "cornerOpen",
-      "label": "Corner offset",
-      "description": "Ignore the corner while the pointer moves along the top edge.",
+      "label": "Ignored pixels next to the corner",
+      "description": "The edge opens the sidebar only this far from the corner, so sliding along the top or bottom does not.",
+      "keywords": [
+        "Corner offset",
+        "Desplazamiento de la esquina"
+      ],
       "icon": "height",
       "backend": "config",
       "type": "int",
@@ -263,7 +296,7 @@
       "key": "sidebar.cornerOpen.valueScroll",
       "section": "cornerOpen",
       "label": "Scroll to adjust",
-      "description": "Scroll on a corner to change brightness or volume.",
+      "description": "Scrolling on a left corner changes the brightness, and on a right corner the volume.",
       "icon": "swap_vert",
       "backend": "config",
       "type": "bool",
@@ -279,6 +312,7 @@
       "key": "sidebar.cornerOpen.cornerRegionWidth",
       "section": "cornerOpen",
       "label": "Zone width",
+      "description": "Width of the area at each corner that reacts to the pointer.",
       "icon": "width",
       "backend": "config",
       "type": "int",
@@ -298,6 +332,7 @@
       "key": "sidebar.cornerOpen.cornerRegionHeight",
       "section": "cornerOpen",
       "label": "Zone height",
+      "description": "Height of the area at each corner that reacts to the pointer.",
       "icon": "height",
       "backend": "config",
       "type": "int",
@@ -332,8 +367,11 @@
     {
       "key": "dock.enable",
       "section": "dock",
-      "label": "Dock",
-      "description": "Show a dock at the bottom of the screen.",
+      "label": "Show the dock",
+      "description": "It hides while a window has the focus and comes back on an empty workspace.",
+      "keywords": [
+        "Dock"
+      ],
       "icon": "call_to_action",
       "backend": "config",
       "type": "bool",
@@ -345,6 +383,7 @@
       "key": "dock.hoverToReveal",
       "section": "dock",
       "label": "Reveal on hover",
+      "description": "While the dock is hidden, moving the pointer to the bottom edge brings it back.",
       "icon": "near_me",
       "backend": "config",
       "type": "bool",
@@ -359,8 +398,13 @@
     {
       "key": "dock.pinnedOnStartup",
       "section": "dock",
-      "label": "Pinned on startup",
-      "description": "Start with the dock always visible.",
+      "label": "Pin the dock at startup",
+      "description": "The dock starts always visible and windows leave room for it.",
+      "help": "If you used the pin button on the dock, this setting applies the next time the shell starts.",
+      "keywords": [
+        "Pinned on startup",
+        "Anclado al inicio"
+      ],
       "icon": "push_pin",
       "backend": "config",
       "type": "bool",
@@ -375,7 +419,12 @@
     {
       "key": "dock.monochromeIcons",
       "section": "dock",
-      "label": "Tint app icons",
+      "label": "Monochrome dock icons",
+      "description": "App icons turn almost gray, with a light tint of the accent color.",
+      "keywords": [
+        "Tint app icons",
+        "Colorear iconos de aplicaciones"
+      ],
       "icon": "format_color_fill",
       "backend": "config",
       "type": "bool",
@@ -391,6 +440,7 @@
       "key": "dock.height",
       "section": "dock",
       "label": "Height",
+      "description": "Height of the dock bar; the app icons keep their size.",
       "icon": "height",
       "backend": "config",
       "type": "real",
@@ -411,8 +461,12 @@
     {
       "key": "dock.hoverRegionHeight",
       "section": "dock",
-      "label": "Reveal zone",
-      "description": "Thickness of the bottom edge that reveals the dock.",
+      "label": "Reveal strip height",
+      "description": "Thickness of the strip at the bottom edge that brings the hidden dock back.",
+      "keywords": [
+        "Reveal zone",
+        "Zona para mostrar"
+      ],
       "icon": "border_bottom",
       "backend": "config",
       "type": "real",
@@ -441,8 +495,13 @@
     {
       "key": "dock.pinnedApps",
       "section": "dock",
-      "label": "Pinned apps",
-      "description": "Desktop entry ids kept in the dock.",
+      "label": "Apps pinned to the dock",
+      "description": "They are always shown first, by app ID: the name of the .desktop file without the extension.",
+      "help": "You can also right-click an app in the dock to pin or unpin it without typing its ID.",
+      "keywords": [
+        "Pinned apps",
+        "Aplicaciones ancladas"
+      ],
       "icon": "keep",
       "backend": "config",
       "type": "list",
@@ -460,7 +519,8 @@
       "key": "dock.ignoredAppRegexes",
       "section": "dock",
       "label": "Ignored apps",
-      "description": "Window classes matching these patterns stay out of the dock.",
+      "description": "Windows whose app ID matches one of these patterns never appear in the dock.",
+      "help": "Patterns are regular expressions and ignore upper and lower case. Example: ^steam_app_.*$ hides the windows of Steam games.",
       "icon": "block",
       "backend": "config",
       "type": "list",
@@ -473,8 +533,12 @@
     {
       "key": "overview.enable",
       "section": "overview",
-      "label": "Overview",
-      "description": "Show all workspaces with Super.",
+      "label": "Show the workspace grid",
+      "description": "Workspace thumbnails under the search; when it is off, Super and Super+Tab open only the search.",
+      "keywords": [
+        "Overview",
+        "Vista general"
+      ],
       "icon": "overview_key",
       "backend": "config",
       "type": "bool",
@@ -485,8 +549,12 @@
     {
       "key": "overview.scale",
       "section": "overview",
-      "label": "Size",
-      "description": "Size of each workspace preview.",
+      "label": "Thumbnail size",
+      "description": "Size of each workspace thumbnail, as a percentage of the screen.",
+      "keywords": [
+        "Size",
+        "Tamaño"
+      ],
       "icon": "zoom_in",
       "backend": "config",
       "type": "real",
@@ -509,6 +577,7 @@
       "key": "overview.rows",
       "section": "overview",
       "label": "Rows",
+      "description": "Rows of the grid; it shows rows × columns workspaces, the group that holds the current one.",
       "icon": "table_rows",
       "backend": "config",
       "type": "int",
@@ -526,7 +595,12 @@
     {
       "key": "overview.columns",
       "section": "overview",
-      "label": "Columns",
+      "label": "Grid columns",
+      "description": "Workspaces in each row of the grid.",
+      "keywords": [
+        "Columns",
+        "Columnas"
+      ],
       "icon": "view_column",
       "backend": "config",
       "type": "int",
@@ -545,6 +619,7 @@
       "key": "overview.orderRightLeft",
       "section": "overview",
       "label": "Horizontal order",
+      "description": "Direction in which the workspace numbers grow along each row.",
       "icon": "swap_horiz",
       "backend": "config",
       "type": "enum",
@@ -571,6 +646,7 @@
       "key": "overview.orderBottomUp",
       "section": "overview",
       "label": "Vertical order",
+      "description": "Whether the first row of workspaces is at the top or at the bottom.",
       "icon": "swap_vert",
       "backend": "config",
       "type": "enum",
@@ -597,7 +673,7 @@
       "key": "overview.centerIcons",
       "section": "overview",
       "label": "Center icons",
-      "description": "Center app icons on window previews.",
+      "description": "A large app icon in the middle of each window thumbnail instead of a small one in its corner.",
       "icon": "center_focus_strong",
       "backend": "config",
       "type": "bool",
@@ -613,6 +689,11 @@
       "key": "overlay.openingZoomAnimation",
       "section": "overlay",
       "label": "Zoom when opening",
+      "description": "The widgets start slightly larger and shrink into place when the layer opens.",
+      "keywords": [
+        "overlay",
+        "superposición"
+      ],
       "icon": "zoom_out_map",
       "backend": "config",
       "type": "bool",
@@ -624,6 +705,11 @@
       "key": "overlay.darkenScreen",
       "section": "overlay",
       "label": "Darken the screen",
+      "description": "Dims everything behind the widgets while the layer is open.",
+      "keywords": [
+        "overlay",
+        "superposición"
+      ],
       "icon": "brightness_4",
       "backend": "config",
       "type": "bool",
@@ -635,7 +721,13 @@
       "key": "overlay.clickthroughOpacity",
       "section": "overlay",
       "label": "Pinned widget opacity",
-      "description": "Opacity of pinned widgets while the overlay is closed.",
+      "description": "Opacity of pinned widgets that let clicks pass through, while the layer is closed.",
+      "help": "Pinned widgets that stay clickable are always fully opaque.",
+      "keywords": [
+        "overlay",
+        "superposición",
+        "Opacidad de widgets fijados"
+      ],
       "icon": "opacity",
       "backend": "config",
       "type": "real",
@@ -654,7 +746,7 @@
       "key": "overlay.floatingImage.imageSource",
       "section": "overlay",
       "label": "Floating image",
-      "description": "Address of the image widget.",
+      "description": "Image or GIF shown by the floating image widget: a web address or a file:// path.",
       "icon": "image",
       "backend": "config",
       "type": "url",
@@ -671,6 +763,8 @@
       "key": "overlay.floatingImage.scale",
       "section": "overlay",
       "label": "Image scale",
+      "description": "Size of the floating image compared with its original size.",
+      "help": "You can also scroll on the image to resize it.",
       "icon": "photo_size_select_large",
       "backend": "config",
       "type": "real",
@@ -689,7 +783,8 @@
       "key": "crosshair.code",
       "section": "overlay",
       "label": "Crosshair code",
-      "description": "Valorant crosshair code drawn by the crosshair widget.",
+      "description": "Valorant crosshair code drawn by the crosshair widget of the layer.",
+      "help": "Paste a code made in Valorant or in a crosshair builder such as vcrdb.net.",
       "keywords": [
         "crosshair",
         "mira",
@@ -709,8 +804,13 @@
     {
       "key": "osd.timeout",
       "section": "osd",
-      "label": "Duration",
-      "description": "How long volume and brightness indicators stay.",
+      "label": "Time on screen",
+      "description": "How long the indicator stays after the last volume or brightness change.",
+      "keywords": [
+        "Duration",
+        "Duración",
+        "osd"
+      ],
       "icon": "timer",
       "backend": "config",
       "type": "int",
@@ -727,7 +827,8 @@
     {
       "key": "osk.layout",
       "section": "osk",
-      "label": "Layout",
+      "label": "Keyboard layout",
+      "description": "Which keys the on-screen keyboard shows.",
       "icon": "keyboard",
       "backend": "config",
       "type": "enum",
@@ -735,7 +836,8 @@
       "options": [
         {
           "value": "qwerty_full",
-          "label": "Default"
+          "label": "Default",
+          "description": "The same keys as English (US)."
         },
         {
           "value": "English (US)",
@@ -751,6 +853,10 @@
         }
       ],
       "note": "Switching the keyboard layout changes it too.",
+      "keywords": [
+        "Layout",
+        "Distribución"
+      ],
       "consumers": [
         "modules/ii/onScreenKeyboard/OskContent.qml",
         "services/HyprlandXkb.qml"
@@ -759,7 +865,13 @@
     {
       "key": "osk.pinnedOnStartup",
       "section": "osk",
-      "label": "Pinned on startup",
+      "label": "Pin the keyboard at startup",
+      "description": "When it opens, the keyboard reserves space so windows do not go under it.",
+      "help": "If you used the pin button on the keyboard, this setting applies the next time the shell starts.",
+      "keywords": [
+        "Pinned on startup",
+        "Anclado al inicio"
+      ],
       "icon": "push_pin",
       "backend": "config",
       "type": "bool",
@@ -771,7 +883,7 @@
       "key": "cheatsheet.superKey",
       "section": "cheatsheet",
       "label": "Super key symbol",
-      "description": "Leave empty to show the default symbol.",
+      "description": "Character drawn for the Super key; leave it empty to use the default icon.",
       "icon": "keyboard_command_key",
       "backend": "config",
       "type": "string",
@@ -788,7 +900,7 @@
       "key": "cheatsheet.useMacSymbol",
       "section": "cheatsheet",
       "label": "Modifier symbols",
-      "description": "Show symbols such as 󰘴 for Ctrl.",
+      "description": "Icons instead of the names of Ctrl, Alt, Shift, Enter and other keys.",
       "icon": "keyboard_option_key",
       "backend": "config",
       "type": "bool",
@@ -800,6 +912,7 @@
       "key": "cheatsheet.useFnSymbol",
       "section": "cheatsheet",
       "label": "Function key symbols",
+      "description": "Icons instead of the names of the keys F1 to F12.",
       "icon": "function",
       "backend": "config",
       "type": "bool",
@@ -811,6 +924,7 @@
       "key": "cheatsheet.useMouseSymbol",
       "section": "cheatsheet",
       "label": "Mouse symbols",
+      "description": "Icons for the mouse buttons and wheel instead of LMB, RMB or Scroll.",
       "icon": "mouse",
       "backend": "config",
       "type": "bool",
@@ -822,7 +936,7 @@
       "key": "cheatsheet.splitButtons",
       "section": "cheatsheet",
       "label": "Separate keycaps",
-      "description": "Draw each key of a shortcut on its own keycap.",
+      "description": "Each modifier of a shortcut gets its own keycap instead of sharing one.",
       "icon": "keyboard",
       "backend": "config",
       "type": "bool",
@@ -834,6 +948,7 @@
       "key": "cheatsheet.fontSize.key",
       "section": "cheatsheet",
       "label": "Key text size",
+      "description": "Font size inside the keycaps.",
       "icon": "format_size",
       "backend": "config",
       "type": "int",
@@ -849,6 +964,7 @@
       "key": "cheatsheet.fontSize.comment",
       "section": "cheatsheet",
       "label": "Description text size",
+      "description": "Font size of the text that explains each shortcut.",
       "icon": "format_size",
       "backend": "config",
       "type": "int",
@@ -865,6 +981,7 @@
       "section": "media",
       "label": "Merge duplicate players",
       "description": "Show one player when an app exposes the same media twice.",
+      "help": "It hides playerctld's copy of the active player and, while the Plasma browser integration is running, the browser's own player.",
       "icon": "queue_music",
       "backend": "config",
       "type": "bool",
