@@ -2,18 +2,19 @@
   "id": "background",
   "title": "Wallpaper and widgets",
   "icon": "wallpaper",
-  "description": "Wallpaper, parallax and desktop widgets.",
+  "description": "Wallpaper, its motion and the clock and weather widgets of the desktop.",
   "sections": [
     {
       "id": "wallpaper",
       "title": "Wallpaper",
-      "icon": "wallpaper"
+      "icon": "wallpaper",
+      "description": "Pick the wallpaper with Ctrl+Super+T; the theme colors follow it."
     },
     {
       "id": "parallax",
-      "title": "Parallax",
+      "title": "Wallpaper motion",
       "icon": "3d_rotation",
-      "description": "Move the wallpaper as you switch workspaces or open sidebars."
+      "description": "The wallpaper slides a little as you switch workspaces or open a sidebar (parallax)."
     },
     {
       "id": "clock",
@@ -23,23 +24,27 @@
     },
     {
       "id": "cookieClock",
-      "title": "Cookie clock",
-      "icon": "cookie"
+      "title": "Analog clock",
+      "icon": "cookie",
+      "description": "Shape, hands and date of the analog clock with a wavy edge."
     },
     {
       "id": "digitalClock",
       "title": "Digital clock",
-      "icon": "timer_10_select"
+      "icon": "timer_10_select",
+      "description": "Layout, font and animation of the digital clock."
     },
     {
       "id": "quote",
       "title": "Quote",
-      "icon": "format_quote"
+      "icon": "format_quote",
+      "description": "A short line of text under the desktop clock."
     },
     {
       "id": "weather",
       "title": "Weather widget",
-      "icon": "partly_cloudy_day"
+      "icon": "partly_cloudy_day",
+      "description": "Current weather drawn on the wallpaper; the location is set in Services."
     }
   ],
   "entries": [
@@ -64,7 +69,7 @@
       "key": "wallpaperSelector.useSystemFileDialog",
       "section": "wallpaper",
       "label": "Use the system file dialog",
-      "description": "Pick wallpapers with the system dialog instead of the shell's wallpaper picker.",
+      "description": "Ctrl+Super+T opens the system file dialog instead of the shell's wallpaper picker.",
       "icon": "folder_open",
       "backend": "config",
       "type": "bool",
@@ -89,7 +94,7 @@
       "key": "policies.weeb",
       "section": "wallpaper",
       "label": "Anime content",
-      "description": "Random anime wallpapers and anime extras in the left sidebar; Discreet keeps only the sidebar extras.",
+      "description": "Random anime wallpaper buttons and a Homework folder in the wallpaper picker.",
       "keywords": [
         "weeb",
         "anime",
@@ -103,15 +108,18 @@
       "options": [
         {
           "value": 0,
-          "label": "Off"
+          "label": "Off",
+          "description": "No anime wallpaper buttons and no Homework folder."
         },
         {
           "value": 1,
-          "label": "On"
+          "label": "On",
+          "description": "Random wallpaper buttons here and in the welcome app, plus the Homework folder."
         },
         {
           "value": 2,
-          "label": "Discreet"
+          "label": "Discreet",
+          "description": "Hides them too; the left sidebar button stays in the bar."
         }
       ],
       "consumers": [
@@ -124,7 +132,11 @@
       "key": "background.parallax.enableWorkspace",
       "section": "parallax",
       "label": "Follow workspaces",
-      "description": "Shift the wallpaper when switching workspaces.",
+      "description": "Slide the wallpaper a step each time you switch workspace.",
+      "keywords": [
+        "parallax",
+        "paralaje"
+      ],
       "icon": "view_carousel",
       "backend": "config",
       "type": "bool",
@@ -136,7 +148,11 @@
       "key": "background.parallax.enableSidebar",
       "section": "parallax",
       "label": "Follow sidebars",
-      "description": "Shift the wallpaper when a sidebar opens.",
+      "description": "Slide the wallpaper a little to one side when a sidebar opens.",
+      "keywords": [
+        "parallax",
+        "paralaje"
+      ],
       "icon": "dock_to_left",
       "backend": "config",
       "type": "bool",
@@ -175,8 +191,14 @@
     {
       "key": "background.parallax.workspaceZoom",
       "section": "parallax",
-      "label": "Wallpaper zoom",
-      "description": "Enlarge the wallpaper to leave room for the movement.",
+      "label": "Wallpaper zoom for motion",
+      "description": "Enlarges the wallpaper so it can slide; more zoom gives more motion but crops more of the image.",
+      "help": "At 100 % the wallpaper only moves if it is wider (or taller) than the screen.",
+      "keywords": [
+        "Wallpaper zoom",
+        "Zoom del fondo",
+        "parallax"
+      ],
       "icon": "zoom_in",
       "backend": "config",
       "type": "real",
@@ -195,7 +217,7 @@
       "key": "background.parallax.widgetsFactor",
       "section": "parallax",
       "label": "Widget movement",
-      "description": "How far desktop widgets move compared with the wallpaper.",
+      "description": "How far the clock and weather widgets move compared with the wallpaper; 0 keeps them still.",
       "icon": "widgets",
       "backend": "config",
       "type": "real",
@@ -240,8 +262,12 @@
     {
       "key": "background.widgets.clock.placementStrategy",
       "section": "clock",
-      "label": "Placement",
-      "description": "Where the clock goes; Free keeps the spot where you drop it.",
+      "label": "Clock position",
+      "description": "Where the clock sits: where you drop it, or a spot picked from the wallpaper image.",
+      "keywords": [
+        "Placement",
+        "Ubicación"
+      ],
       "icon": "place_item",
       "backend": "config",
       "type": "enum",
@@ -249,15 +275,18 @@
       "options": [
         {
           "value": "free",
-          "label": "Free"
+          "label": "Free",
+          "description": "Stays where you drag it."
         },
         {
           "value": "leastBusy",
-          "label": "Emptiest area"
+          "label": "Emptiest area",
+          "description": "Moves to the plainest part of the wallpaper each time it changes."
         },
         {
           "value": "mostBusy",
-          "label": "Busiest area"
+          "label": "Busiest area",
+          "description": "Moves to the most detailed part of the wallpaper each time it changes."
         }
       ],
       "enabledWhen": {
@@ -271,8 +300,13 @@
     {
       "key": "background.widgets.clock.style",
       "section": "clock",
-      "label": "Style",
-      "description": "Clock shown on the desktop.",
+      "label": "Clock style",
+      "description": "Clock drawn on the desktop while the session is unlocked.",
+      "keywords": [
+        "Style",
+        "Estilo",
+        "cookie"
+      ],
       "icon": "style",
       "backend": "config",
       "type": "enum",
@@ -280,11 +314,13 @@
       "options": [
         {
           "value": "cookie",
-          "label": "Cookie"
+          "label": "Analog",
+          "description": "A dial with hands and a wavy edge."
         },
         {
           "value": "digital",
-          "label": "Digital"
+          "label": "Digital",
+          "description": "Large digits with the time."
         }
       ],
       "enabledWhen": {
@@ -299,8 +335,13 @@
     {
       "key": "background.widgets.clock.styleLocked",
       "section": "clock",
-      "label": "Style when locked",
+      "label": "Clock style when locked",
       "description": "Clock shown on the lock screen.",
+      "keywords": [
+        "Style when locked",
+        "Estilo al bloquear",
+        "cookie"
+      ],
       "icon": "lock_clock",
       "backend": "config",
       "type": "enum",
@@ -308,11 +349,13 @@
       "options": [
         {
           "value": "cookie",
-          "label": "Cookie"
+          "label": "Analog",
+          "description": "A dial with hands and a wavy edge."
         },
         {
           "value": "digital",
-          "label": "Digital"
+          "label": "Digital",
+          "description": "Large digits with the time."
         }
       ],
       "enabledWhen": {
@@ -326,8 +369,13 @@
     {
       "key": "background.widgets.clock.cookie.sides",
       "section": "cookieClock",
-      "label": "Sides",
-      "description": "Number of bumps around the cookie; 0 draws a circle.",
+      "label": "Waves on the edge",
+      "description": "Number of waves around the edge of the dial; 0 draws a circle.",
+      "keywords": [
+        "Sides",
+        "Lados",
+        "cookie"
+      ],
       "icon": "pentagon",
       "backend": "config",
       "type": "int",
@@ -416,6 +464,7 @@
       "key": "background.widgets.clock.cookie.hourHandStyle",
       "section": "cookieClock",
       "label": "Hour hand",
+      "description": "Shape of the hour hand.",
       "icon": "schedule",
       "backend": "config",
       "type": "enum",
@@ -466,6 +515,7 @@
       "key": "background.widgets.clock.cookie.minuteHandStyle",
       "section": "cookieClock",
       "label": "Minute hand",
+      "description": "Shape of the minute hand.",
       "icon": "schedule",
       "backend": "config",
       "type": "enum",
@@ -520,6 +570,7 @@
       "key": "background.widgets.clock.cookie.secondHandStyle",
       "section": "cookieClock",
       "label": "Second hand",
+      "description": "Shape of the second hand.",
       "icon": "timer",
       "backend": "config",
       "type": "enum",
@@ -666,7 +717,7 @@
       "key": "background.widgets.clock.cookie.hourMarks",
       "section": "cookieClock",
       "label": "Hour marks",
-      "description": "Draw a mark for every hour.",
+      "description": "Draw a ring of hour marks around the center of the dial.",
       "icon": "more_time",
       "backend": "config",
       "type": "bool",
@@ -710,11 +761,11 @@
       "key": "background.widgets.clock.cookie.constantlyRotate",
       "section": "cookieClock",
       "label": "Keep rotating",
-      "description": "Rotate the cookie all the time.",
+      "description": "Turn the shape of the dial nonstop, one full turn every 30 seconds.",
+      "cost": "gpu",
       "icon": "rotate_right",
       "backend": "config",
       "type": "bool",
-      "note": "Uses a lot of GPU.",
       "enabledWhen": {
         "all": [
           {
@@ -776,11 +827,16 @@
       "key": "background.widgets.clock.cookie.aiStyling",
       "section": "cookieClock",
       "label": "Style from the wallpaper",
-      "description": "Pick a clock preset that matches each new wallpaper.",
+      "description": "Each new wallpaper is sent to Google Gemini, which picks a matching clock style.",
+      "help": "A small copy of the image and its file name leave your computer. It needs a Gemini API key and overwrites the shape, dial, hand and date options above.",
+      "keywords": [
+        "Gemini",
+        "AI",
+        "IA"
+      ],
       "icon": "auto_awesome",
       "backend": "config",
       "type": "bool",
-      "note": "Uses Gemini and needs its API key.",
       "enabledWhen": {
         "all": [
           {
@@ -810,7 +866,7 @@
       "key": "background.widgets.clock.digital.vertical",
       "section": "digitalClock",
       "label": "Vertical layout",
-      "description": "Stack hours and minutes.",
+      "description": "Put the minutes under the hours.",
       "icon": "swap_vert",
       "backend": "config",
       "type": "bool",
@@ -843,6 +899,7 @@
       "key": "background.widgets.clock.digital.showDate",
       "section": "digitalClock",
       "label": "Show the date",
+      "description": "Show the full date under the time.",
       "icon": "calendar_today",
       "backend": "config",
       "type": "bool",
@@ -938,6 +995,7 @@
       "key": "background.widgets.clock.digital.font.family",
       "section": "digitalClock",
       "label": "Font",
+      "description": "Font of the time; the date and the quote use the Display font from Appearance.",
       "icon": "font_download",
       "backend": "config",
       "type": "font",
@@ -969,7 +1027,12 @@
     {
       "key": "background.widgets.clock.digital.font.size",
       "section": "digitalClock",
-      "label": "Size",
+      "label": "Digit size",
+      "description": "Font size of the time, in pixels.",
+      "keywords": [
+        "Size",
+        "Tamaño"
+      ],
       "icon": "format_size",
       "backend": "config",
       "type": "real",
@@ -1006,7 +1069,13 @@
     {
       "key": "background.widgets.clock.digital.font.weight",
       "section": "digitalClock",
-      "label": "Weight",
+      "label": "Digit weight",
+      "description": "From thin (100) to heavy (900); 400 is regular.",
+      "help": "Variable fonts such as Google Sans Flex accept any value; other fonts use their closest weight.",
+      "keywords": [
+        "Weight",
+        "Grosor"
+      ],
       "icon": "format_bold",
       "backend": "config",
       "type": "real",
@@ -1015,6 +1084,8 @@
       "max": 1000,
       "step": 10,
       "decimals": 0,
+      "minLabel": "Thin strokes",
+      "maxLabel": "Heavy strokes",
       "enabledWhen": {
         "all": [
           {
@@ -1042,7 +1113,13 @@
     {
       "key": "background.widgets.clock.digital.font.width",
       "section": "digitalClock",
-      "label": "Width",
+      "label": "Digit width",
+      "description": "Narrow or wide digits; 100 is normal.",
+      "help": "Works only with variable fonts that have a width axis, such as Google Sans Flex.",
+      "keywords": [
+        "Width",
+        "Anchura"
+      ],
       "icon": "width",
       "backend": "config",
       "type": "real",
@@ -1051,6 +1128,8 @@
       "max": 125,
       "step": 1,
       "decimals": 0,
+      "minLabel": "Narrow",
+      "maxLabel": "Wide",
       "enabledWhen": {
         "all": [
           {
@@ -1078,7 +1157,13 @@
     {
       "key": "background.widgets.clock.digital.font.roundness",
       "section": "digitalClock",
-      "label": "Roundness",
+      "label": "Digit roundness",
+      "description": "Rounds the ends of the strokes; 0 keeps them square.",
+      "help": "Works only with variable fonts that have a roundness axis, such as Google Sans Flex.",
+      "keywords": [
+        "Roundness",
+        "Redondez"
+      ],
       "icon": "rounded_corner",
       "backend": "config",
       "type": "real",
@@ -1087,6 +1172,8 @@
       "max": 100,
       "step": 1,
       "decimals": 0,
+      "minLabel": "Square",
+      "maxLabel": "Round",
       "enabledWhen": {
         "all": [
           {
@@ -1132,6 +1219,7 @@
       "key": "background.widgets.clock.quote.text",
       "section": "quote",
       "label": "Quote text",
+      "description": "Text shown under the clock; leave it empty to hide it.",
       "icon": "short_text",
       "backend": "config",
       "type": "string",
@@ -1170,8 +1258,12 @@
     {
       "key": "background.widgets.weather.placementStrategy",
       "section": "weather",
-      "label": "Placement",
-      "description": "Where the weather widget goes.",
+      "label": "Weather position",
+      "description": "Where the weather sits: where you drop it, or a spot picked from the wallpaper image.",
+      "keywords": [
+        "Placement",
+        "Ubicación"
+      ],
       "icon": "place_item",
       "backend": "config",
       "type": "enum",
@@ -1179,15 +1271,18 @@
       "options": [
         {
           "value": "free",
-          "label": "Free"
+          "label": "Free",
+          "description": "Stays where you drag it."
         },
         {
           "value": "leastBusy",
-          "label": "Emptiest area"
+          "label": "Emptiest area",
+          "description": "Moves to the plainest part of the wallpaper each time it changes."
         },
         {
           "value": "mostBusy",
-          "label": "Busiest area"
+          "label": "Busiest area",
+          "description": "Moves to the most detailed part of the wallpaper each time it changes."
         }
       ],
       "enabledWhen": {
