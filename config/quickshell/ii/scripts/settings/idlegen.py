@@ -11,7 +11,10 @@ Timeouts are seconds; 0 means never (no listener). Non-zero values must be in
 --restart restarts hypridle after a successful write, because hypridle reads
 its config only at start: `systemctl --user restart hypridle.service` when that
 unit is active, otherwise the running instance (started by Hyprland) is
-stopped with `pkill -x hypridle` and a new one is started in its own session.
+stopped with `pkill -x hypridle` and a new one is started through Hyprland
+(`hyprctl eval 'hl.exec_cmd("hypridle")'`, so it gets the session's
+environment and scope), or detached in its own session when Hyprland is not
+running or did not start it.
 
 Exit codes: 0 written/printed, 1 I/O error, 2 invalid arguments,
 3 target exists without the managed marker (use --force), 4 hypridle restart failed.
@@ -111,6 +114,21 @@ def restart_hypridle() -> None:
         if _quiet(['pgrep', '-x', 'hypridle']) != 0:
             break
         time.sleep(0.1)
+    _start_hypridle()
+
+
+def _start_hypridle() -> None:
+    # Under Hyprland, start it the way the session does (exec-once): as
+    # Hyprland's child, with the session's environment and scope. Spawned from
+    # here it would inherit the caller's (the settings app's Qt pragmas would
+    # reach every on-timeout command) and its cgroup.
+    if os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') \
+            and _quiet(['hyprctl', 'eval', 'hl.exec_cmd("hypridle")']) == 0:
+        for _ in range(30):
+            if _quiet(['pgrep', '-x', 'hypridle']) == 0:
+                return
+            time.sleep(0.1)
+    # Not under Hyprland, or Hyprland did not start it: start it detached.
     subprocess.Popen(['hypridle'], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                      stderr=subprocess.DEVNULL, start_new_session=True)
 

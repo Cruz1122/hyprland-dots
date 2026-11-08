@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -135,7 +136,20 @@ class IdlegenTests(unittest.TestCase):
             path.write_text(f'#!/bin/bash\n{body}\n')
             path.chmod(0o755)
         # Only the fakes are on PATH: the real session is never touched.
-        return {**os.environ, 'PATH': str(bin_dir)}, log
+        env = {**os.environ, 'PATH': str(bin_dir)}
+        env.pop('HYPRLAND_INSTANCE_SIGNATURE', None)
+        return env, log
+
+    def fake_hyprland(self, env: dict, log: Path, starts: bool, status: int = 0) -> None:
+        # `hyprctl eval` spawns hypridle when `starts`; pgrep then finds it.
+        bin_dir = Path(env['PATH'])
+        started = Path(self.temp.name) / 'hyprland-started-hypridle'
+        hyprctl = bin_dir / 'hyprctl'
+        hyprctl.write_text(f'#!/bin/bash\necho "hyprctl $*" >> {log}\n'
+                           + (f': > {started}\n' if starts else '') + f'exit {status}\n')
+        hyprctl.chmod(0o755)
+        (bin_dir / 'pgrep').write_text(f'#!/bin/bash\necho "pgrep $*" >> {log}\n[[ -e {started} ]]\n')
+        env['HYPRLAND_INSTANCE_SIGNATURE'] = 'test'
 
     def wait_for(self, log: Path, text: str) -> str:
         for _ in range(50):
@@ -153,6 +167,38 @@ class IdlegenTests(unittest.TestCase):
         self.assertEqual(lines[0], 'systemctl --user is-active --quiet hypridle.service')
         self.assertEqual(lines[1], 'pkill -x hypridle')
         self.assertEqual(lines[-1].strip(), 'hypridle', 'the new instance starts last')
+
+    # Spawned by the settings app, hypridle kept the app's environment (its Qt
+    # pragmas reached every on-timeout command) and cgroup.
+    def test_restart_under_hyprland_starts_hypridle_through_hyprland(self) -> None:
+        env, log = self.fake_tools(systemd_active=False)
+        self.fake_hyprland(env, log, starts=True)
+        result = subprocess.run([sys.executable, str(SCRIPT), '--output', str(self.target), '--restart'],
+                                capture_output=True, text=True, timeout=30, env=env)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        start = 'hyprctl eval hl.exec_cmd("hypridle")'
+        lines = log.read_text().splitlines()
+        self.assertIn(start, lines)
+        self.assertLess(lines.index('pkill -x hypridle'), lines.index(start))
+        time.sleep(0.3)
+        self.assertNotIn('hypridle', [line.strip() for line in log.read_text().splitlines()],
+                         'no second instance spawned directly')
+
+    def test_restart_falls_back_when_hyprland_does_not_start_hypridle(self) -> None:
+        # hyprctl failing, or succeeding without hypridle appearing.
+        for status in (1, 0):
+            with self.subTest(hyprctl_status=status):
+                # Fresh fakes even when the previous round failed midway.
+                shutil.rmtree(Path(self.temp.name) / 'bin', ignore_errors=True)
+                (Path(self.temp.name) / 'calls.log').unlink(missing_ok=True)
+                env, log = self.fake_tools(systemd_active=False)
+                self.fake_hyprland(env, log, starts=False, status=status)
+                result = subprocess.run([sys.executable, str(SCRIPT), '--output', str(self.target), '--restart'],
+                                        capture_output=True, text=True, timeout=30, env=env)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                lines = self.wait_for(log, 'hypridle \n').splitlines()
+                self.assertIn('hyprctl eval hl.exec_cmd("hypridle")', lines)
+                self.assertEqual(lines[-1].strip(), 'hypridle', 'started directly instead')
 
     def test_restart_uses_active_systemd_unit(self) -> None:
         env, log = self.fake_tools(systemd_active=True)
