@@ -316,7 +316,7 @@ fail synchronously; the commands they start run asynchronously. The
 | Backend | Persistence and apply |
 |---|---|
 | `config` | `config.json` through `Config`; the main shell reacts through its file watch. |
-| `hyprland` | `~/.config/hypr/custom/shell-settings.lua`, required by `config/hypr/hyprland.lua` after `custom/*` and `monitors.lua` and before `hyprland.shellOverrides.main` (Game Mode keeps winning while active). Effective values come from one `hyprctl -j descriptions` at start and after every `configreloaded`; an entry is modified when the file overrides it (`hyprconfigurator.py --list --json`). Normal writes coalesce for 400 ms into one `hyprconfigurator.py --set-typed/--unset` call (types from the registry, not from Hyprland's defaults); writing the file triggers Hyprland's autoreload once Hyprland watches it, which it does only after its config has loaded the file (`hyprland.lua` requires it only when it exists). A write that no `configreloaded` follows within 2 s therefore ends with one `hyprctl reload config-only` (monitors untouched), which also makes Hyprland watch a newly created file. Risky values preview with `hyprctl eval 'hl.config({...})'`, are re-applied after any reload while the confirmation lasts, and are written only on confirm. A risky reset removes the override at once (`previewReset`) and restore puts it back. While any confirmation is pending (`deferWrites`), normal file writes wait, because the reload they trigger would drop live previews. Never `hyprctl keyword`. Capabilities: `touchpad` (`hyprctl -j devices`), `gameMode` (Game Mode's line in `shellOverrides/main.lua`). |
+| `hyprland` | `~/.config/hypr/custom/shell-settings.lua`, required by `config/hypr/hyprland.lua` after `custom/*` and `monitors.lua` and before `hyprland.shellOverrides.main` (Game Mode keeps winning while active). Effective values come from one `hyprctl -j descriptions` at start and after every `configreloaded`; an entry is modified when the file overrides it (`hyprconfigurator.py --list --json`). Normal writes coalesce for 400 ms into one `hyprconfigurator.py --set-typed/--unset` call (types from the registry, not from Hyprland's defaults); writing the file triggers Hyprland's autoreload once Hyprland watches it, which it does only after its config has loaded the file (`hyprland.lua` requires it only when it exists). A write that no `configreloaded` follows within 2 s therefore ends with one `hyprctl reload config-only` (monitors untouched), which also makes Hyprland watch a newly created file. Risky values preview with `hyprctl eval 'hl.config({...})'`, are re-applied after any reload while the confirmation lasts, and are written only on confirm. A risky reset removes the override at once (`previewReset`) and restore puts it back. While any confirmation is pending (`deferWrites`), normal file writes wait, because the reload they trigger would drop live previews. Never `hyprctl keyword`. Capabilities: `touchpad` (`hyprctl -j devices`), `gameMode` (Game Mode's line in `shellOverrides/main.lua`). Defaults and Game Mode: see "Backends -> hyprland" below. |
 | `idle` | `idle.*` in `config.json`, rendered by `scripts/settings/idlegen.py --restart` into `~/.config/hypr/custom/shell-idle.conf` (sourced by `config/hypr/hypridle.conf`); hypridle reads its config only at start, so every apply restarts it (a restart forgets inhibitors that apps took through hypridle's D-Bus ScreenSaver interface until they inhibit again). Risky: the preview renders and restarts, `config.json` is written on confirm, restore renders the previous values. Nothing is written on load: a file that differs from `config.json` publishes `idleOutOfSync` ("Apply" action) and a file without the marker `idleUnmanaged` ("Replace"). |
 | `display` | State from `hyprctl -j monitors all` (disabled outputs included), as a `monitorsgen.py` spec. Per-output VRR comes from the managed `monitors.lua` (`vrrFromManagedText`), not from hyprctl's `vrr`, which only says whether VRR is active right now; an output without one has `vrr: null`, is written without `vrr` and follows `misc:vrr` (a per-output value overrides it). Preview: `monitorsgen.py --lua-expr --spec-json …`, then `hyprctl eval` with that expression; `~/.config/hypr/monitors.lua` is written only on confirm, with a marker header. A file without the marker is never overwritten silently: `monitorsFileUnmanaged` offers "Replace (keeps a backup)", which uses `--force`. The last enabled output cannot be turned off. Risky. |
 | `mime` | `scripts/settings/default-apps.py list --json` and `set <role> <desktop-id>` (argv). It implements the freedesktop MIME association spec directly and edits `mimeapps.list` in place, because the installed `xdg-mime` ignores `hyprland-mimeapps.list` and rejects apps whose `Exec` is quoted. A candidate must open the role's primary type; setting it claims only the types it declares. The current default may be an app that is not a candidate (hidden or `NoDisplay`), and the page still shows it. |
@@ -351,6 +351,73 @@ declares it); `getoption` returns `[[EMPTY]]` for unset strings and
 `"css": "4 4 4 4"` for gaps. `hl.config` takes gaps as an integer (or a table),
 not as the CSS string (`gaps_in = "4 4 4 4"` fails with exit 7), so the app
 writes one integer for every side.
+
+### Backends -> hyprland
+
+**Defaults.** `defaultValue(entry)` is what a reset leaves in place: the
+dotfiles' own value (the "base") when they set the option, Hyprland's compiled
+default (`hyprctl -j descriptions`) when the base was read and nothing in the
+dotfiles sets it, and `undefined` (unknown: rows hide the default mark and the
+"Reset to X" text) when the base could not be read or is not read yet. The
+base comes from `scripts/settings/hyprbase.py --json --config-dir
+<config>/hypr`, run at start and, debounced by 300 ms, after every
+`configreloaded`. A failed read is an expected state and logs nothing.
+
+**Game Mode.** While Game Mode's line is in `shellOverrides/main.lua`
+(capability `gameMode`), the backend lists that file with
+`hyprconfigurator.py --list --json --file <main.lua>` (Game Mode's keys are
+never hardcoded). For each option listed there, `read()` returns the stored
+value (the `shell-settings.lua` override, else the base, else the compiled
+default) instead of Hyprland's live value, and `statusNote(entry)` returns
+"Paused by Game Mode" ("" for every other option). Rows that depend on such
+an option (for example `enabledWhen` on `hyprland.animations.enabled`) are
+therefore not disabled by Game Mode. Writes and resets of those options go to
+`shell-settings.lua` as usual and apply when Game Mode ends, because
+`shellOverrides/main.lua` loads last; they are never evaluated live. A risky
+preview of such an option is not applied live either: `preview()` holds the
+value, `persist()` writes it and `restore()` drops it without `hyprctl eval`.
+Optimistic values work as for any other write.
+
+**`hyprbase.py`.** `python3 scripts/settings/hyprbase.py --json [--config-dir
+DIR] [--options FILE]` (default `DIR`: `$XDG_CONFIG_HOME/hypr`, else
+`~/.config/hypr`) runs `DIR/hyprland.lua` with `/usr/bin/lua -E` and a stub
+`hl` and prints one JSON object, also on failure:
+`{"ok", "errors", "config", "curves", "animations"}`. `config` maps getoption
+names to the literal values passed to `hl.config` (nested tables flattened
+with `:`, and `.` after `col`: `general:col.active_border`; arrays such as
+`decoration:shadow:offset` stay arrays). `curves` holds `hl.curve` calls
+(beziers as `{"type": "bezier", "points": [x1, y1, x2, y2]}`, springs with
+`mass`, `stiffness`, `damping`); `animations` holds `hl.animation` calls by
+leaf (`enabled`, `speed`, `bezier` or `spring`, `style`, as passed). Later
+calls override earlier ones. `custom.shell-settings`,
+`custom.shell-animations` and `hyprland.shellOverrides.main` are skipped;
+`custom/*` is part of the base. Every other `hl.*` field is a no-op, so
+`hl.on` callbacks never run. Sandbox: `require` resolves `a.b` (or `a/b`)
+only to `DIR/a/b.lua` or `DIR/a/b/init.lua` (a missing module is noted in
+`errors`, not fatal); `io.open` is read-only and confined to `DIR`, with
+`$HOME/.config/hypr/...` mapped into `DIR`; `os.getenv` answers only `HOME`
+and `XDG_CONFIG_HOME`, consistent with that mapping; `os.execute`,
+`io.popen`, `os.remove`, `os.rename`, `os.exit`, `io.write`, `load`,
+`loadfile` and `dofile` are blocked and noted in `errors`; `getmetatable`
+returns nil for strings and file handles, whose metatables are shared with the
+sandbox's own code; the process gets
+`RLIMIT_FSIZE` 0, a CPU and memory limit and a 5 s timeout. `--options FILE`
+(an object keyed by getoption name, as `tests/fixtures/hyprland-options.json`,
+or the `hyprctl -j descriptions` list) adds `unknown option '<name>'` to
+`errors` for names Hyprland does not know. Exit 0 with `ok: true`; exit 1
+with `ok: false` (missing `hyprland.lua`, Lua syntax or runtime error,
+timeout) and empty `config`/`curves`/`animations`; exit 2 for invalid
+arguments.
+
+Tests: `tests/test_hyprbase.py` (the repository's `config/hypr`, skipped
+files, sandbox, timeout, schema of `tests/fixtures/hyprbase-sample.json`),
+`tst_HyprlandLogic.qml` (`defaultFor`, `storedValue`, `isPausedByGameMode`,
+`parseBase`) and `tests/test_hyprland_base.py`, which runs
+`tests/harness/drivers/hyprland-base.qml` with `--hyprland-stub` and a
+descriptions fixture standing for Game Mode's live values. The driver also
+checks that `succeeded(key)` fires when only a row's default changes (the base
+arrives after the first read) or only its status note (Game Mode starts or
+ends with the app open): rows learn about changes only through that signal.
 
 ## Rows and pages
 

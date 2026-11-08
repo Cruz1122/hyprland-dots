@@ -12,6 +12,9 @@ TestCase {
     readonly property var e_vrr: ({ path: "misc.vrr", type: "enum", options: [{ value: 0 }, { value: 1 }, { value: 2 }] })
     readonly property var e_accel: ({ path: "input.accel_profile", type: "enum", options: [{ value: "" }, { value: "flat" }] })
     readonly property var e_tap: ({ path: "input.touchpad.tap_to_click", type: "bool" })
+    // Registry entries carry the getoption name, which defaults are keyed by.
+    readonly property var o_gaps: ({ path: "general.gaps_in", option: "general:gaps_in", type: "int" })
+    readonly property var o_opacity: ({ path: "decoration.active_opacity", option: "decoration:active_opacity", type: "real" })
 
     function test_lua_paths() {
         verify(HL.isLuaPath("input.touchpad.tap_to_click"));
@@ -87,5 +90,43 @@ TestCase {
         compare(parsed.variants[0].layout, "us");
         compare(parsed.options.length, 1);
         compare(parsed.options[0].value, "grp:alt_shift_toggle");
+    }
+
+    function test_defaults_come_from_the_dotfiles_base() {
+        const base = { "general:gaps_in": 4, "decoration:blur:enabled": true, "input:touchpad:tap_to_click": false };
+        const compiled = { "general:gaps_in": 5, "decoration:active_opacity": 1, "input:touchpad:tap-to-click": true };
+        compare(HL.defaultFor(o_gaps, base, true, compiled), 4, "the base wins over the compiled default");
+        compare(HL.defaultFor(o_opacity, base, true, compiled), 1, "nothing sets it: Hyprland's default applies");
+        compare(HL.defaultFor({ path: "input.touchpad.tap_to_click", option: "input:touchpad:tap-to-click", type: "bool" }, base, true, compiled),
+            false, "Lua-path name in the base");
+        compare(HL.defaultFor(o_gaps, {}, false, compiled), undefined, "unknown base: unknown default");
+        compare(HL.defaultFor(o_gaps, base, false, compiled), undefined);
+    }
+
+    function test_game_mode_stored_value() {
+        const base = { "general:gaps_in": 4 };
+        const compiled = { "general:gaps_in": 5, "decoration:active_opacity": 1 };
+        compare(HL.storedValue(o_gaps, { "general:gaps_in": 9 }, base, compiled), 9, "shell-settings override first");
+        compare(HL.storedValue(o_gaps, {}, base, compiled), 4, "then the base");
+        compare(HL.storedValue(o_opacity, {}, base, compiled), 1, "then the compiled default");
+        compare(HL.storedValue(e_tap, { "input:touchpad:tap_to_click": false }, {}, {}), false);
+    }
+
+    function test_paused_by_game_mode() {
+        const overrides = { "general:gaps_in": 0, "animations:enabled": 0 };
+        verify(HL.isPausedByGameMode(o_gaps, true, overrides));
+        verify(!HL.isPausedByGameMode(o_gaps, false, overrides), "Game Mode off");
+        verify(!HL.isPausedByGameMode(o_opacity, true, overrides), "not overridden");
+        verify(!HL.isPausedByGameMode(o_gaps, true, {}));
+    }
+
+    function test_parse_base() {
+        const ok = HL.parseBase(JSON.stringify({ ok: true, errors: [], config: { "general:gaps_in": 4 }, curves: {}, animations: {} }));
+        verify(ok.ok);
+        compare(ok.config["general:gaps_in"], 4);
+        verify(!HL.parseBase(JSON.stringify({ ok: false, errors: ["x"], config: {}, curves: {}, animations: {} })).ok);
+        verify(!HL.parseBase("{\"ok\": tr").ok, "truncated output");
+        verify(!HL.parseBase("").ok);
+        verify(!HL.parseBase(JSON.stringify({ ok: true, config: [] })).ok);
     }
 }

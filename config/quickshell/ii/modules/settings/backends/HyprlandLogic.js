@@ -231,3 +231,54 @@ function filterBinds(binds, query) {
         return words.every(function (w) { return hay.indexOf(w) >= 0; });
     });
 }
+
+// Raw value the dotfiles give an option (hyprbase.py `config`), or undefined.
+// Registry options use getoption names; Lua-path names cover options whose
+// getoption name differs (input:touchpad:tap-to-click is set as tap_to_click).
+function baseRaw(entry, base) {
+    if (!base)
+        return undefined;
+    if (entry.option !== undefined && Object.prototype.hasOwnProperty.call(base, entry.option))
+        return base[entry.option];
+    var key = overrideKey(entry.path);
+    return Object.prototype.hasOwnProperty.call(base, key) ? base[key] : undefined;
+}
+
+// What a reset falls back to: the dotfiles' base value; Hyprland's compiled
+// default when the base was read and nothing in the dotfiles sets the option;
+// undefined (unknown) when the base could not be read.
+function defaultFor(entry, base, baseLoaded, compiled) {
+    if (!baseLoaded)
+        return undefined;
+    var raw = baseRaw(entry, base);
+    return fromHypr(entry, raw !== undefined ? raw : (compiled || {})[entry.option]);
+}
+
+// Value the user has stored while Game Mode overrides the option: the
+// shell-settings.lua override, else the base, else the compiled default.
+function storedValue(entry, overrides, base, compiled) {
+    var key = overrideKey(entry.path);
+    if (overrides && Object.prototype.hasOwnProperty.call(overrides, key))
+        return fromHypr(entry, overrides[key]);
+    var raw = baseRaw(entry, base);
+    return fromHypr(entry, raw !== undefined ? raw : (compiled || {})[entry.option]);
+}
+
+// Game Mode's overrides are `hyprconfigurator.py --list --json` of
+// shellOverrides/main.lua (keys like "general:gaps_in").
+function isPausedByGameMode(entry, gameMode, gameModeOverrides) {
+    return !!gameMode && !!gameModeOverrides
+        && Object.prototype.hasOwnProperty.call(gameModeOverrides, overrideKey(entry.path));
+}
+
+// hyprbase.py output -> { ok, config }; anything unexpected is not ok.
+function parseBase(text) {
+    try {
+        var data = JSON.parse(text);
+        if (data && data.ok === true && data.config && typeof data.config === "object" && !Array.isArray(data.config))
+            return { ok: true, config: data.config };
+    } catch (error) {
+        // Truncated or non-JSON output: the base is unknown, as with ok=false.
+    }
+    return { ok: false, config: {} };
+}
