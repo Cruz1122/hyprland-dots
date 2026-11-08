@@ -3,6 +3,1200 @@
   "title": "Wallpaper and widgets",
   "icon": "wallpaper",
   "description": "Wallpaper, parallax and desktop widgets.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "wallpaper",
+      "title": "Wallpaper",
+      "icon": "wallpaper"
+    },
+    {
+      "id": "parallax",
+      "title": "Parallax",
+      "icon": "3d_rotation",
+      "description": "Move the wallpaper as you switch workspaces or open sidebars."
+    },
+    {
+      "id": "clock",
+      "title": "Clock",
+      "icon": "schedule",
+      "description": "Drag the clock on the desktop to move it."
+    },
+    {
+      "id": "cookieClock",
+      "title": "Cookie clock",
+      "icon": "cookie"
+    },
+    {
+      "id": "digitalClock",
+      "title": "Digital clock",
+      "icon": "timer_10_select"
+    },
+    {
+      "id": "quote",
+      "title": "Quote",
+      "icon": "format_quote"
+    },
+    {
+      "id": "weather",
+      "title": "Weather widget",
+      "icon": "partly_cloudy_day"
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.background.wallpaper",
+      "section": "wallpaper",
+      "label": "Current wallpaper",
+      "description": "Choosing a wallpaper also regenerates the colors.",
+      "keywords": [
+        "wallpaper",
+        "fondo",
+        "imagen",
+        "konachan",
+        "osu"
+      ],
+      "icon": "image",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom"
+    },
+    {
+      "key": "wallpaperSelector.useSystemFileDialog",
+      "section": "wallpaper",
+      "label": "Use the system file dialog",
+      "description": "Pick wallpapers with the system dialog instead of the shell's wallpaper picker.",
+      "icon": "folder_open",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/wallpaperSelector/WallpaperSelector.qml",
+        "modules/ii/wallpaperSelector/WallpaperSelectorContent.qml"
+      ]
+    },
+    {
+      "key": "background.hideWhenFullscreen",
+      "section": "wallpaper",
+      "label": "Hide under fullscreen windows",
+      "description": "Stop drawing the wallpaper while a fullscreen window covers it.",
+      "icon": "fullscreen",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "policies.weeb",
+      "section": "wallpaper",
+      "label": "Anime content",
+      "description": "Random anime wallpapers and anime extras in the left sidebar; Discreet keeps only the sidebar extras.",
+      "keywords": [
+        "weeb",
+        "anime",
+        "konachan",
+        "osu"
+      ],
+      "icon": "favorite",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": 0,
+          "label": "Off"
+        },
+        {
+          "value": 1,
+          "label": "On"
+        },
+        {
+          "value": 2,
+          "label": "Discreet"
+        }
+      ],
+      "consumers": [
+        "modules/ii/bar/LeftSidebarButton.qml",
+        "modules/ii/wallpaperSelector/WallpaperSelectorContent.qml",
+        "welcome.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.enableWorkspace",
+      "section": "parallax",
+      "label": "Follow workspaces",
+      "description": "Shift the wallpaper when switching workspaces.",
+      "icon": "view_carousel",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.enableSidebar",
+      "section": "parallax",
+      "label": "Follow sidebars",
+      "description": "Shift the wallpaper when a sidebar opens.",
+      "icon": "dock_to_left",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.vertical",
+      "section": "parallax",
+      "label": "Vertical movement",
+      "description": "Move the wallpaper up and down instead of sideways.",
+      "icon": "swap_vert",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.autoVertical",
+      "section": "parallax",
+      "label": "Vertical for portrait images",
+      "description": "Use vertical movement when the wallpaper is taller than wide.",
+      "icon": "crop_portrait",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "background.parallax.vertical",
+        "equals": false
+      },
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.workspaceZoom",
+      "section": "parallax",
+      "label": "Wallpaper zoom",
+      "description": "Enlarge the wallpaper to leave room for the movement.",
+      "icon": "zoom_in",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 1,
+      "max": 2,
+      "step": 0.01,
+      "uiScale": 100,
+      "decimals": 0,
+      "unit": "%",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.parallax.widgetsFactor",
+      "section": "parallax",
+      "label": "Widget movement",
+      "description": "How far desktop widgets move compared with the wallpaper.",
+      "icon": "widgets",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 3,
+      "step": 0.1,
+      "decimals": 1,
+      "unit": "×",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.enable",
+      "section": "clock",
+      "label": "Desktop clock",
+      "description": "Show a clock on the wallpaper.",
+      "icon": "schedule",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.showOnlyWhenLocked",
+      "section": "clock",
+      "label": "Only on the lock screen",
+      "description": "Hide the clock while the session is unlocked.",
+      "icon": "lock",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "background.widgets.clock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.placementStrategy",
+      "section": "clock",
+      "label": "Placement",
+      "description": "Where the clock goes; Free keeps the spot where you drop it.",
+      "icon": "place_item",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "free",
+          "label": "Free"
+        },
+        {
+          "value": "leastBusy",
+          "label": "Emptiest area"
+        },
+        {
+          "value": "mostBusy",
+          "label": "Busiest area"
+        }
+      ],
+      "enabledWhen": {
+        "key": "background.widgets.clock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/AbstractBackgroundWidget.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.style",
+      "section": "clock",
+      "label": "Style",
+      "description": "Clock shown on the desktop.",
+      "icon": "style",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "cookie",
+          "label": "Cookie"
+        },
+        {
+          "value": "digital",
+          "label": "Digital"
+        }
+      ],
+      "enabledWhen": {
+        "key": "background.widgets.clock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml",
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.styleLocked",
+      "section": "clock",
+      "label": "Style when locked",
+      "description": "Clock shown on the lock screen.",
+      "icon": "lock_clock",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "cookie",
+          "label": "Cookie"
+        },
+        {
+          "value": "digital",
+          "label": "Digital"
+        }
+      ],
+      "enabledWhen": {
+        "key": "background.widgets.clock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.sides",
+      "section": "cookieClock",
+      "label": "Sides",
+      "description": "Number of bumps around the cookie; 0 draws a circle.",
+      "icon": "pentagon",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 40,
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.dialNumberStyle",
+      "section": "cookieClock",
+      "label": "Dial",
+      "description": "What marks the hours around the dial.",
+      "icon": "radio_button_checked",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "full",
+          "label": "Numbers and marks"
+        },
+        {
+          "value": "numbers",
+          "label": "Numbers"
+        },
+        {
+          "value": "dots",
+          "label": "Dots"
+        },
+        {
+          "value": "none",
+          "label": "None"
+        }
+      ],
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "modules/ii/background/widgets/clock/dateIndicator/RectangleDate.qml",
+        "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml",
+        "modules/ii/background/widgets/clock/minuteMarks/MinuteMarks.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.hourHandStyle",
+      "section": "cookieClock",
+      "label": "Hour hand",
+      "icon": "schedule",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "fill",
+          "label": "Filled"
+        },
+        {
+          "value": "hollow",
+          "label": "Hollow"
+        },
+        {
+          "value": "classic",
+          "label": "Classic"
+        },
+        {
+          "value": "hide",
+          "label": "Hidden"
+        }
+      ],
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.minuteHandStyle",
+      "section": "cookieClock",
+      "label": "Minute hand",
+      "icon": "schedule",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "medium",
+          "label": "Medium"
+        },
+        {
+          "value": "thin",
+          "label": "Thin"
+        },
+        {
+          "value": "bold",
+          "label": "Bold"
+        },
+        {
+          "value": "classic",
+          "label": "Classic"
+        },
+        {
+          "value": "hide",
+          "label": "Hidden"
+        }
+      ],
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.secondHandStyle",
+      "section": "cookieClock",
+      "label": "Second hand",
+      "icon": "timer",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "dot",
+          "label": "Dot"
+        },
+        {
+          "value": "line",
+          "label": "Line"
+        },
+        {
+          "value": "classic",
+          "label": "Classic"
+        },
+        {
+          "value": "hide",
+          "label": "Hidden"
+        }
+      ],
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.dateStyle",
+      "section": "cookieClock",
+      "label": "Date",
+      "description": "How the date is shown on the dial.",
+      "icon": "calendar_today",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "bubble",
+          "label": "Bubble"
+        },
+        {
+          "value": "border",
+          "label": "Around the edge"
+        },
+        {
+          "value": "rect",
+          "label": "Box"
+        },
+        {
+          "value": "hide",
+          "label": "Hidden"
+        }
+      ],
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "modules/ii/background/widgets/clock/dateIndicator/DateIndicator.qml",
+        "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml",
+        "modules/ii/background/widgets/clock/minuteMarks/MinuteMarks.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.timeIndicators",
+      "section": "cookieClock",
+      "label": "Digits in the middle",
+      "description": "Show the time as digits in the center.",
+      "icon": "pin",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "all": [
+              {
+                "key": "background.widgets.clock.enable",
+                "equals": true
+              },
+              {
+                "any": [
+                  {
+                    "key": "background.widgets.clock.style",
+                    "equals": "cookie"
+                  },
+                  {
+                    "key": "background.widgets.clock.styleLocked",
+                    "equals": "cookie"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "background.widgets.clock.cookie.dialNumberStyle",
+            "notEquals": "numbers"
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "modules/ii/background/widgets/clock/TimeColumn.qml",
+        "modules/ii/background/widgets/clock/dateIndicator/RotatingDate.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.hourMarks",
+      "section": "cookieClock",
+      "label": "Hour marks",
+      "description": "Draw a mark for every hour.",
+      "icon": "more_time",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "all": [
+              {
+                "key": "background.widgets.clock.enable",
+                "equals": true
+              },
+              {
+                "any": [
+                  {
+                    "key": "background.widgets.clock.style",
+                    "equals": "cookie"
+                  },
+                  {
+                    "key": "background.widgets.clock.styleLocked",
+                    "equals": "cookie"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "key": "background.widgets.clock.cookie.dialNumberStyle",
+            "in": [
+              "dots",
+              "full"
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "modules/ii/background/widgets/clock/TimeColumn.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.constantlyRotate",
+      "section": "cookieClock",
+      "label": "Keep rotating",
+      "description": "Rotate the cookie all the time.",
+      "icon": "rotate_right",
+      "backend": "config",
+      "type": "bool",
+      "note": "Uses a lot of GPU.",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "modules/ii/background/widgets/clock/SecondHand.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.useSineCookie",
+      "section": "cookieClock",
+      "label": "Softer shape",
+      "description": "Use the older sine wave outline, which morphs less.",
+      "icon": "waves",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.cookie.aiStyling",
+      "section": "cookieClock",
+      "label": "Style from the wallpaper",
+      "description": "Pick a clock preset that matches each new wallpaper.",
+      "icon": "auto_awesome",
+      "backend": "config",
+      "type": "bool",
+      "note": "Uses Gemini and needs its API key.",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "cookie"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "cookie"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/CookieClock.qml",
+        "config/quickshell/ii/scripts/colors/switchwall.sh"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.vertical",
+      "section": "digitalClock",
+      "label": "Vertical layout",
+      "description": "Stack hours and minutes.",
+      "icon": "swap_vert",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml",
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.showDate",
+      "section": "digitalClock",
+      "label": "Show the date",
+      "icon": "calendar_today",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.animateChange",
+      "section": "digitalClock",
+      "label": "Animate changes",
+      "description": "Animate digits when the time changes.",
+      "icon": "animation",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockText.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.adaptiveAlignment",
+      "section": "digitalClock",
+      "label": "Adaptive alignment",
+      "description": "Align the date and quote to the side of the screen the clock is on.",
+      "icon": "format_align_left",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.font.family",
+      "section": "digitalClock",
+      "label": "Font",
+      "icon": "font_download",
+      "backend": "config",
+      "type": "font",
+      "widget": "font",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.font.size",
+      "section": "digitalClock",
+      "label": "Size",
+      "icon": "format_size",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 50,
+      "max": 700,
+      "step": 5,
+      "decimals": 0,
+      "unit": "px",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.font.weight",
+      "section": "digitalClock",
+      "label": "Weight",
+      "icon": "format_bold",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 1,
+      "max": 1000,
+      "step": 10,
+      "decimals": 0,
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.font.width",
+      "section": "digitalClock",
+      "label": "Width",
+      "icon": "width",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 25,
+      "max": 125,
+      "step": 1,
+      "decimals": 0,
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.digital.font.roundness",
+      "section": "digitalClock",
+      "label": "Roundness",
+      "icon": "rounded_corner",
+      "backend": "config",
+      "type": "real",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "decimals": 0,
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "any": [
+              {
+                "key": "background.widgets.clock.style",
+                "equals": "digital"
+              },
+              {
+                "key": "background.widgets.clock.styleLocked",
+                "equals": "digital"
+              }
+            ]
+          }
+        ]
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.quote.enable",
+      "section": "quote",
+      "label": "Show a quote",
+      "description": "Show a line of text under the clock.",
+      "icon": "format_quote",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "background.widgets.clock.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml",
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.clock.quote.text",
+      "section": "quote",
+      "label": "Quote text",
+      "icon": "short_text",
+      "backend": "config",
+      "type": "string",
+      "widget": "text",
+      "enabledWhen": {
+        "all": [
+          {
+            "key": "background.widgets.clock.enable",
+            "equals": true
+          },
+          {
+            "key": "background.widgets.clock.quote.enable",
+            "equals": true
+          }
+        ]
+      },
+      "placeholder": "Stay hungry, stay foolish",
+      "consumers": [
+        "modules/ii/background/widgets/clock/ClockWidget.qml",
+        "modules/ii/background/widgets/clock/CookieQuote.qml",
+        "modules/ii/background/widgets/clock/DigitalClock.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.weather.enable",
+      "section": "weather",
+      "label": "Weather on the desktop",
+      "description": "Show the current weather on the wallpaper.",
+      "icon": "partly_cloudy_day",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
+      "key": "background.widgets.weather.placementStrategy",
+      "section": "weather",
+      "label": "Placement",
+      "description": "Where the weather widget goes.",
+      "icon": "place_item",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "free",
+          "label": "Free"
+        },
+        {
+          "value": "leastBusy",
+          "label": "Emptiest area"
+        },
+        {
+          "value": "mostBusy",
+          "label": "Busiest area"
+        }
+      ],
+      "enabledWhen": {
+        "key": "background.widgets.weather.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/background/widgets/AbstractBackgroundWidget.qml"
+      ]
+    }
+  ]
 }

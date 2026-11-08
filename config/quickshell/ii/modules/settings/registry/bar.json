@@ -4,6 +4,652 @@
   "icon": "toast",
   "iconRotation": 180,
   "description": "Position, layout, modules and tray of the bar.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "layout",
+      "title": "Layout",
+      "icon": "dashboard"
+    },
+    {
+      "id": "autoHide",
+      "title": "Auto-hide",
+      "icon": "visibility_off"
+    },
+    {
+      "id": "workspaces",
+      "title": "Workspaces",
+      "icon": "workspaces"
+    },
+    {
+      "id": "buttons",
+      "title": "Buttons",
+      "icon": "smart_button"
+    },
+    {
+      "id": "indicators",
+      "title": "Indicators and tooltips",
+      "icon": "notifications"
+    },
+    {
+      "id": "resources",
+      "title": "Resources",
+      "icon": "memory",
+      "description": "Shown in the vertical bar."
+    },
+    {
+      "id": "weather",
+      "title": "Weather",
+      "icon": "partly_cloudy_day"
+    },
+    {
+      "id": "tray",
+      "title": "System tray",
+      "icon": "shelf_auto_hide"
+    }
+  ],
+  "entries": [
+    {
+      "key": "bar.position",
+      "section": "layout",
+      "label": "Position",
+      "description": "Screen edge the bar sits on.",
+      "keywords": [
+        "top",
+        "bottom",
+        "vertical",
+        "arriba",
+        "abajo",
+        "izquierda",
+        "derecha"
+      ],
+      "icon": "toast",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "keys": [
+        "bar.bottom",
+        "bar.vertical"
+      ],
+      "consumers": [
+        "modules/ii/bar/AiQuotaPopup.qml",
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/bar/BarContent.qml",
+        "modules/ii/bar/StyledPopup.qml",
+        "modules/ii/bar/SysTrayItem.qml",
+        "modules/ii/bar/SysTrayMenu.qml",
+        "modules/ii/mediaControls/MediaControls.qml"
+      ]
+    },
+    {
+      "key": "bar.cornerStyle",
+      "section": "layout",
+      "label": "Style",
+      "description": "Hug blends the bar into the screen corners.",
+      "icon": "rounded_corner",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": 0,
+          "label": "Hug"
+        },
+        {
+          "value": 1,
+          "label": "Float"
+        },
+        {
+          "value": 2,
+          "label": "Rectangle"
+        }
+      ],
+      "consumers": [
+        "modules/common/Appearance.qml",
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/bar/BarContent.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.floatStyleShadow",
+      "section": "layout",
+      "label": "Floating shadow",
+      "description": "Draw a shadow under the floating bar.",
+      "icon": "shadow",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "bar.cornerStyle",
+        "equals": 1
+      },
+      "consumers": [
+        "modules/ii/bar/BarContent.qml"
+      ]
+    },
+    {
+      "key": "bar.borderless",
+      "section": "layout",
+      "label": "Grouping",
+      "description": "How modules are grouped.",
+      "icon": "view_column",
+      "backend": "config",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": false,
+          "label": "Pills"
+        },
+        {
+          "value": true,
+          "label": "Separators"
+        }
+      ],
+      "consumers": [
+        "modules/ii/bar/BarContent.qml",
+        "modules/ii/bar/BarGroup.qml",
+        "modules/ii/bar/BatteryIndicator.qml",
+        "modules/ii/bar/ClockWidget.qml"
+      ]
+    },
+    {
+      "key": "bar.showBackground",
+      "section": "layout",
+      "label": "Background",
+      "description": "Draw the bar background.",
+      "icon": "rectangle",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/bar/BarContent.qml",
+        "modules/ii/verticalBar/VerticalBar.qml",
+        "modules/ii/verticalBar/VerticalBarContent.qml"
+      ]
+    },
+    {
+      "key": "bar.verbose",
+      "section": "layout",
+      "label": "Detailed",
+      "description": "Show more text in modules such as media and the clock.",
+      "icon": "notes",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/Appearance.qml",
+        "modules/ii/bar/BarContent.qml",
+        "modules/ii/bar/Media.qml"
+      ]
+    },
+    {
+      "key": "bar.topLeftIcon",
+      "section": "layout",
+      "label": "Corner icon",
+      "description": "Icon of the left sidebar button.",
+      "icon": "image",
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "distro",
+          "label": "Your distribution"
+        },
+        {
+          "value": "linux",
+          "label": "Linux"
+        },
+        {
+          "value": "arch",
+          "label": "Arch"
+        },
+        {
+          "value": "cachyos",
+          "label": "CachyOS"
+        },
+        {
+          "value": "debian",
+          "label": "Debian"
+        },
+        {
+          "value": "endeavouros",
+          "label": "EndeavourOS"
+        },
+        {
+          "value": "fedora",
+          "label": "Fedora"
+        },
+        {
+          "value": "gentoo",
+          "label": "Gentoo"
+        },
+        {
+          "value": "nixos",
+          "label": "NixOS"
+        },
+        {
+          "value": "nyarch",
+          "label": "Nyarch"
+        },
+        {
+          "value": "ubuntu",
+          "label": "Ubuntu"
+        }
+      ],
+      "consumers": [
+        "modules/ii/bar/LeftSidebarButton.qml"
+      ]
+    },
+    {
+      "key": "bar.screenList",
+      "section": "layout",
+      "label": "Screens",
+      "description": "Screens that show the bar.",
+      "keywords": [
+        "monitor",
+        "pantallas"
+      ],
+      "icon": "monitor",
+      "backend": "config",
+      "type": "custom",
+      "widget": "custom",
+      "keys": [
+        "bar.screenList"
+      ],
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.autoHide.enable",
+      "section": "autoHide",
+      "label": "Hide the bar",
+      "description": "Show the bar only when the pointer reaches its edge.",
+      "keywords": [
+        "autohide",
+        "ocultar"
+      ],
+      "icon": "visibility_off",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.autoHide.hoverRegionWidth",
+      "section": "autoHide",
+      "label": "Reveal zone",
+      "description": "Thickness of the edge that reveals the bar.",
+      "icon": "border_outer",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 20,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "bar.autoHide.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.autoHide.pushWindows",
+      "section": "autoHide",
+      "label": "Push windows",
+      "description": "Make room for the bar while it shows.",
+      "icon": "expand",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "bar.autoHide.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.autoHide.showWhenPressingSuper.enable",
+      "section": "autoHide",
+      "label": "Show while holding Super",
+      "description": "Holding Super shows the bar and workspace numbers.",
+      "icon": "keyboard_command_key",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/bar/Workspaces.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.autoHide.showWhenPressingSuper.delay",
+      "section": "autoHide",
+      "label": "Delay",
+      "description": "How long Super must be held.",
+      "icon": "timer",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 0,
+      "max": 1000,
+      "step": 10,
+      "unit": "ms",
+      "enabledWhen": {
+        "key": "bar.autoHide.showWhenPressingSuper.enable",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/bar/Bar.qml",
+        "modules/ii/bar/Workspaces.qml",
+        "modules/ii/verticalBar/VerticalBar.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.shown",
+      "section": "workspaces",
+      "label": "Workspaces shown",
+      "icon": "filter_9_plus",
+      "backend": "config",
+      "type": "int",
+      "widget": "spin",
+      "min": 1,
+      "max": 30,
+      "consumers": [
+        "modules/ii/background/Background.qml",
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.showAppIcons",
+      "section": "workspaces",
+      "label": "App icons",
+      "description": "Show the icon of the main window of each workspace.",
+      "icon": "apps",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.monochromeIcons",
+      "section": "workspaces",
+      "label": "Tint app icons",
+      "icon": "format_color_fill",
+      "backend": "config",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "bar.workspaces.showAppIcons",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.alwaysShowNumbers",
+      "section": "workspaces",
+      "label": "Always show numbers",
+      "icon": "pin",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.numberMap",
+      "section": "workspaces",
+      "label": "Workspace labels",
+      "description": "Text shown instead of each number, in order.",
+      "icon": "label",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "placeholder": "一",
+      "consumers": [
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.workspaces.useNerdFont",
+      "section": "workspaces",
+      "label": "Nerd Font labels",
+      "description": "Draw the labels with the Nerd Font, for icon glyphs.",
+      "icon": "emoji_symbols",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/Workspaces.qml"
+      ]
+    },
+    {
+      "key": "bar.utilButtons.showKeyboardToggle",
+      "section": "buttons",
+      "label": "On-screen keyboard",
+      "icon": "keyboard",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/UtilButtons.qml"
+      ]
+    },
+    {
+      "key": "bar.utilButtons.showMicToggle",
+      "section": "buttons",
+      "label": "Microphone",
+      "icon": "mic",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/UtilButtons.qml"
+      ]
+    },
+    {
+      "key": "bar.utilButtons.showDarkModeToggle",
+      "section": "buttons",
+      "label": "Light and dark mode",
+      "icon": "contrast",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/UtilButtons.qml"
+      ]
+    },
+    {
+      "key": "bar.indicators.notifications.showUnreadCount",
+      "section": "indicators",
+      "label": "Unread count",
+      "description": "Show how many notifications are unread.",
+      "icon": "notifications_unread",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/NotificationUnreadCount.qml"
+      ]
+    },
+    {
+      "key": "bar.tooltips.clickToShow",
+      "section": "indicators",
+      "label": "Click for details",
+      "description": "Open module details on click instead of on hover.",
+      "icon": "ads_click",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/BatteryIndicator.qml",
+        "modules/ii/bar/ClockWidget.qml",
+        "modules/ii/bar/Resources.qml",
+        "modules/ii/bar/weather/WeatherBar.qml"
+      ]
+    },
+    {
+      "key": "bar.resources.alwaysShowGpu",
+      "section": "resources",
+      "label": "Always show the GPU",
+      "icon": "developer_board",
+      "backend": "config",
+      "type": "bool",
+      "visibleWhen": {
+        "key": "bar.vertical",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/verticalBar/Resources.qml"
+      ]
+    },
+    {
+      "key": "bar.resources.cpuWarningThreshold",
+      "section": "resources",
+      "label": "CPU warning",
+      "description": "Highlight the CPU above this usage.",
+      "icon": "memory",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "key": "bar.vertical",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/verticalBar/Resources.qml"
+      ]
+    },
+    {
+      "key": "bar.resources.gpuWarningThreshold",
+      "section": "resources",
+      "label": "GPU warning",
+      "description": "Highlight the GPU above this usage.",
+      "icon": "developer_board",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "key": "bar.vertical",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/verticalBar/Resources.qml"
+      ]
+    },
+    {
+      "key": "bar.resources.memoryWarningThreshold",
+      "section": "resources",
+      "label": "Memory warning",
+      "description": "Highlight memory above this usage.",
+      "icon": "memory_alt",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "key": "bar.vertical",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/verticalBar/Resources.qml"
+      ]
+    },
+    {
+      "key": "bar.resources.swapWarningThreshold",
+      "section": "resources",
+      "label": "Swap warning",
+      "description": "Highlight swap above this usage.",
+      "icon": "swap_horiz",
+      "backend": "config",
+      "type": "int",
+      "widget": "slider",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "visibleWhen": {
+        "key": "bar.vertical",
+        "equals": true
+      },
+      "consumers": [
+        "modules/ii/verticalBar/Resources.qml"
+      ]
+    },
+    {
+      "key": "bar.weather.enable",
+      "section": "weather",
+      "label": "Weather in the bar",
+      "icon": "partly_cloudy_day",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/BarContent.qml"
+      ]
+    },
+    {
+      "key": "tray.monochromeIcons",
+      "section": "tray",
+      "label": "Tint icons",
+      "icon": "format_color_fill",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/bar/SysTrayItem.qml"
+      ]
+    },
+    {
+      "key": "tray.invertPinnedItems",
+      "section": "tray",
+      "label": "Pin by default",
+      "description": "Show every item in the bar; the list below hides them instead.",
+      "icon": "push_pin",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "services/TrayService.qml"
+      ]
+    },
+    {
+      "key": "tray.pinnedItems",
+      "section": "tray",
+      "label": "Pinned items",
+      "description": "Tray item ids listed apart from the rest.",
+      "icon": "list",
+      "backend": "config",
+      "type": "list",
+      "widget": "list",
+      "placeholder": "Fcitx",
+      "consumers": [
+        "services/TrayService.qml"
+      ]
+    },
+    {
+      "key": "tray.filterPassive",
+      "section": "tray",
+      "label": "Hide idle items",
+      "description": "Hide items that report themselves as passive.",
+      "icon": "filter_alt",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "services/TrayService.qml"
+      ]
+    }
+  ]
 }

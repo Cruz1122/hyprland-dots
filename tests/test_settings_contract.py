@@ -292,6 +292,21 @@ class SettingsContractTest(unittest.TestCase):
 
     # -------------------------------------------------------------- retired
 
+    def test_every_config_option_is_registered_retired_or_managed(self) -> None:
+        for item in self.retired["managedElsewhere"]:
+            with self.subTest(managed=item.get("path")):
+                self.assertEqual(set(item), {"path", "reason"})
+                self.assertTrue(item["reason"].strip(), "managed paths say who owns them")
+        registered: set[str] = set()
+        for _, entry in self.entries:
+            registered |= set(entry.get("keys", []))
+            if entry["backend"] in ("config", "idle") and entry["type"] != "custom":
+                registered.add(entry.get("path", entry["key"]))
+        hidden = self.retired["retired"] + self.managed
+        leaves = sorted(path for path, kind in self.schema.items() if kind != "object")
+        uncovered = [path for path in leaves if path not in registered and not is_under(path, hidden)]
+        self.assertEqual(uncovered, [], "register these, retire them, or add them to managedElsewhere with a reason")
+
     def test_retired_paths_exist_and_stay_hidden(self) -> None:
         retired = self.retired["retired"]
         managed = self.managed

@@ -44,5 +44,6 @@ run_harness() {
     fi
 }
 run_harness --strict --discard
+run_harness --strict --discard --allow-config-writes --sizes 1100x760 --driver tests/harness/settings-interact.qml
 
 printf 'Verification passed.\n'
