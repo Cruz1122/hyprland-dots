@@ -48,6 +48,9 @@ StyledFlickable {
         "action": "SettingsActionRow.qml",
         "info": "SettingsInfoRow.qml",
         "banner": "SettingsBannerRow.qml",
+        "animation": "SettingsAnimationRow.qml",
+        "animationPreset": "SettingsAnimationPresetRow.qml",
+        "curveLibrary": "SettingsCurveLibraryRow.qml",
         "custom": "SettingsCustomRow.qml"
     })
 

@@ -835,6 +835,116 @@ its end:
 tests/harness/drivers/animation-visuals.qml --sizes 1100x760 --out DIR`
 leaves the screenshots in `DIR`.
 
+## Animations page
+
+`pages/AnimationsPage.qml` (registry `registry/animations.json`) renders, in
+order: "What each part controls" (the intro), General ("Desktop
+animations", the preset), Windows, Workspaces, Shell panels, Details, My
+curves and "Motion inside the shell". Three row files of its own are chosen
+by `widget` through `SettingsPage.rowSources`; the page adds the intro
+delegate and the `applyMinimalPreset` action.
+
+| Widget | Row | Key |
+|---|---|---|
+| `animation` | `SettingsAnimationRow` (+ `SettingsAnimationDetails`) | `animation.<card>` for the 10 cards, `path` = card id |
+| `animationPreset` | `SettingsAnimationPresetRow` | `animation.preset` (also an alias on the Quick page, section "Look") |
+| `curveLibrary` | `SettingsCurveLibraryRow` | `animation.curves` |
+
+**Backend helpers.** The widgets reach the animation backend's read-only UI
+helpers (`curveCatalog()`, `styleOptions(card)`, `presets()`,
+`curveUsage(name)`, `summaryParts(card)`; "Backends -> animation") through
+`SettingsStore.backends.animation`, inside bindings that read
+`SettingsStore.revision` first so they refresh. Nothing writes through
+`backends`: values are read with `SettingsStore.value(key)` and changed only
+with `SettingsStore.write(key, value)` / `SettingsStore.reset(key)`, never
+with the backend's `write`/`reset`/`flush`. The pure parts (summary text,
+style changes, preset choices, the Undo plan, curve names and lists) are in
+`components/AnimationsPageLogic.js` (`tests/qml_settings/tst_SettingsAnimationPageLogic.qml`).
+
+**Cards** (`SettingsAnimationRow`). Folded, the label line has the modified
+dot, and under it the reset button (while modified), the fold toggle, the summary
+(`summaryParts` translated and joined: "Pop in 80% · 300 ms · Quick start,
+gentle stop"; "No animation" when off; the shell panel cards leave the style
+out), ▶ and the enable switch. Unfolded (the toggle, Space/Enter on it, a
+click on the summary, ▶, or the row's highlight from a search hit or a
+"Requires" jump) it adds `SettingsAnimationPreview` and the controls,
+side by side from 640 px of row width and stacked below that:
+
+- duration slider, 50 ms–2 s in 10 ms steps ("Short" … "Long"), written as
+  Hyprland speed with `CurveMath.msToSpeed`; with a spring curve the slider
+  is hidden and the card shows "≈ N ms (set by the spring)", N =
+  `CurveMath.springSettleMs` rounded to 10 ms (also in the summary);
+- `SettingsCurvePicker` over `curveCatalog()`; an unknown curve shows
+  "Not recognized: X" and keeps the value;
+- the style of the card's family from `styleOptions(card)`: kind ("Now: …"
+  under it), a percent slider for `popin`/`slidefade*` and a side for `slide`;
+  "Hyprland default" is offered only while the card has no style, and an
+  unknown style shows "Not recognized: X" without losing it. Border, zoom and
+  the two shell panel cards have no style control: `rules.lua` gives each
+  shell panel its own entrance, so those cards set only duration and curve
+  (their help lists which panels follow them and which do not).
+
+Each control writes the whole card value on release or keyboard step. A
+changed value (a control, Undo, a preset) calls the preview's `replay()`,
+which does nothing under "Reduce motion in the shell"; ▶ calls `play()`,
+which always plays. Tab order: fold toggle, ▶, switch, then (unfolded)
+duration, curve picker, style, percent, side. Every control has a
+`SettingsFocusRing`; the row's accessible description starts with the
+summary. Cards and the preset have `enabledWhen` "Desktop animations"; under
+Game Mode they stay enabled, show their stored values and the status note
+"Paused by Game Mode" (the backend's `statusNote`), and the page shows the
+`info.animations.gameMode` banner.
+
+**Preset** (`SettingsAnimationPresetRow`). Default · Agile · Smooth · Bouncy
+· Minimal as a radio group (the option description shows as "Now: …"),
+plus a disabled "Custom" while the cards match no preset. One write of
+`animation.preset` is one backend change set (one generator call, one eval,
+at most one reload); Default removes the animation lines and keeps the
+curves. Choosing a preset while the state is Custom first captures every
+card (`value` and whether the file holds it) and shows a 10 s bar with
+[Undo]: Undo writes back the cards that were in the file and resets the
+others, all in the same event-loop turn, so the backend sends one batch.
+The description says that presets do not change the motion inside the
+shell.
+
+**Curves** (`SettingsCurveLibraryRow`). The user's curves with a thumbnail,
+their label and "Used by: Section › Card"; [Add a curve] opens
+`SettingsCurveEditor` ("Start from…" offers every bezier of the catalog) with
+a "Name" field for the label; edit and delete per curve. Names are generated
+(`ii_curve_N`, the backend rule `^ii_[a-z0-9_]{1,32}$`), never typed; the
+label follows the backend's label rule. Delete is refused while
+`curveUsage(name)` is not empty ("“X” cannot be deleted while a card uses
+it: …"). The editor only makes beziers: a user spring (only from a
+hand-edited or imported config) can only be renamed ("Springs are not edited
+here…"), and keeps its mass, stiffness and damping. Every change writes the
+whole list to `animation.curves`.
+
+**Intro and shell motion.** The intro (`SettingsAnimationIntro`, custom
+delegate of `info.animations.intro`) is a collapsible group of three boxes:
+Desktop (Hyprland: the preset and the cards), Interface (the shell's own
+motion: the last section) and Game Mode (turns desktop animations off while
+on; values come back). "Motion inside the shell" ends with
+`action.animations.applyMinimal` ([Apply Minimal]): its text says the speed
+controls above do not affect desktop animations; the button applies the
+Minimal preset through the preset row (so a Custom state gets its Undo bar).
+
+**Tests.** `tests/test_animations_page.py` runs
+`tests/harness/drivers/animations-page.qml` in the real window with
+`--strict --hyprland-stub`, the `hyprctl` stub and the `python3` shim
+(the `hyprctl -j animations` fixture is patched to what the driver's first
+card write leaves, so the backend's `animationsLoaded` confirmation passes):
+the 5 helpers reach the widgets through `SettingsStore.backends.animation`,
+Tab order through a folded and an unfolded card, the unfolded controls show
+the card's value, a search reveal unfolds a card, adding a curve, renaming a
+user spring keeps it a spring, a preset is
+1 generator call / 1 eval / ≤1 reload and the Quick alias is the same preset
+row with the same value, Default empties the animations and
+keeps the curves, [Apply Minimal], Undo restores a custom state in one
+batch, deleting a used curve is refused, reduceMotion stops automatic
+replays but not ▶, a spring shows its settle time, Game Mode shows the note
+and no "Requires", and an unfolded card at 760, 1100 and 1600 px overlaps no
+other row (screenshots in `SHOT_DIR`, or `ANIMATIONS_PAGE_OUT` to keep them).
+
 ## App entry point
 
 `settings.qml` is an `ApplicationWindow` (title "illogical-impulse

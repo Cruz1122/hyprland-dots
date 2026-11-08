@@ -42,6 +42,10 @@
       "section": "look"
     },
     {
+      "ref": "animation.preset",
+      "section": "look"
+    },
+    {
       "ref": "bar.position",
       "section": "bar"
     },

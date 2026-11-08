@@ -12,8 +12,12 @@ Singleton {
 
     readonly property var pendingConfirmation: impl.pendingConfirmation
     readonly property int revision: impl.revision
-    // Backend instances by name. Not for the app: harness drivers use it to
-    // deliver events the sandbox cannot produce (Hyprland's configreloaded).
+    // Backend instances by name, read-only. The Animations page widgets call
+    // the animation backend's read-only UI helpers through it (curveCatalog,
+    // styleOptions, presets, curveUsage, summaryParts); nothing writes
+    // through it: values change only with write()/reset() below. Harness
+    // drivers also use it to deliver events the sandbox cannot produce
+    // (Hyprland's configreloaded).
     readonly property var backends: impl.backends
 
     signal committed(string key)
