@@ -518,9 +518,17 @@ ShellRoot {
                         progress: preview.progress, enabled: preview.enabled, card: row.card, rowEnabled: row.enabled, details: !!row.findDetails });
                     SettingsStore.reset("appearance.animations.reduceMotion");
                     root.waitFor(() => !row.reduceMotion && !preview.playing, 4000, () => {
+                        // Record any start: under load a 260 ms replay can
+                        // finish before a fixed delay ends, so polling
+                        // `playing` once would flake.
+                        const seen = { started: false };
+                        const onPlaying = () => { if (preview.playing) seen.started = true; };
+                        preview.playingChanged.connect(onPlaying);
                         row.commitField("speed", 2.6);
                         root.later(150, () => {
-                            root.check("reduce-motion: without it a change replays the preview", preview.playing === true, {});
+                            preview.playingChanged.disconnect(onPlaying);
+                            root.check("reduce-motion: without it a change replays the preview", seen.started || preview.playing === true, {
+                                playing: preview.playing, progress: preview.progress });
                             SettingsStore.reset("animation.windowsMove");
                             row.unfolded = false;
                             root.settle(() => root.next());
