@@ -830,7 +830,6 @@
   "Invalid format": "Formato no válido",
   "Expected a list": "Se esperaba una lista",
   "Expected a list of text": "Se esperaba una lista de textos",
-  "Not implemented yet": "Todavía no está implementado",
   "The configuration file is still loading": "El archivo de configuración aún se está cargando",
   "Unknown configuration path": "Ruta de configuración desconocida",
   "%1 (default)": "%1 (predeterminada)",
