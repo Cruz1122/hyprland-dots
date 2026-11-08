@@ -171,11 +171,13 @@ SettingsPage {
                 { label: Translation.tr("Hyprland settings"), value: `${diag.configDir}/hypr/custom/shell-settings.lua` },
                 { label: Translation.tr("Idle settings"), value: `${diag.configDir}/hypr/custom/shell-idle.conf` },
                 { label: Translation.tr("Monitors"), value: `${diag.configDir}/hypr/monitors.lua` },
+                { label: Translation.tr("Animations"), value: `${diag.configDir}/hypr/custom/shell-animations.lua` },
                 { label: Translation.tr("Shell folder"), value: FileUtils.trimFileProtocol(Quickshell.shellPath("")) }
             ]
             readonly property var backends: [
                 { name: "config", label: Translation.tr("Shell configuration") },
                 { name: "hyprland", label: Translation.tr("Hyprland") },
+                { name: "animation", label: Translation.tr("Animations") },
                 { name: "idle", label: Translation.tr("Idle and lock") },
                 { name: "display", label: Translation.tr("Displays") },
                 { name: "mime", label: Translation.tr("Default apps") },

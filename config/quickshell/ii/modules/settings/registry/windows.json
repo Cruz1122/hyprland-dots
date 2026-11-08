@@ -163,7 +163,7 @@
       "key": "hyprland.decoration.rounding_power",
       "section": "spacing",
       "label": "Corner curve",
-      "description": "Shape of the rounding: 2 is a quarter circle, 4 or more gives smooth squircle corners like phone icons.",
+      "description": "Shape of the rounding: 1 cuts the corner diagonally, 2 is a quarter circle, 4 or more gives smooth squircle corners.",
       "icon": "line_curve",
       "backend": "hyprland",
       "path": "decoration.rounding_power",
@@ -173,7 +173,7 @@
       "max": 10,
       "step": 0.1,
       "decimals": 1,
-      "minLabel": "Rounder",
+      "minLabel": "Diagonal",
       "maxLabel": "Squarer"
     },
     {

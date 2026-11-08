@@ -1134,6 +1134,15 @@ that is not a JSON list of strings ("Could not read the errors from
 Hyprland."). The errors are shown as selectable, wrapped monospace text.
 Without Hyprland the row says "Hyprland is not running" and has no button.
 
+**Where settings are saved.** `info.advanced.diagnostics` lists the files the
+backends write (shell config, `custom/shell-settings.lua`,
+`custom/shell-idle.conf`, `monitors.lua`, `custom/shell-animations.lua`, the
+shell folder) and the availability of every storage backend the registry
+uses, with its unavailable reason. `tests/test_advanced_diagnostics.py` fails
+when a registry backend is missing from that list. The config-errors fixtures
+are copied into the harness `--out` directory, because `run.sh` mounts a
+tmpfs over `/tmp`.
+
 **Options added in this phase.** All are plain `hyprland` entries written to
 `custom/shell-settings.lua`; none needed backend changes.
 

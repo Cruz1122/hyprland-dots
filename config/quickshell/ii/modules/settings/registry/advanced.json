@@ -20,7 +20,7 @@
       "id": "workSafety",
       "title": "Privacy on public networks",
       "icon": "work",
-      "description": "Hide sensitive wallpapers and clipboard entries while you are on a public Wi-Fi."
+      "description": "Hide sensitive wallpapers and blur sensitive clipboard images while you are on a public Wi-Fi."
     },
     {
       "id": "hyprland",
@@ -170,8 +170,13 @@
     {
       "key": "workSafety.enable.clipboard",
       "section": "workSafety",
-      "label": "Hide sensitive clipboard entries",
-      "description": "On a public Wi-Fi, the launcher hides clipboard entries with links that contain a keyword below.",
+      "label": "Blur sensitive clipboard images",
+      "description": "On a public Wi-Fi, the launcher blurs clipboard images listed next to a link with a keyword below.",
+      "help": "Only images are blurred, and only when the entry just above or below is such a link; the links stay visible.",
+      "keywords": [
+        "Hide sensitive clipboard entries",
+        "Ocultar entradas sensibles del portapapeles"
+      ],
       "icon": "content_paste_off",
       "backend": "config",
       "type": "bool",
@@ -192,7 +197,7 @@
       "consumers": [
         "modules/ii/background/Background.qml"
       ],
-      "help": "Both switches above need a match here before they hide anything.",
+      "help": "Both switches above need a match here before they do anything.",
       "keywords": [
         "Public network keywords",
         "Palabras de red pública"
@@ -219,7 +224,7 @@
       "key": "workSafety.triggerCondition.linkKeywords",
       "section": "workSafety",
       "label": "Sensitive link keywords",
-      "description": "Clipboard entries with links containing these words are hidden.",
+      "description": "A clipboard image listed next to a link containing one of these words is blurred.",
       "icon": "link_off",
       "backend": "config",
       "type": "list",

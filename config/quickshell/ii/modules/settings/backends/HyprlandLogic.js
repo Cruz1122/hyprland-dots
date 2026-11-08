@@ -205,7 +205,10 @@ function modifierNames(mask) {
 }
 
 // `hyprctl -j binds` -> [{ keys, action, described }], described first.
-function parseBinds(text) {
+// anyKeyLabel names the key of catch-all binds; the page passes it translated
+// so that the shown text and the filter use the same words.
+function parseBinds(text, anyKeyLabel) {
+    var anyKey = anyKeyLabel === undefined ? "Any key" : String(anyKeyLabel);
     var list = JSON.parse(text);
     var out = [];
     for (var i = 0; i < list.length; i++) {
@@ -213,7 +216,7 @@ function parseBinds(text) {
         var key = b.key || (b.keycode ? "code:" + b.keycode : "");
         if (!key && !b.catch_all)
             continue;
-        var keys = modifierNames(b.modmask || 0).concat([b.catch_all ? "Any key" : key]).join(" + ");
+        var keys = modifierNames(b.modmask || 0).concat([b.catch_all ? anyKey : key]).join(" + ");
         var action = b.has_description && b.description ? b.description : (b.dispatcher + (b.arg ? " " + b.arg : ""));
         out.push({ keys: (b.submap ? b.submap + ": " : "") + keys, action: action, described: !!b.has_description });
     }

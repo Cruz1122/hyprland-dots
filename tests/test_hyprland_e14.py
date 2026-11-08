@@ -172,23 +172,28 @@ def run_config_errors(*, stub: bool, fixture: str | None = None) -> tuple[subpro
         if stub:
             argv.append("--hyprland-stub")
         if fixture:
-            argv += ["--env", f"HYPRCTL_CONFIGERRORS={FIXTURES / f'hyprctl-configerrors-{fixture}.json'}"]
+            # run.sh mounts a tmpfs over /tmp and binds only --out, so a fixture
+            # read from the checkout vanishes when the checkout is under /tmp.
+            served = Path(out) / f"hyprctl-configerrors-{fixture}.json"
+            shutil.copy(FIXTURES / f"hyprctl-configerrors-{fixture}.json", served)
+            argv += ["--env", f"HYPRCTL_CONFIGERRORS={served}"]
         result = subprocess.run(argv, capture_output=True, text=True, timeout=150)
         log_path = Path(out) / "harness.log"
         log = log_path.read_text(encoding="utf-8", errors="replace") if log_path.is_file() else ""
         calls_path = Path(out) / "hyprctl.log"
         calls = calls_path.read_text(encoding="utf-8") if calls_path.is_file() else ""
     events = [json.loads(line[line.index(MARKER) + len(MARKER):]) for line in log.splitlines() if MARKER in line]
-    return result, events, calls, log[-3000:]
+    return result, events, calls, log
 
 
 class ConfigErrorsRowTest(unittest.TestCase):
     def run_row(self, **kwargs) -> tuple[list, str]:
         result, events, calls, log = run_config_errors(**kwargs)
         self.calls = calls
+        self.log = log
         if result.returncode == 77:
             self.skipTest(result.stderr.strip() or "harness prerequisites missing")
-        context = result.stdout + calls + log
+        context = result.stdout + calls + log[-3000:]
         self.assertFalse([e for e in events if e.get("type") == "fatal"], context)
         # --strict: no QML warning, no overlap.
         self.assertEqual(result.returncode, 0, context)
@@ -227,6 +232,10 @@ class ConfigErrorsRowTest(unittest.TestCase):
         self.assert_checked_twice(states, context)
         self.assertEqual(states[0]["status"], "failed", context)
         self.assertFalse(states[0]["textShown"], context)
+        # The stub answered (exit 0) and the parser rejected the text; a stub
+        # that crashed on an unreadable fixture (exit 1) must not pass here.
+        self.assertEqual(self.log.count("unexpected hyprctl -j configerrors answer (exit 0)"), 2, context)
+        self.assertNotIn("unexpected hyprctl -j configerrors answer (exit 1)", self.log, context)
 
     def test_hyprland_not_running(self) -> None:
         states, context = self.run_row(stub=False)
