@@ -13,7 +13,8 @@ argv item), otherwise from stdin. It is a JSON object {"monitors": [MONITOR, ...
     scale      number 0.25..10, default 1
     transform  int 0..7, default 0
     mirror     output name or null (default)
-    vrr        int 0..2 (bool accepted), default 0
+    vrr        int 0..2 (bool accepted) or null (default): null writes no
+               `vrr`, so the output follows misc:vrr
     bitdepth   8, 10 or null (default)
 Unknown keys, duplicate names, self-mirroring and an all-disabled layout are
 rejected. Rules are emitted enabled-first (stable), so outputs are turned on
@@ -127,11 +128,11 @@ def normalize(raw: object, index: int) -> dict:
         if mirror == name:
             raise SpecError(f'{where}.mirror cannot be the monitor itself')
 
-    vrr = raw.get('vrr', 0)
+    vrr = raw.get('vrr')
     if isinstance(vrr, bool):
         vrr = int(vrr)
-    if not _is_int(vrr) or not 0 <= vrr <= 2:
-        raise SpecError(f'{where}.vrr must be 0, 1, 2 or a boolean')
+    if vrr is not None and (not _is_int(vrr) or not 0 <= vrr <= 2):
+        raise SpecError(f'{where}.vrr must be 0, 1, 2, a boolean or null')
 
     bitdepth = raw.get('bitdepth')
     if bitdepth is not None and (not _is_int(bitdepth) or bitdepth not in (8, 10)):
@@ -166,8 +167,10 @@ def lua_table(monitor: dict) -> str:
         f'scale = {format_number(monitor["scale"])}',
         f'transform = {monitor["transform"]}',
         f'disabled = {"false" if monitor["enabled"] else "true"}',
-        f'vrr = {monitor["vrr"]}',
     ]
+    # A per-output vrr overrides misc:vrr; without one the output follows it.
+    if monitor['vrr'] is not None:
+        parts.append(f'vrr = {monitor["vrr"]}')
     if monitor['mirror'] is not None:
         parts.append(f'mirror = {quote_lua(monitor["mirror"])}')
     if monitor['bitdepth'] is not None:

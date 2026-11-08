@@ -30,7 +30,9 @@ QtObject {
     property var monitors: []
     // Layout shown while a preview is pending (live state may lag behind).
     property var _override: null
-    readonly property var liveSpec: DisplayLogic.specFromMonitors(root.monitors)
+    // Per-output VRR from the managed monitors.lua; the others follow misc:vrr.
+    property var fileVrr: ({})
+    readonly property var liveSpec: DisplayLogic.specFromMonitors(root.monitors, root.fileVrr)
     readonly property var values: ({ "display.monitors": root._override ?? root.liveSpec })
     // "missing", "managed" or "unmanaged".
     property string fileState: "missing"
@@ -203,8 +205,18 @@ QtObject {
         watchChanges: true
         printErrors: false
         onFileChanged: reload()
-        onLoaded: root.fileState = DisplayLogic.isManagedText(text()) ? "managed" : "unmanaged"
-        onLoadFailed: root.fileState = "missing"
+        onLoaded: {
+            const content = text();
+            root.fileState = DisplayLogic.isManagedText(content) ? "managed" : "unmanaged";
+            const vrr = DisplayLogic.vrrFromManagedText(content);
+            if (!Logic.deepEqual(vrr, root.fileVrr))
+                root.fileVrr = vrr;
+        }
+        onLoadFailed: {
+            root.fileState = "missing";
+            if (Object.keys(root.fileVrr).length > 0)
+                root.fileVrr = {};
+        }
     }
 
     // Hot-plugged outputs and config reloads show up without reopening the app.

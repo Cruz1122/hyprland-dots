@@ -275,7 +275,7 @@ SettingsPage {
                     row: card.row
                     enabled: card.interactive
                     options: DisplayLogic.VRR_MODES.map(o => ({ value: o.value, label: Translation.tr(o.label) }))
-                    currentValue: card.monitor?.vrr ?? 0
+                    currentValue: card.monitor?.vrr ?? null
                     onPicked: value => card.change("vrr", value)
                 }
             }

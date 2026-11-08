@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -21,7 +22,7 @@ NODE = shutil.which("node")
 NODE_LOADER = r"""
 const fs = require("fs");
 const vm = require("vm");
-const [rulesPath, logicPath, fixturePath] = process.argv.slice(1);
+const [rulesPath, logicPath, fixturePath, managedPath] = process.argv.slice(1);
 const strip = text => text.split("\n").filter(l => !/^\s*\.(pragma|import)\b/.test(l)).join("\n");
 const rules = vm.createContext({});
 vm.runInContext(strip(fs.readFileSync(rulesPath, "utf8")), rules);
@@ -40,6 +41,10 @@ const out = {
 };
 for (const kind of logic.availablePresets(spec))
   out.presets[kind] = logic.preset(spec, infos, kind);
+const managed = fs.readFileSync(managedPath, "utf8");
+out.fileVrr = logic.vrrFromManagedText(managed);
+out.specWithFile = logic.specFromMonitors(infos, out.fileVrr);
+out.unmanagedVrr = logic.vrrFromManagedText(managed.split("\n").slice(1).join("\n"));
 process.stdout.write(JSON.stringify(out));
 """
 
@@ -56,12 +61,25 @@ def load(path: Path) -> dict:
 
 @unittest.skipUnless(NODE, "node is not installed")
 class DisplayLogicRoundTripTests(unittest.TestCase):
+    # A managed monitors.lua as monitorsgen.py writes it: HDMI-A-1 without vrr
+    # (follows misc:vrr), DP-2 fullscreen-only, a quoted name.
+    MANAGED_SPEC = [{"name": "eDP-1", "vrr": 0}, {"name": "HDMI-A-1"},
+                    {"name": "DP-2", "vrr": 2, "enabled": False}, {"name": 'desc:A "B" \\ C', "vrr": 1}]
+
     @classmethod
     def setUpClass(cls) -> None:
-        result = subprocess.run(
-            [NODE, "-e", NODE_LOADER, str(SHELL / "modules/common/functions/DisplayRules.js"),
-             str(SETTINGS / "backends/DisplayLogic.js"), str(FIXTURE)],
-            capture_output=True, text=True, timeout=30)
+        with tempfile.TemporaryDirectory() as tmp:
+            managed = Path(tmp) / "monitors.lua"
+            printed = subprocess.run(
+                [sys.executable, str(MONITORSGEN), "--print", "--spec-json", json.dumps({"monitors": cls.MANAGED_SPEC})],
+                capture_output=True, text=True, timeout=30)
+            if printed.returncode != 0:
+                raise AssertionError(printed.stderr)
+            managed.write_text(printed.stdout, encoding="utf-8")
+            result = subprocess.run(
+                [NODE, "-e", NODE_LOADER, str(SHELL / "modules/common/functions/DisplayRules.js"),
+                 str(SETTINGS / "backends/DisplayLogic.js"), str(FIXTURE), str(managed)],
+                capture_output=True, text=True, timeout=30)
         if result.returncode != 0:
             raise AssertionError(result.stderr)
         cls.out = json.loads(result.stdout)
@@ -80,10 +98,28 @@ class DisplayLogicRoundTripTests(unittest.TestCase):
         self.assertFalse(dp["enabled"])
         self.assertEqual(dp["position"], "auto")
         self.assertEqual(dp["bitdepth"], 10)
-        self.assertEqual(dp["vrr"], 1)
+        # hyprctl's `vrr` says whether VRR is active now, not the mode: without
+        # a managed monitors.lua every output follows misc:vrr.
+        self.assertEqual([m["vrr"] for m in spec], [None, None, None])
+        self.assertNotIn("vrr =", lua_expr(spec).stdout)
         result = lua_expr(spec)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('hl.monitor({ output = "HDMI-A-1", mode = "1920x1080@60.00Hz", position = "1920x0"', result.stdout)
+
+    # Regression: the spec took vrr from hyprctl's "active now" flag, so
+    # keeping any display change wrote vrr = 0 into monitors.lua, which
+    # overrides misc:vrr (fullscreen-only VRR reads as off outside fullscreen).
+    def test_per_output_vrr_comes_from_the_managed_file(self) -> None:
+        self.assertEqual(self.out["fileVrr"], {"eDP-1": 0, "DP-2": 2, 'desc:A "B" \\ C': 1})
+        self.assertEqual(self.out["unmanagedVrr"], {}, "only a file with the marker is trusted")
+        self.assertEqual([m["vrr"] for m in self.out["specWithFile"]], [0, None, 2])
+        result = lua_expr(self.out["specWithFile"])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('output = "eDP-1", mode = "1920x1080@144.00Hz", position = "0x0", scale = 1, '
+                      'transform = 0, disabled = false, vrr = 0', result.stdout)
+        hdmi = [c for c in result.stdout.split("; ") if 'output = "HDMI-A-1"' in c]
+        self.assertEqual(len(hdmi), 1)
+        self.assertNotIn("vrr", hdmi[0])
 
     def test_every_preset_is_accepted_and_keeps_an_output(self) -> None:
         self.assertEqual(sorted(self.out["presets"]), ["extend", "external", "internal", "mirror"])

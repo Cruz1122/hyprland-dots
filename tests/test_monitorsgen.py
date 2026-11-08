@@ -35,8 +35,10 @@ def table(**fields) -> str:
 
 class MonitorsgenFieldTests(unittest.TestCase):
     def test_defaults(self) -> None:
+        # No vrr: the output follows misc:vrr (a per-output vrr overrides it).
         self.assertEqual(table(), '{ output = "eDP-1", mode = "preferred", position = "auto", scale = 1, '
-                                  'transform = 0, disabled = false, vrr = 0 }')
+                                  'transform = 0, disabled = false }')
+        self.assertEqual(table(vrr=None), table())
 
     def test_each_field(self) -> None:
         cases = {
@@ -49,6 +51,7 @@ class MonitorsgenFieldTests(unittest.TestCase):
             'transform': ({'transform': 7}, 'transform = 7'),
             'mirror': ({'mirror': 'HDMI-A-1'}, 'mirror = "HDMI-A-1"'),
             'vrr-int': ({'vrr': 2}, 'vrr = 2'),
+            'vrr-off': ({'vrr': 0}, 'vrr = 0'),
             'vrr-bool': ({'vrr': True}, 'vrr = 1'),
             'bitdepth': ({'bitdepth': 10}, 'bitdepth = 10'),
             'quoting': ({'name': 'desc:Some "Vendor" \\ 1'}, 'output = "desc:Some \\"Vendor\\" \\\\ 1"'),

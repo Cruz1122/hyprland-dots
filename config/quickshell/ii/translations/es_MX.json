@@ -973,6 +973,7 @@
   "Turn Num Lock on when the session starts.": "Activa Bloq Num al iniciar la sesión.",
   "Two- and three-finger presses give right and middle click instead of touchpad areas.": "Pulsar con dos o tres dedos hace clic derecho o central en lugar de usar zonas del panel táctil.",
   "Unfocused windows": "Ventanas sin foco",
+  "Use the global setting": "Usar el ajuste global",
   "Variable refresh rate": "Frecuencia de actualización variable",
   "Variant of each layout, separated by commas in the same order; leave empty for the default.": "Variante de cada distribución, separadas por comas en el mismo orden; déjalo vacío para usar la predeterminada.",
   "Wheel step threshold": "Umbral del paso de la rueda",

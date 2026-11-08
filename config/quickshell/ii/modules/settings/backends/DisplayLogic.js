@@ -5,8 +5,8 @@
 //
 // A layout ("spec") is the list monitorsgen.py accepts:
 // [{ name, enabled, mode, position, scale, transform, mirror, vrr, bitdepth }]
-// where position is "auto" or { x, y }. `infos` are the raw objects from
-// `hyprctl -j monitors all`.
+// where position is "auto" or { x, y } and vrr is null when the output follows
+// misc:vrr. `infos` are the raw objects from `hyprctl -j monitors all`.
 
 // Must equal MARKER in scripts/settings/monitorsgen.py (tests compare them).
 var MONITORS_MARKER = "-- managed by the settings app (scripts/settings/monitorsgen.py); manual edits are overwritten";
@@ -24,7 +24,9 @@ var TRANSFORMS = [
     { value: 7, label: "Flipped, 270°" }
 ];
 
+// null leaves the output on the global misc:vrr (Windows and effects).
 var VRR_MODES = [
+    { value: null, label: "Use the global setting" },
     { value: 0, label: "Off" },
     { value: 1, label: "On" },
     { value: 2, label: "Fullscreen only" }
@@ -76,8 +78,13 @@ function mirrorName(infos, mirrorOf) {
     return null;
 }
 
-function specFromMonitors(infos) {
+// `fileVrr` ({ output: mode }, from vrrFromManagedText) supplies per-output
+// VRR: hyprctl only reports whether VRR is active right now, and writing that
+// back as a per-output mode would override misc:vrr (fullscreen-only VRR
+// reads as off outside fullscreen). Outputs without one keep following it.
+function specFromMonitors(infos, fileVrr) {
     var sorted = (infos || []).slice().sort(function (a, b) { return a.id - b.id; });
+    var vrrByName = fileVrr || {};
     return sorted.map(function (m) {
         var enabled = !m.disabled;
         return {
@@ -88,7 +95,7 @@ function specFromMonitors(infos) {
             scale: enabled && m.scale >= 0.25 ? _round(m.scale) : 1,
             transform: enabled ? (m.transform || 0) : 0,
             mirror: mirrorName(sorted, m.mirrorOf),
-            vrr: m.vrr ? 1 : 0,
+            vrr: Object.prototype.hasOwnProperty.call(vrrByName, m.name) ? vrrByName[m.name] : null,
             bitdepth: /2101010/.test(m.currentFormat || "") ? 10 : null
         };
     });
@@ -381,4 +388,20 @@ function generatorArgs(script, output, spec, mode, force) {
 
 function isManagedText(text) {
     return String(text).split("\n")[0] === MONITORS_MARKER;
+}
+
+// Per-output VRR stated in a managed monitors.lua (monitorsgen.py lines):
+// { output name: mode }. Outputs written without `vrr` are absent.
+function vrrFromManagedText(text) {
+    var out = {};
+    if (!isManagedText(text))
+        return out;
+    var line = /^hl\.monitor\(\{ output = "((?:[^"\\]|\\.)*)", .*?\bvrr = (\d+)\b/;
+    var lines = String(text).split("\n");
+    for (var i = 0; i < lines.length; i++) {
+        var match = line.exec(lines[i]);
+        if (match)
+            out[match[1].replace(/\\(.)/g, "$1")] = Number(match[2]);
+    }
+    return out;
 }
