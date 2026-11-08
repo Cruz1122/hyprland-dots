@@ -3,6 +3,404 @@
   "title": "Keyboard and input",
   "icon": "keyboard",
   "description": "Keyboard layout, mouse, touchpad and shortcuts.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "keyboard",
+      "title": "Keyboard",
+      "icon": "keyboard",
+      "description": "Layout changes apply right away and ask for confirmation, so a wrong layout reverts on its own."
+    },
+    {
+      "id": "mouse",
+      "title": "Mouse and pointer",
+      "icon": "mouse"
+    },
+    {
+      "id": "touchpad",
+      "title": "Touchpad",
+      "icon": "touchpad_mouse"
+    },
+    {
+      "id": "scrolling",
+      "title": "Scrolling in the shell",
+      "icon": "swipe_vertical",
+      "description": "How lists and panels of the shell react to the mouse wheel and the touchpad."
+    },
+    {
+      "id": "shortcuts",
+      "title": "Keyboard shortcuts",
+      "icon": "keyboard_command_key"
+    }
+  ],
+  "entries": [
+    {
+      "key": "hyprland.input.kb_layout",
+      "section": "keyboard",
+      "label": "Keyboard layouts",
+      "description": "Layouts you can switch between; the first one is the default.",
+      "icon": "language",
+      "backend": "hyprland",
+      "path": "input.kb_layout",
+      "option": "input:kb_layout",
+      "type": "list",
+      "widget": "custom",
+      "risky": true,
+      "validate": {
+        "regex": "^[A-Za-z0-9_-]+$",
+        "nonEmpty": true
+      },
+      "keywords": [
+        "xkb",
+        "distribución",
+        "idioma",
+        "layout"
+      ]
+    },
+    {
+      "key": "hyprland.input.kb_variant",
+      "section": "keyboard",
+      "label": "Layout variants",
+      "description": "Variant of each layout, separated by commas in the same order; leave empty for the default.",
+      "icon": "translate",
+      "backend": "hyprland",
+      "path": "input.kb_variant",
+      "option": "input:kb_variant",
+      "type": "string",
+      "risky": true,
+      "validate": {
+        "regex": "^[A-Za-z0-9_,()-]*$",
+        "maxLength": 200
+      },
+      "placeholder": "intl",
+      "keywords": [
+        "xkb",
+        "variante",
+        "dead keys"
+      ]
+    },
+    {
+      "key": "hyprland.input.kb_options",
+      "section": "keyboard",
+      "label": "XKB options",
+      "description": "Extra keyboard behavior, such as grp:alt_shift_toggle or caps:escape.",
+      "icon": "settings_applications",
+      "backend": "hyprland",
+      "path": "input.kb_options",
+      "option": "input:kb_options",
+      "type": "list",
+      "risky": true,
+      "validate": {
+        "regex": "^[A-Za-z0-9_]+:[A-Za-z0-9_]+$"
+      },
+      "keywords": [
+        "xkb",
+        "opciones",
+        "caps lock",
+        "compose"
+      ]
+    },
+    {
+      "key": "hyprland.input.repeat_rate",
+      "section": "keyboard",
+      "label": "Repeat rate",
+      "description": "Characters per second while a key is held down.",
+      "icon": "keyboard_double_arrow_right",
+      "backend": "hyprland",
+      "path": "input.repeat_rate",
+      "option": "input:repeat_rate",
+      "type": "int",
+      "min": 10,
+      "max": 100,
+      "unit": "/s"
+    },
+    {
+      "key": "hyprland.input.repeat_delay",
+      "section": "keyboard",
+      "label": "Repeat delay",
+      "description": "Time a key must be held before it repeats.",
+      "icon": "timer",
+      "backend": "hyprland",
+      "path": "input.repeat_delay",
+      "option": "input:repeat_delay",
+      "type": "int",
+      "min": 150,
+      "max": 1000,
+      "step": 50,
+      "unit": "ms"
+    },
+    {
+      "key": "hyprland.input.numlock_by_default",
+      "section": "keyboard",
+      "label": "Num Lock on at startup",
+      "description": "Turn Num Lock on when the session starts.",
+      "icon": "dialpad",
+      "backend": "hyprland",
+      "path": "input.numlock_by_default",
+      "option": "input:numlock_by_default",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.input.sensitivity",
+      "section": "mouse",
+      "label": "Pointer speed",
+      "description": "Pointer sensitivity: 0 keeps the device speed.",
+      "icon": "speed",
+      "backend": "hyprland",
+      "path": "input.sensitivity",
+      "option": "input:sensitivity",
+      "type": "real",
+      "min": -1,
+      "max": 1,
+      "step": 0.05,
+      "decimals": 2
+    },
+    {
+      "key": "hyprland.input.accel_profile",
+      "section": "mouse",
+      "label": "Acceleration",
+      "description": "How pointer speed follows the movement speed.",
+      "icon": "trending_up",
+      "backend": "hyprland",
+      "path": "input.accel_profile",
+      "option": "input:accel_profile",
+      "type": "enum",
+      "widget": "segmented",
+      "options": [
+        {
+          "value": "",
+          "label": "Device default"
+        },
+        {
+          "value": "adaptive",
+          "label": "Adaptive"
+        },
+        {
+          "value": "flat",
+          "label": "Flat"
+        }
+      ]
+    },
+    {
+      "key": "hyprland.input.natural_scroll",
+      "section": "mouse",
+      "label": "Natural scrolling",
+      "description": "Content moves in the same direction as the wheel.",
+      "icon": "swap_vert",
+      "backend": "hyprland",
+      "path": "input.natural_scroll",
+      "option": "input:natural_scroll",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.input.follow_mouse",
+      "section": "mouse",
+      "label": "Focus follows the mouse",
+      "description": "How keyboard focus follows the pointer.",
+      "icon": "ads_click",
+      "backend": "hyprland",
+      "path": "input.follow_mouse",
+      "option": "input:follow_mouse",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Click to focus"
+        },
+        {
+          "value": 1,
+          "label": "Always follow"
+        },
+        {
+          "value": 2,
+          "label": "Detached from the keyboard"
+        },
+        {
+          "value": 3,
+          "label": "Separate for mouse and keyboard"
+        }
+      ]
+    },
+    {
+      "key": "hyprland.cursor.inactive_timeout",
+      "section": "mouse",
+      "label": "Hide idle cursor",
+      "description": "Seconds without movement before the cursor hides; 0 never hides it.",
+      "icon": "visibility_off",
+      "backend": "hyprland",
+      "path": "cursor.inactive_timeout",
+      "option": "cursor:inactive_timeout",
+      "type": "real",
+      "min": 0,
+      "max": 20,
+      "step": 0.5,
+      "decimals": 1,
+      "unit": "s"
+    },
+    {
+      "key": "hyprland.input.touchpad.disable_while_typing",
+      "section": "touchpad",
+      "label": "Disable while typing",
+      "description": "Ignore the touchpad while you type.",
+      "icon": "keyboard_hide",
+      "backend": "hyprland",
+      "path": "input.touchpad.disable_while_typing",
+      "option": "input:touchpad:disable_while_typing",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.input.touchpad.tap_to_click",
+      "section": "touchpad",
+      "label": "Tap to click",
+      "description": "Tap with one, two or three fingers for left, right and middle click.",
+      "icon": "touch_app",
+      "backend": "hyprland",
+      "path": "input.touchpad.tap_to_click",
+      "option": "input:touchpad:tap-to-click",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.input.touchpad.natural_scroll",
+      "section": "touchpad",
+      "label": "Natural scrolling",
+      "description": "Content follows your fingers.",
+      "icon": "swap_vert",
+      "backend": "hyprland",
+      "path": "input.touchpad.natural_scroll",
+      "option": "input:touchpad:natural_scroll",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.input.touchpad.scroll_factor",
+      "section": "touchpad",
+      "label": "Scroll speed",
+      "description": "Multiplier of the touchpad scroll distance.",
+      "icon": "speed",
+      "backend": "hyprland",
+      "path": "input.touchpad.scroll_factor",
+      "option": "input:touchpad:scroll_factor",
+      "type": "real",
+      "min": 0.1,
+      "max": 3,
+      "step": 0.1,
+      "decimals": 1,
+      "unit": "×",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.input.touchpad.clickfinger_behavior",
+      "section": "touchpad",
+      "label": "Click with fingers",
+      "description": "Two- and three-finger presses give right and middle click instead of touchpad areas.",
+      "icon": "back_hand",
+      "backend": "hyprland",
+      "path": "input.touchpad.clickfinger_behavior",
+      "option": "input:touchpad:clickfinger_behavior",
+      "type": "bool",
+      "visibleWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "interactions.scrolling.fasterTouchpadScroll",
+      "section": "scrolling",
+      "label": "Custom scroll speed",
+      "description": "Shell lists use the speeds below instead of the default scrolling.",
+      "icon": "fast_forward",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/common/widgets/StyledFlickable.qml",
+        "modules/common/widgets/StyledListView.qml"
+      ]
+    },
+    {
+      "key": "interactions.scrolling.mouseScrollFactor",
+      "section": "scrolling",
+      "label": "Mouse wheel speed",
+      "description": "Distance the shell lists scroll per wheel step.",
+      "icon": "mouse",
+      "backend": "config",
+      "type": "int",
+      "min": 20,
+      "max": 400,
+      "step": 10,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "interactions.scrolling.fasterTouchpadScroll",
+        "equals": true
+      },
+      "consumers": [
+        "modules/common/widgets/StyledFlickable.qml",
+        "modules/common/widgets/StyledListView.qml"
+      ]
+    },
+    {
+      "key": "interactions.scrolling.touchpadScrollFactor",
+      "section": "scrolling",
+      "label": "Touchpad scroll speed",
+      "description": "Distance the shell lists scroll per touchpad movement.",
+      "icon": "speed",
+      "backend": "config",
+      "type": "int",
+      "min": 100,
+      "max": 1000,
+      "step": 25,
+      "enabledWhen": {
+        "key": "interactions.scrolling.fasterTouchpadScroll",
+        "equals": true
+      },
+      "consumers": [
+        "modules/common/widgets/StyledFlickable.qml",
+        "modules/common/widgets/StyledListView.qml"
+      ]
+    },
+    {
+      "key": "interactions.scrolling.mouseScrollDeltaThreshold",
+      "section": "scrolling",
+      "label": "Wheel step threshold",
+      "description": "Scroll deltas at or above this value count as mouse wheel steps instead of touchpad movement.",
+      "icon": "tune",
+      "backend": "config",
+      "type": "int",
+      "min": 10,
+      "max": 240,
+      "step": 10,
+      "enabledWhen": {
+        "key": "interactions.scrolling.fasterTouchpadScroll",
+        "equals": true
+      },
+      "consumers": [
+        "modules/common/widgets/StyledFlickable.qml",
+        "modules/common/widgets/StyledListView.qml"
+      ]
+    },
+    {
+      "key": "info.input.shortcuts",
+      "section": "shortcuts",
+      "label": "Shortcuts",
+      "description": "Every key binding Hyprland has loaded; edit them in your custom keybinds file.",
+      "icon": "keyboard_command_key",
+      "backend": "readonly",
+      "type": "custom",
+      "widget": "custom",
+      "keywords": [
+        "keybinds",
+        "atajos",
+        "binds",
+        "teclas"
+      ]
+    }
+  ]
 }

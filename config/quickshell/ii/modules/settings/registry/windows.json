@@ -3,6 +3,571 @@
   "title": "Windows and effects",
   "icon": "select_window",
   "description": "Gaps, borders, blur, shadows, animations and window behavior.",
-  "sections": [],
-  "entries": []
+  "sections": [
+    {
+      "id": "gameMode",
+      "title": "Game Mode",
+      "icon": "sports_esports"
+    },
+    {
+      "id": "spacing",
+      "title": "Spacing and borders",
+      "icon": "padding"
+    },
+    {
+      "id": "blur",
+      "title": "Blur",
+      "icon": "blur_on"
+    },
+    {
+      "id": "shadows",
+      "title": "Shadows",
+      "icon": "shadow"
+    },
+    {
+      "id": "dimming",
+      "title": "Dimming",
+      "icon": "brightness_medium"
+    },
+    {
+      "id": "opacity",
+      "title": "Opacity",
+      "icon": "opacity"
+    },
+    {
+      "id": "animations",
+      "title": "Animations",
+      "icon": "animation"
+    },
+    {
+      "id": "behavior",
+      "title": "Behavior",
+      "icon": "tune"
+    },
+    {
+      "id": "gestures",
+      "title": "Gestures",
+      "icon": "swipe"
+    },
+    {
+      "id": "rules",
+      "title": "Window rules",
+      "icon": "rule"
+    }
+  ],
+  "entries": [
+    {
+      "key": "info.windows.gameMode",
+      "section": "gameMode",
+      "label": "Game Mode is on",
+      "description": "While it is on, Game Mode overrides gaps, borders, rounding, blur, shadows and animations; your values return when you turn it off.",
+      "icon": "sports_esports",
+      "backend": "readonly",
+      "type": "info",
+      "visibleWhen": {
+        "capability": "gameMode"
+      }
+    },
+    {
+      "key": "hyprland.general.gaps_in",
+      "section": "spacing",
+      "label": "Gaps between windows",
+      "description": "Space between tiled windows, in pixels.",
+      "icon": "space_bar",
+      "backend": "hyprland",
+      "path": "general.gaps_in",
+      "option": "general:gaps_in",
+      "type": "int",
+      "min": 0,
+      "max": 40,
+      "unit": "px",
+      "note": "Applies the same gap to every side."
+    },
+    {
+      "key": "hyprland.general.gaps_out",
+      "section": "spacing",
+      "label": "Gaps at the screen edges",
+      "description": "Space between windows and the edges of the monitor, in pixels.",
+      "icon": "fit_screen",
+      "backend": "hyprland",
+      "path": "general.gaps_out",
+      "option": "general:gaps_out",
+      "type": "int",
+      "min": 0,
+      "max": 60,
+      "unit": "px",
+      "note": "Applies the same gap to every side."
+    },
+    {
+      "key": "hyprland.general.border_size",
+      "section": "spacing",
+      "label": "Border width",
+      "description": "Width of the border around windows, in pixels.",
+      "icon": "border_outer",
+      "backend": "hyprland",
+      "path": "general.border_size",
+      "option": "general:border_size",
+      "type": "int",
+      "min": 0,
+      "max": 10,
+      "unit": "px"
+    },
+    {
+      "key": "hyprland.decoration.rounding",
+      "section": "spacing",
+      "label": "Corner radius",
+      "description": "Rounding of window corners, in pixels.",
+      "icon": "rounded_corner",
+      "backend": "hyprland",
+      "path": "decoration.rounding",
+      "option": "decoration:rounding",
+      "type": "int",
+      "min": 0,
+      "max": 40,
+      "unit": "px"
+    },
+    {
+      "key": "hyprland.decoration.rounding_power",
+      "section": "spacing",
+      "label": "Corner curve",
+      "description": "Shape of rounded corners: 2 is a circle, higher values are squarer.",
+      "icon": "line_curve",
+      "backend": "hyprland",
+      "path": "decoration.rounding_power",
+      "option": "decoration:rounding_power",
+      "type": "real",
+      "min": 1,
+      "max": 10,
+      "step": 0.1,
+      "decimals": 1
+    },
+    {
+      "key": "hyprland.general.resize_on_border",
+      "section": "spacing",
+      "label": "Resize from borders",
+      "description": "Drag window borders and gaps to resize windows.",
+      "icon": "open_in_full",
+      "backend": "hyprland",
+      "path": "general.resize_on_border",
+      "option": "general:resize_on_border",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.decoration.blur.enabled",
+      "section": "blur",
+      "label": "Blur",
+      "description": "Blur what is behind transparent windows.",
+      "icon": "blur_on",
+      "backend": "hyprland",
+      "path": "decoration.blur.enabled",
+      "option": "decoration:blur:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.decoration.blur.size",
+      "section": "blur",
+      "label": "Blur size",
+      "description": "Radius of the blur.",
+      "icon": "blur_circular",
+      "backend": "hyprland",
+      "path": "decoration.blur.size",
+      "option": "decoration:blur:size",
+      "type": "int",
+      "min": 1,
+      "max": 20,
+      "enabledWhen": {
+        "key": "hyprland.decoration.blur.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.blur.passes",
+      "section": "blur",
+      "label": "Blur passes",
+      "description": "More passes give a stronger blur and use more GPU.",
+      "icon": "layers",
+      "backend": "hyprland",
+      "path": "decoration.blur.passes",
+      "option": "decoration:blur:passes",
+      "type": "int",
+      "min": 1,
+      "max": 6,
+      "enabledWhen": {
+        "key": "hyprland.decoration.blur.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.blur.xray",
+      "section": "blur",
+      "label": "X-ray blur",
+      "description": "Floating windows blur the wallpaper instead of the windows below them.",
+      "icon": "visibility",
+      "backend": "hyprland",
+      "path": "decoration.blur.xray",
+      "option": "decoration:blur:xray",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.decoration.blur.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.blur.popups",
+      "section": "blur",
+      "label": "Blur popups",
+      "description": "Also blur menus and popups.",
+      "icon": "menu",
+      "backend": "hyprland",
+      "path": "decoration.blur.popups",
+      "option": "decoration:blur:popups",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.decoration.blur.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.shadow.enabled",
+      "section": "shadows",
+      "label": "Shadows",
+      "description": "Draw a shadow behind windows.",
+      "icon": "shadow",
+      "backend": "hyprland",
+      "path": "decoration.shadow.enabled",
+      "option": "decoration:shadow:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.decoration.shadow.range",
+      "section": "shadows",
+      "label": "Shadow size",
+      "description": "How far the shadow spreads, in pixels.",
+      "icon": "expand",
+      "backend": "hyprland",
+      "path": "decoration.shadow.range",
+      "option": "decoration:shadow:range",
+      "type": "int",
+      "min": 0,
+      "max": 100,
+      "unit": "px",
+      "enabledWhen": {
+        "key": "hyprland.decoration.shadow.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.shadow.render_power",
+      "section": "shadows",
+      "label": "Shadow falloff",
+      "description": "Higher values make the shadow fade faster.",
+      "icon": "gradient",
+      "backend": "hyprland",
+      "path": "decoration.shadow.render_power",
+      "option": "decoration:shadow:render_power",
+      "type": "int",
+      "min": 1,
+      "max": 4,
+      "enabledWhen": {
+        "key": "hyprland.decoration.shadow.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.dim_inactive",
+      "section": "dimming",
+      "label": "Dim inactive windows",
+      "description": "Darken windows that do not have focus.",
+      "icon": "brightness_6",
+      "backend": "hyprland",
+      "path": "decoration.dim_inactive",
+      "option": "decoration:dim_inactive",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.decoration.dim_strength",
+      "section": "dimming",
+      "label": "Inactive dim strength",
+      "description": "How much inactive windows are darkened.",
+      "icon": "contrast",
+      "backend": "hyprland",
+      "path": "decoration.dim_strength",
+      "option": "decoration:dim_strength",
+      "type": "real",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2,
+      "uiScale": 100,
+      "unit": "%",
+      "enabledWhen": {
+        "key": "hyprland.decoration.dim_inactive",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.decoration.dim_special",
+      "section": "dimming",
+      "label": "Special workspace dim",
+      "description": "How much the screen behind a special workspace is darkened.",
+      "icon": "flip_to_back",
+      "backend": "hyprland",
+      "path": "decoration.dim_special",
+      "option": "decoration:dim_special",
+      "type": "real",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2,
+      "uiScale": 100,
+      "unit": "%"
+    },
+    {
+      "key": "hyprland.decoration.active_opacity",
+      "section": "opacity",
+      "label": "Focused windows",
+      "description": "Opacity of the focused window.",
+      "icon": "select_window",
+      "backend": "hyprland",
+      "path": "decoration.active_opacity",
+      "option": "decoration:active_opacity",
+      "type": "real",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2,
+      "uiScale": 100,
+      "unit": "%"
+    },
+    {
+      "key": "hyprland.decoration.inactive_opacity",
+      "section": "opacity",
+      "label": "Unfocused windows",
+      "description": "Opacity of windows without focus.",
+      "icon": "tab_unselected",
+      "backend": "hyprland",
+      "path": "decoration.inactive_opacity",
+      "option": "decoration:inactive_opacity",
+      "type": "real",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2,
+      "uiScale": 100,
+      "unit": "%"
+    },
+    {
+      "key": "hyprland.decoration.fullscreen_opacity",
+      "section": "opacity",
+      "label": "Fullscreen windows",
+      "description": "Opacity of fullscreen windows.",
+      "icon": "fullscreen",
+      "backend": "hyprland",
+      "path": "decoration.fullscreen_opacity",
+      "option": "decoration:fullscreen_opacity",
+      "type": "real",
+      "min": 0,
+      "max": 1,
+      "step": 0.01,
+      "decimals": 2,
+      "uiScale": 100,
+      "unit": "%"
+    },
+    {
+      "key": "hyprland.animations.enabled",
+      "section": "animations",
+      "label": "Animations",
+      "description": "Animate windows, workspaces and layers.",
+      "icon": "animation",
+      "backend": "hyprland",
+      "path": "animations.enabled",
+      "option": "animations:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.misc.animate_manual_resizes",
+      "section": "animations",
+      "label": "Animate manual resizes",
+      "description": "Animate windows while you resize them.",
+      "icon": "aspect_ratio",
+      "backend": "hyprland",
+      "path": "misc.animate_manual_resizes",
+      "option": "misc:animate_manual_resizes",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.misc.animate_mouse_windowdragging",
+      "section": "animations",
+      "label": "Animate window dragging",
+      "description": "Animate windows while you drag them with the mouse.",
+      "icon": "drag_pan",
+      "backend": "hyprland",
+      "path": "misc.animate_mouse_windowdragging",
+      "option": "misc:animate_mouse_windowdragging",
+      "type": "bool",
+      "enabledWhen": {
+        "key": "hyprland.animations.enabled",
+        "equals": true
+      }
+    },
+    {
+      "key": "hyprland.dwindle.preserve_split",
+      "section": "behavior",
+      "label": "Keep split direction",
+      "description": "Keep the split direction of a window when its neighbors change.",
+      "icon": "vertical_split",
+      "backend": "hyprland",
+      "path": "dwindle.preserve_split",
+      "option": "dwindle:preserve_split",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.dwindle.smart_split",
+      "section": "behavior",
+      "label": "Split by cursor position",
+      "description": "Choose the split direction from where the cursor is on the window.",
+      "icon": "splitscreen",
+      "backend": "hyprland",
+      "path": "dwindle.smart_split",
+      "option": "dwindle:smart_split",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.misc.focus_on_activate",
+      "section": "behavior",
+      "label": "Focus windows that ask for it",
+      "description": "Give focus to windows that request activation.",
+      "icon": "ads_click",
+      "backend": "hyprland",
+      "path": "misc.focus_on_activate",
+      "option": "misc:focus_on_activate",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.misc.enable_swallow",
+      "section": "behavior",
+      "label": "Window swallowing",
+      "description": "A terminal hides while an app it launched is open.",
+      "icon": "terminal",
+      "backend": "hyprland",
+      "path": "misc.enable_swallow",
+      "option": "misc:enable_swallow",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.general.snap.enabled",
+      "section": "behavior",
+      "label": "Snap floating windows",
+      "description": "Floating windows snap to edges and other windows.",
+      "icon": "grid_guides",
+      "backend": "hyprland",
+      "path": "general.snap.enabled",
+      "option": "general:snap:enabled",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.misc.vrr",
+      "section": "behavior",
+      "label": "Variable refresh rate",
+      "description": "Adaptive sync for monitors that support it.",
+      "icon": "speed",
+      "backend": "hyprland",
+      "path": "misc.vrr",
+      "option": "misc:vrr",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": 0,
+          "label": "Off"
+        },
+        {
+          "value": 1,
+          "label": "On"
+        },
+        {
+          "value": 2,
+          "label": "Fullscreen only"
+        },
+        {
+          "value": 3,
+          "label": "Fullscreen games only"
+        }
+      ]
+    },
+    {
+      "key": "hyprland.general.allow_tearing",
+      "section": "behavior",
+      "label": "Allow tearing",
+      "description": "Let games that request it present frames immediately, which lowers latency but can show tearing.",
+      "icon": "bolt",
+      "backend": "hyprland",
+      "path": "general.allow_tearing",
+      "option": "general:allow_tearing",
+      "type": "bool"
+    },
+    {
+      "key": "hyprland.gestures.workspace_swipe_invert",
+      "section": "gestures",
+      "label": "Invert workspace swipe",
+      "description": "Swipe direction follows the content instead of the fingers.",
+      "icon": "swap_horiz",
+      "backend": "hyprland",
+      "path": "gestures.workspace_swipe_invert",
+      "option": "gestures:workspace_swipe_invert",
+      "type": "bool",
+      "enabledWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.gestures.workspace_swipe_distance",
+      "section": "gestures",
+      "label": "Swipe distance",
+      "description": "Distance of a full workspace swipe, in pixels.",
+      "icon": "straighten",
+      "backend": "hyprland",
+      "path": "gestures.workspace_swipe_distance",
+      "option": "gestures:workspace_swipe_distance",
+      "type": "int",
+      "min": 100,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "enabledWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "hyprland.gestures.workspace_swipe_create_new",
+      "section": "gestures",
+      "label": "Swipe to a new workspace",
+      "description": "Swiping past the last workspace creates a new one.",
+      "icon": "add_box",
+      "backend": "hyprland",
+      "path": "gestures.workspace_swipe_create_new",
+      "option": "gestures:workspace_swipe_create_new",
+      "type": "bool",
+      "enabledWhen": {
+        "capability": "touchpad"
+      }
+    },
+    {
+      "key": "action.windows.openRules",
+      "section": "rules",
+      "label": "Window rules",
+      "description": "Window rules are kept in Lua files; open your custom rules to review or edit them.",
+      "note": "Changes apply when you save the file.",
+      "icon": "rule",
+      "backend": "action",
+      "type": "action",
+      "action": "openRules",
+      "actionLabel": "Open file",
+      "actionIcon": "open_in_new"
+    }
+  ]
 }
