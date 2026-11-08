@@ -1,0 +1,8 @@
+{
+  "id": "power",
+  "title": "Power and lock",
+  "icon": "power_settings_new",
+  "description": "Power profile, battery, idle timeouts and the lock screen.",
+  "sections": [],
+  "entries": []
+}

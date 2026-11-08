@@ -14,9 +14,13 @@ def read(path: str) -> str:
 
 class ScreenRecordingContractTest(unittest.TestCase):
     def test_settings_page_registers_screen_recording_page(self) -> None:
-        settings_qml = read("config/quickshell/ii/settings.qml")
-        self.assertIn("modules/settings/ScreenRecordingConfig.qml", settings_qml)
-        self.assertIn("Translation.tr(\"Screen Recording\")", settings_qml)
+        pages = json.loads(read("config/quickshell/ii/modules/settings/registry/pages.json"))
+        tools = next(group for group in pages["groups"] if group["id"] == "tools")
+        self.assertIn("capture", tools["pages"])
+        capture = json.loads(read("config/quickshell/ii/modules/settings/registry/capture.json"))
+        self.assertEqual(capture["title"], "Capture and recording")
+        self.assertIn("recording", [section["id"] for section in capture["sections"]])
+        self.assertIn('pageId: "capture"', read("config/quickshell/ii/modules/settings/pages/CapturePage.qml"))
 
     def test_config_declares_screen_recording_defaults(self) -> None:
         config_qml = read("config/quickshell/ii/modules/common/ConfigOptions.qml")
@@ -83,23 +87,12 @@ class ScreenRecordingContractTest(unittest.TestCase):
         self.assertNotIn("[Directories.recordScriptPath, \"--fullscreen\", \"--sound\"]", util_buttons_qml)
         self.assertIn('title: Translation.tr("Screen record")', util_buttons_qml)
 
-    def test_screen_recording_page_exposes_actions_and_bar_customization(self) -> None:
-        page_qml = read("config/quickshell/ii/modules/settings/ScreenRecordingConfig.qml")
-        for expected in [
-            "Record screen",
-            "Record region",
-            "Pause / Resume",
-            "Stop",
-            "Bar button",
-            "screenRecord.barButtonAction",
-        ]:
-            self.assertIn(expected, page_qml)
-        self.assertNotIn("title: Translation.tr(\"Status\")", page_qml)
-
     def test_registry_declares_bar_button_action_enum(self) -> None:
-        registry_qml = read("config/quickshell/ii/services/SettingsRegistry.qml")
-        self.assertIn("screenRecord.barButtonAction", registry_qml)
-        self.assertIn("options: [\"fullscreen\", \"region\", \"pause\", \"stop\"]", registry_qml)
+        capture = json.loads(read("config/quickshell/ii/modules/settings/registry/capture.json"))
+        entry = next(e for e in capture["entries"] if e.get("key") == "screenRecord.barButtonAction")
+        self.assertEqual(entry["backend"], "config")
+        self.assertEqual(entry["type"], "enum")
+        self.assertEqual([o["value"] for o in entry["options"]], ["fullscreen", "region", "pause", "stop"])
 
 
 if __name__ == "__main__":

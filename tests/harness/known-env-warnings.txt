@@ -11,3 +11,7 @@ Failed to register with host portal
 # The sandbox has no icon theme and a private XDG_DATA_HOME, so the About page
 # logos installed outside the repository (~/.local/share/icons, distro logo) are absent.
 Could not load icon "(illogical-impulse|cachyos)" at size
+# No PipeWire socket inside the sandbox (AudioBackend binds Quickshell.Services.Pipewire).
+Failed to connect pipewire context
+# No system bus inside the sandbox (PowerBackend binds Quickshell.Services.UPower).
+(UPower|PowerProfiles) services? will not work

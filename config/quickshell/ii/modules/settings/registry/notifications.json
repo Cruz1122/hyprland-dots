@@ -1,0 +1,8 @@
+{
+  "id": "notifications",
+  "title": "Notifications",
+  "icon": "notifications",
+  "description": "Do Not Disturb, timeouts and where notifications appear.",
+  "sections": [],
+  "entries": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "bar",
+  "title": "Bar",
+  "icon": "toast",
+  "iconRotation": 180,
+  "description": "Position, layout, modules and tray of the bar.",
+  "sections": [],
+  "entries": []
+}

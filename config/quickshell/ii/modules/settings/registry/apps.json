@@ -1,0 +1,8 @@
+{
+  "id": "apps",
+  "title": "Applications",
+  "icon": "apps",
+  "description": "Default applications and the commands the shell launches.",
+  "sections": [],
+  "entries": []
+}

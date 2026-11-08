@@ -1,0 +1,8 @@
+{
+  "id": "search",
+  "title": "Search",
+  "icon": "manage_search",
+  "description": "The launcher, its prefixes and web search.",
+  "sections": [],
+  "entries": []
+}

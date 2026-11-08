@@ -1,75 +1,63 @@
 import QtQuick
 import Quickshell
 import qs.modules.common
-import qs.modules.settings.components
 
+// Shows one page at a time. Pages are created on first visit and kept, so
+// switching back is instant and keeps the scroll position. The previous page
+// stays visible until the next one exists, so there is no blank frame.
 Item {
     id: root
 
-    property var pages: []
-    property int currentIndex: 0
-    property bool ready: Config.ready
+    property string currentId: ""
+    readonly property Item currentItem: root._current
+    // False while the requested page is being created.
+    readonly property bool ready: root._current !== null && root._currentId === root.currentId
+    property var _cache: ({})
+    property Item _current: null
+    property string _currentId: ""
 
-    Loader {
-        id: pageLoader
+    signal pageLoaded(string pageId, Item item)
+
+    // `source` is relative to the shell root (Quickshell.shellPath).
+    function setSource(pageId, source) {
+        root.currentId = pageId;
+        let item = root._cache[pageId] ?? null;
+        if (!item) {
+            const component = Qt.createComponent(Quickshell.shellPath(source));
+            if (component.status !== Component.Ready) {
+                console.warn(`[SettingsPageHost] ${source}: ${component.errorString()}`);
+                return;
+            }
+            item = component.createObject(container, { visible: false });
+            if (!item) {
+                console.warn(`[SettingsPageHost] ${source}: could not create the page`);
+                return;
+            }
+            item.anchors.fill = container;
+            root._cache[pageId] = item;
+        }
+        if (root._current && root._current !== item)
+            root._current.visible = false;
+        item.opacity = 0;
+        item.visible = true;
+        root._current = item;
+        root._currentId = pageId;
+        fadeIn.restart();
+        root.pageLoaded(pageId, item);
+    }
+
+    Item {
+        id: container
         anchors.fill: parent
-        active: root.ready && root.pages && root.pages.length > 0
-        source: root.pages && root.pages.length > 0 ? Quickshell.shellPath(root.pages[root.currentIndex].component) : ""
-        opacity: 1
+    }
 
-        Connections {
-            target: root
-            function onCurrentIndexChanged() {
-                pageSwitch.complete()
-                pageSwitch.start()
-            }
-        }
-
-        SequentialAnimation {
-            id: pageSwitch
-
-            NumberAnimation {
-                target: pageLoader
-                property: "opacity"
-                from: 1
-                to: 0
-                duration: 100
-                easing.type: Appearance.animation.elementMoveExit.type
-                easing.bezierCurve: Appearance.animationCurves.emphasizedFirstHalf
-            }
-
-            ParallelAnimation {
-                PropertyAction {
-                    target: pageLoader
-                    property: "source"
-                    value: root.pages && root.pages.length > 0 ? Quickshell.shellPath(root.pages[root.currentIndex].component) : ""
-                }
-                PropertyAction {
-                    target: pageLoader
-                    property: "anchors.topMargin"
-                    value: 20
-                }
-            }
-
-            ParallelAnimation {
-                NumberAnimation {
-                    target: pageLoader
-                    property: "opacity"
-                    from: 0
-                    to: 1
-                    duration: 200
-                    easing.type: Appearance.animation.elementMoveEnter.type
-                    easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
-                }
-                NumberAnimation {
-                    target: pageLoader
-                    property: "anchors.topMargin"
-                    to: 0
-                    duration: 200
-                    easing.type: Appearance.animation.elementMoveEnter.type
-                    easing.bezierCurve: Appearance.animationCurves.emphasizedLastHalf
-                }
-            }
-        }
+    NumberAnimation {
+        id: fadeIn
+        target: root._current
+        property: "opacity"
+        from: 0
+        to: 1
+        duration: 160
+        easing.type: Easing.OutCubic
     }
 }

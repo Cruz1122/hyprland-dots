@@ -1,0 +1,62 @@
+{
+  "id": "capture",
+  "title": "Capture and recording",
+  "icon": "screen_record",
+  "description": "Screenshots, the region selector and screen recording.",
+  "sections": [
+    {
+      "id": "recordingActions",
+      "title": "Recording controls",
+      "icon": "radio_button_checked"
+    },
+    {
+      "id": "recording",
+      "title": "Screen recording",
+      "icon": "videocam"
+    }
+  ],
+  "entries": [
+    {
+      "key": "screenRecord.barButtonAction",
+      "section": "recordingActions",
+      "label": "Left sidebar record button",
+      "description": "What the screen record button in the left sidebar does when clicked.",
+      "icon": "radio_button_checked",
+      "keywords": [
+        "record",
+        "grabar",
+        "grabación",
+        "sidebar",
+        "barra lateral"
+      ],
+      "backend": "config",
+      "type": "enum",
+      "widget": "select",
+      "options": [
+        {
+          "value": "fullscreen",
+          "label": "Record the full screen",
+          "icon": "fullscreen"
+        },
+        {
+          "value": "region",
+          "label": "Record a region",
+          "icon": "crop_free"
+        },
+        {
+          "value": "pause",
+          "label": "Pause or resume",
+          "icon": "pause"
+        },
+        {
+          "value": "stop",
+          "label": "Stop recording",
+          "icon": "stop"
+        }
+      ],
+      "consumers": [
+        "modules/ii/sidebarLeft/SidebarLeftContent.qml"
+      ]
+    }
+  ]
+}

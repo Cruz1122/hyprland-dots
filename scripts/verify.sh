@@ -22,7 +22,8 @@ python -m py_compile config/quickshell/ii/scripts/hyprland/hyprconfigurator.py t
 python -m py_compile config/quickshell/ii/scripts/settings/default-apps.py tests/test_default_apps.py
 python -m py_compile tests/test_record_script.py tests/test_open_settings.py tests/test_main_shell_ipc_contract.py
 python -m py_compile config/quickshell/ii/scripts/grok-roster.py tests/test_grok_roster.py tests/test_grok_open_bot.py
-python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_settings_foundation_contract.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
+python -m py_compile scripts/settingsctl.py tests/test_settingsctl.py tests/test_screen_recording_contract.py tests/test_terminal_colors.py
+python -m py_compile tests/test_settings_contract.py tests/test_settings_qml.py
 python -m unittest discover -s tests -p 'test_*.py'
 if command -v node >/dev/null 2>&1 && test -f tests/browser-extension.test.mjs; then
     node --test tests/browser-extension.test.mjs
@@ -30,5 +31,18 @@ fi
 # Deployment/capture/dry-run are tested with isolated temporary homes, not live state.
 scripts/settingsctl.py validate config/illogical-impulse/config.json >/dev/null
 scripts/settingsctl.py migrate config/illogical-impulse/config.json --dry-run >/dev/null
+
+# Offscreen settings harness (sandboxed, never touches the live session).
+# Exit 77 means a required tool (bwrap, qs, ...) is missing: skipped, not passed.
+run_harness() {
+    local status=0
+    scripts/settings-harness/run.sh "$@" || status=$?
+    if ((status == 77)); then
+        printf 'SKIPPED: settings harness %s (missing tool, see the SKIP line above)\n' "$*"
+    elif ((status != 0)); then
+        exit "$status"
+    fi
+}
+run_harness --strict --discard
 
 printf 'Verification passed.\n'

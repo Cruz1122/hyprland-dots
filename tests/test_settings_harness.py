@@ -27,7 +27,7 @@ class SummarizeTest(unittest.TestCase):
         self.temp.cleanup()
 
     def summarize(self, lines: list[str], *, strict: bool = False, before: dict | None = None,
-                  after: dict | None = None, exit_code: int = 0) -> tuple[int, dict]:
+                  after: dict | None = None, exit_code: int = 0, allow_writes: bool = False) -> tuple[int, dict]:
         log = self.dir / "harness.log"
         log.write_text("\n".join(lines) + "\n", encoding="utf-8")
         args = [sys.executable, str(SUMMARIZE), "--log", str(log), "--known", str(KNOWN),
@@ -38,6 +38,8 @@ class SummarizeTest(unittest.TestCase):
             args += ["--config-before", str(self.dir / "before.json"), "--config-after", str(self.dir / "after.json")]
         if strict:
             args.append("--strict")
+        if allow_writes:
+            args.append("--allow-config-writes")
         result = subprocess.run(args, capture_output=True, text=True, timeout=30)
         return result.returncode, json.loads((self.dir / "report.json").read_text(encoding="utf-8"))
 
@@ -86,6 +88,16 @@ class SummarizeTest(unittest.TestCase):
         for fragment in ("overlapping", "overflow", "popup", "config.json written"):
             self.assertIn(fragment, joined)
         self.assertEqual(data["config"]["changed"], [{"key": "bar.x", "before": 1, "after": 2}])
+
+    def test_allowed_config_writes_are_reported_not_failed(self) -> None:
+        lines = [report({"type": "done"})]
+        code, data = self.summarize(lines, strict=True, before={"bar": {"x": 1}}, after={"bar": {"x": 1}, "y": 2},
+                                    allow_writes=True)
+        self.assertEqual(code, 0, data)
+        self.assertTrue(data["config"]["rewritten"])
+        code, data = self.summarize(lines + ["  WARN qml: broken"], strict=True, before={"a": 1}, after={"a": 2},
+                                    allow_writes=True)
+        self.assertEqual(code, 1, "warnings still fail")
 
     def test_missing_completion_or_unsaved_screenshot_always_fails(self) -> None:
         code, data = self.summarize([report(self.page("bar", saved=False))])

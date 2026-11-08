@@ -91,6 +91,8 @@ def main() -> int:
     parser.add_argument("--out", type=Path, required=True, help="report.json destination")
     parser.add_argument("--exit-code", type=int, default=0, help="exit status of the app process")
     parser.add_argument("--strict", action="store_true", help="fail on warnings, layout findings and config writes")
+    parser.add_argument("--allow-config-writes", action="store_true",
+                        help="report config.json writes as a note instead of a strict failure (interaction drivers)")
     args = parser.parse_args()
 
     parsed = parse_log(args.log, load_known(args.known))
@@ -122,7 +124,7 @@ def main() -> int:
             strict_problems.append(f"{where}: {len(page['overflowX'])} row(s) overflow horizontally")
         if page.get("openPopups", 0) > 0:
             strict_problems.append(f"{where}: {page['openPopups']} popup(s) open after load")
-    if config.get("rewritten"):
+    if config.get("rewritten") and not args.allow_config_writes:
         strict_problems.append(f"config.json written during the run ({len(config.get('changed', []))} key(s) changed)")
 
     report = {

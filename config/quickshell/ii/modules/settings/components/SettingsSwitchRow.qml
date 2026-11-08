@@ -1,19 +1,30 @@
 import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
-import qs.modules.common
-import qs.modules.settings.components
+import qs.modules.common.widgets
 
-SettingsResponsiveRow {
-    id: root
+SettingsRow {
+    id: row
 
-    property alias checked: switchControl.checked
-    signal toggled(bool checked)
+    focusVisible: control.visualFocus
+    activateHandler: () => row.flip()
+    interactHandler: () => row.flip()
 
-    Switch {
-        id: switchControl
-        Layout.alignment: Qt.AlignRight
-        Accessible.name: root.title
-        onToggled: root.toggled(checked)
+    function flip() {
+        control.checked = !control.checked;
+        row.commit(control.checked);
+    }
+
+    onRejected: control.checked = row.value === true
+
+    StyledSwitch {
+        id: control
+        Accessible.name: row.label
+        onToggled: row.commit(control.checked)
+    }
+
+    Binding {
+        target: control
+        property: "checked"
+        value: row.value === true
+        restoreMode: Binding.RestoreNone
     }
 }

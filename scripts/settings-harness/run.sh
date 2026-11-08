@@ -28,7 +28,10 @@ Usage: scripts/settings-harness/run.sh [options]
   --settle MS       Delay before each capture (default: 900)
   --timeout SEC     Kill the app after SEC seconds (default: 300)
   --strict          Fail on app warnings, row overlaps/overflow, open popups and config writes
+  --allow-config-writes
+                    With --strict, report config.json writes instead of failing (interaction drivers)
   --keep            Keep the temporary shell copy and XDG directories
+  --discard         Delete the output directory when the run passes
   -h, --help        Show this help
 
 Outputs (in the output directory): <W>x<H>/<NN>-<page>.png screenshots,
@@ -60,7 +63,9 @@ driver="$harness_src/settings-shot.qml"
 settle=900
 timeout_s=300
 strict=0
+allow_writes=0
 keep=0
+discard=0
 extra_env=()
 
 while (($#)); do
@@ -80,7 +85,9 @@ while (($#)); do
         --settle) settle="${2:?--settle needs a value}"; shift 2 ;;
         --timeout) timeout_s="${2:?--timeout needs a value}"; shift 2 ;;
         --strict) strict=1; shift ;;
+        --allow-config-writes) allow_writes=1; shift ;;
         --keep) keep=1; shift ;;
+        --discard) discard=1; shift ;;
         -h | --help) usage; exit 0 ;;
         *) usage >&2; die "unknown option: $1" ;;
     esac
@@ -131,7 +138,7 @@ out="$(cd -- "$out" && pwd)"
 cleanup() {
     if ((keep)); then
         printf 'kept work tree: %s\n' "$work" >&2
-    elif [[ "$out" == "$work/out" ]]; then
+    elif [[ "$out" == "$work/out" && -d "$out" ]]; then
         rm -rf -- "$work/ii" "$work/xdg" "$work/home" "$work/dbus-session.conf"
     else
         rm -rf -- "$work"
@@ -259,9 +266,18 @@ summary_args=(
 if ((strict)); then
     summary_args+=(--strict)
 fi
+if ((allow_writes)); then
+    summary_args+=(--allow-config-writes)
+fi
 set +e
 python3 "$script_dir/summarize.py" "${summary_args[@]}"
 verdict=$?
 set -e
-printf 'renderer: %s\noutput: %s\n' "$renderer" "$out"
+printf 'renderer: %s\n' "$renderer"
+if ((discard && verdict == 0)); then
+    rm -rf -- "$out"
+    printf 'output: discarded (passed)\n'
+else
+    printf 'output: %s\n' "$out"
+fi
 exit "$verdict"
