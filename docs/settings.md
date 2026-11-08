@@ -247,6 +247,7 @@ Ties: settings, then pages, then sections, then registry order.
 | `modifiedCount(pageId)` | Visible rows of the page with at least one modified key ("Reset page" shows when > 0). |
 | `pendingConfirmation` | `null` or `{ keys, secondsLeft }`. Further risky writes join the batch and restart the countdown. |
 | `confirm()`, `revert()` | Persist or restore the batch. Timeout and window close revert. |
+| `finish(done)`, `cancelFinish()` | Before quitting: revert a pending batch, call each backend's `flush()` and call `done` once no backend is `busy` (at most 10 s, then a warning). `cancelFinish()` keeps the session (the window was opened again). |
 | `revision` | Increments whenever any backend value changes. |
 | `committed(key)`, `failed(key, message)` | Outcome signals. `message` is an English source string; translate it with `Translation.tr`. |
 | `entry(key)` | Same as `SettingsRegistry.entry`. |
@@ -295,8 +296,11 @@ Each `backends/<Name>Backend.qml` implements:
 (`[{ value, label, translate }]`: labels are device or application names
 shown as they are, unless `translate: true` marks them as English source
 strings, as for idle timeouts and power profiles), `property bool
-deferWrites`, `previewReset(entry)`. `write`, `reset`, `preview`, `persist`
-and `restore` return `false` when they fail synchronously. The
+deferWrites`, `previewReset(entry)`, `readonly property bool busy` (work that
+must finish before the app quits: queued or running writes, restores and
+their commands, not reads) and `flush()` (runs debounced writes now).
+`write`, `reset`, `preview`, `persist` and `restore` return `false` when they
+fail synchronously; the commands they start run asynchronously. The
 `SettingsStore` singleton instantiates one of each backend.
 
 | Backend | Persistence and apply |
@@ -320,7 +324,7 @@ exit 0 ok, 1 I/O error, 2 invalid input unless noted):
 | `monitorsgen.py` | `[--output PATH] [--force] [--print \| --lua-expr [--name OUTPUT]] [--spec-json TEXT]`; the spec (`{"monitors": [...]}`) comes from `--spec-json` or stdin. `--force` backs up an unmanaged file to `<name>.bak-YYYYmmdd-HHMMSS`. Exit 3: unmanaged target. |
 | `default-apps.py` | `list [--json]`, `set ROLE DESKTOP_ID`; roles `browser`, `fileManager`, `mail`, `image`, `video`, `audio`, `text`, `pdf`. |
 | `hyprlock-time.py` | `24h\|12h [--file PATH]`: switches `$TIME`/`$TIME12` in `hyprlock.conf` atomically; a missing file is not an error. |
-| `open-settings.sh` | `[pageId [settingKey]]`: single instance; forwards to `settingsApp.open`/`reveal` over IPC or starts the app with `II_SETTINGS_PAGE`/`II_SETTINGS_KEY`. |
+| `open-settings.sh` | `[pageId [settingKey]]`: single instance; forwards to `settingsApp.open`/`reveal` (`show` without arguments, best effort) over IPC and focuses the window, or starts the app with `II_SETTINGS_PAGE`/`II_SETTINGS_KEY`. |
 
 `scripts/hyprland/hyprconfigurator.py --file PATH` takes `--set KEY VALUE`
 (legacy typing), `--set-typed KEY bool|int|float|string VALUE`,
@@ -416,9 +420,14 @@ Revert/Keep), `SettingsErrorToast` (failed writes, 5 s), plus
 `settings.qml` is an `ApplicationWindow` (title "illogical-impulse
 Settings", minimum 640×480) that sets `Config.readWriteDelay = 150` and
 loads pages only once `Config.ready`. IPC: `qs -p settings.qml ipc call
-settingsApp open <pageId>` and `… reveal <key>`. Environment: `II_SETTINGS_PAGE`
-opens a page and `II_SETTINGS_KEY` reveals a row at startup. Closing the
-window with a pending risky confirmation reverts it before quitting.
+settingsApp open <pageId>`, `… reveal <key>` and `… show`. Environment:
+`II_SETTINGS_PAGE` opens a page and `II_SETTINGS_KEY` reveals a row at
+startup. Closing the window hides it at once and quits after
+`SettingsStore.finish`: a pending risky confirmation is reverted and queued
+writes and restores finish first, since backends apply them through
+asynchronous commands (quitting right away left an idle or display preview
+applied and dropped writes still in their debounce). Any IPC call shows the
+window again and cancels the quit.
 
 Translations: `services/Translation.qml` tries the exact locale file, then
 same-language files (`es` prefers `es_MX`, then `<lang>_<LANG>`, then any
@@ -485,7 +494,8 @@ See `scripts/settings-harness/run.sh --help`.
   `spinbox-typed-commit.qml` (`test_spinbox_typed_commit.py`),
   `game-mode-state.qml` (`test_game_mode_state.py`),
   `hyprland-reload-fallback.qml` (`test_hyprland_reload_fallback.py`, with a
-  stub `hyprctl` on `PATH`).
+  stub `hyprctl` on `PATH`), `close-finishes-work.qml`
+  (`test_settings_close.py`, stub `hyprctl`).
 - `test_settings_video_wallpaper.py` renders the pages with the wallpaper card
   in strict mode with a seeded video wallpaper (`run.sh --config`): the card
   previews `background.thumbnailPath`, never the video itself.

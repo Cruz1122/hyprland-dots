@@ -18,6 +18,17 @@ Singleton {
     // while it was in flight; the next write then sees no difference and the
     // change is lost (tests/test_config_write_race.py).
     property bool blockWrites: true
+    // A change is waiting for fileWriteTimer and is not on disk yet.
+    readonly property bool writePending: fileWriteTimer.running
+
+    // Writes a change still waiting for fileWriteTimer now. The settings app
+    // calls it before quitting, so a change made just before closing is kept.
+    function flushWrites() {
+        if (!fileWriteTimer.running)
+            return;
+        fileWriteTimer.stop();
+        configFileView.writeAdapter();
+    }
 
     function setNestedValue(nestedKey, value) {
         let keys = nestedKey.split(".");

@@ -45,6 +45,10 @@ QtObject {
         return caps;
     }
     property bool deferWrites: false
+    // Work the app waits for before quitting (SettingsStore.finish): debounced
+    // writes, queued commands and a pending reload fallback. Reads are not.
+    readonly property bool busy: root.flushTimer.running || Object.keys(root._queue).length > 0
+        || root.runner.running || root._jobs.length > 0 || root.reloadFallback.running
 
     readonly property string scriptPath: Quickshell.shellPath("scripts/hyprland/hyprconfigurator.py")
     readonly property string configDir: FileUtils.trimFileProtocol(Directories.config)
@@ -193,6 +197,14 @@ QtObject {
         const ops = Object.values(root._queue);
         root._queue = {};
         root._writeFile(ops, null);
+    }
+
+    // Writes debounced changes now instead of after the debounce.
+    function flush() {
+        if (root.deferWrites || Object.keys(root._queue).length === 0)
+            return;
+        root.flushTimer.stop();
+        root._flush();
     }
 
     function _eval(entry, value, key) {

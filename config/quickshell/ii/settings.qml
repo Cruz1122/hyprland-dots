@@ -78,11 +78,23 @@ ApplicationWindow {
 
     onCurrentPageChanged: root.showCurrentPage()
 
-    // A pending risky change is reverted before the app quits.
+    // Closing hides the window at once; the process quits after
+    // SettingsStore.finish has reverted a pending risky change and the
+    // backends have finished their queued writes and restores (they run
+    // commands asynchronously). Opening the app again meanwhile cancels it.
     onClosing: close => {
-        if (SettingsStore.pendingConfirmation)
-            SettingsStore.revert();
-        Qt.quit();
+        close.accepted = false;
+        root.visible = false;
+        SettingsStore.finish(() => Qt.quit());
+    }
+
+    // Shows the window, cancelling a quit in progress (onClosing).
+    function present() {
+        if (!root.visible) {
+            SettingsStore.cancelFinish();
+            root.visible = true;
+        }
+        root.requestActivate();
     }
 
     Component.onCompleted: {
@@ -125,14 +137,18 @@ ApplicationWindow {
     IpcHandler {
         target: "settingsApp"
 
+        function show(): void {
+            root.present();
+        }
+
         function open(pageId: string): void {
             root.openPage(pageId);
-            root.requestActivate();
+            root.present();
         }
 
         function reveal(key: string): void {
             root.reveal(key);
-            root.requestActivate();
+            root.present();
         }
     }
 

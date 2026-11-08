@@ -26,6 +26,10 @@ QtObject {
         : []
     readonly property string shellDir: Quickshell.shellPath("")
     property int probeIntervalMs: 10000
+    // Write calls still running; the app waits for them before quitting
+    // (SettingsStore.finish). Reads and probes are not counted.
+    property int _writesInFlight: 0
+    readonly property bool busy: root._writesInFlight > 0
 
     signal succeeded(string key)
     signal failed(string key, string message)
@@ -69,7 +73,9 @@ QtObject {
         }
         const previous = root.values[entry.key];
         root._setValue(entry.key, value);
+        root._writesInFlight++;
         root._run(argv, (code, out) => {
+            root._writesInFlight--;
             if (code === 0) {
                 root.succeeded(entry.key);
             } else {

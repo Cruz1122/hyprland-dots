@@ -52,6 +52,9 @@ QtObject {
 
     // Serialized jobs: { kind: "eval"|"write", spec, force, key }.
     property var _jobs: []
+    // Previews, restores and writes the app waits for before quitting
+    // (SettingsStore.finish); the read-only refresh is not.
+    readonly property bool busy: root._jobs.length > 0 || root.generator.running || root.evaluator.running
 
     function read(entry) { return root.values[entry.key]; }
     function defaultValue(entry) { return undefined; }

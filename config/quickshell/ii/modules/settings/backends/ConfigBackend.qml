@@ -14,9 +14,15 @@ QtObject {
     readonly property string unavailableReason: Config.ready ? "" : "The configuration file is still loading"
     readonly property var values: ({})
     readonly property var capabilities: []
+    // Before quitting (SettingsStore.finish): a write still waiting for Config's delay.
+    readonly property bool busy: Config.writePending
 
     signal succeeded(string key)
     signal failed(string key, string message)
+
+    function flush() {
+        Config.flushWrites();
+    }
 
     function read(entry) {
         return Logic.getPath(Config.options, entry.path);

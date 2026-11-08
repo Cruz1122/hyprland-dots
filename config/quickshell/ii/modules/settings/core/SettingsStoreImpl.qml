@@ -291,6 +291,60 @@ QtObject {
             root.revision++;
     }
 
+    // ------------------------------------------------------------ shutdown
+
+    // Names of backends with work queued or running (`busy`, optional).
+    function busyBackends() {
+        const out = [];
+        for (const name in root.backends) {
+            if (root.backends[name]?.busy === true)
+                out.push(name);
+        }
+        return out;
+    }
+
+    // Ends the session before quitting: reverts a pending risky batch (its
+    // restores are asynchronous), runs debounced writes now (`flush`,
+    // optional) and calls `done` once no backend is busy, or after
+    // `timeoutMs` so a stuck command cannot keep the process alive.
+    function finish(done, timeoutMs) {
+        if (root.pendingConfirmation)
+            root.revert();
+        for (const name in root.backends) {
+            const b = root.backends[name];
+            if (typeof b?.flush === "function")
+                b.flush();
+        }
+        root._finishDone = done;
+        root._finishDeadline = Date.now() + (timeoutMs ?? Logic.FINISH_TIMEOUT_MS);
+        root._finishPoll.restart();
+    }
+
+    // Keeps the session going (the window was opened again).
+    function cancelFinish() {
+        root._finishPoll.stop();
+        root._finishDone = null;
+    }
+
+    property var _finishDone: null
+    property real _finishDeadline: 0
+
+    readonly property Timer _finishPoll: Timer {
+        interval: 50
+        repeat: true
+        onTriggered: {
+            const busy = root.busyBackends();
+            if (busy.length > 0 && Date.now() < root._finishDeadline)
+                return;
+            if (busy.length > 0)
+                console.warn(`[SettingsStore] quitting before these finished: ${busy.join(", ")}`);
+            root._finishPoll.stop();
+            const done = root._finishDone;
+            root._finishDone = null;
+            done?.();
+        }
+    }
+
     function _onSucceeded(key) {
         root.revision++;
         root.committed(key);

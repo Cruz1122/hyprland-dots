@@ -123,10 +123,19 @@ class OpenSettingsTest(unittest.TestCase):
         )
         self.assertIn(["dispatch", 'hl.dsp.focus({ window = "address:0xbeef" })'], self.calls("hyprctl"))
 
-    def test_running_instance_without_page_only_focuses(self) -> None:
+    def test_running_instance_without_page_shows_and_focuses(self) -> None:
         result = self.run_script(STUB_RUNNING_PID="4242")
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual(self.qs_calls(), [["-p", self.qml, "list", "-j"]])
+        self.assertEqual(
+            self.qs_calls(),
+            [["-p", self.qml, "list", "-j"], ["-p", self.qml, "ipc", "call", "settingsApp", "show"]],
+        )
+        self.assertIn(["dispatch", 'hl.dsp.focus({ window = "address:0xbeef" })'], self.calls("hyprctl"))
+
+    def test_show_failure_still_focuses(self) -> None:
+        # An instance from before `show` existed rejects the call.
+        result = self.run_script(STUB_RUNNING_PID="4242", STUB_IPC_STATUS="3")
+        self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn(["dispatch", 'hl.dsp.focus({ window = "address:0xbeef" })'], self.calls("hyprctl"))
 
     def test_ipc_failure_exits_1_without_starting_instance(self) -> None:

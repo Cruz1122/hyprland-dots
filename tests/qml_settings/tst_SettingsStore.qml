@@ -84,6 +84,14 @@ TestCase {
     SignalSpy { id: committedSpy; target: store; signalName: "committed" }
 
     function init() {
+        store.cancelFinish();
+        for (const b of [config, risky, overrides]) {
+            b._restoreTimer.stop();
+            b._restoreSnap = null;
+            b.asyncRestore = false;
+            b.busy = false;
+            b.flushCount = 0;
+        }
         store.revert();
         const defaults = { flag: false, count: 3, mode: "a", city: "", dep: false, slotA: "x", slotB: "y", hidden: false };
         config.defaults = defaults;
@@ -261,5 +269,50 @@ TestCase {
         store.confirm();
         compare(overrides.persisted, ["idle.lock", "idle.lock"]);
         compare(store.value("idle.lock"), 0);
+    }
+
+    // Regression: closing the window reverted a pending preview and quit at
+    // once, so restores that run commands (idle, displays, Hyprland) never
+    // ran and the preview stayed applied.
+    function test_finish_reverts_and_waits_for_busy_backends() {
+        risky.asyncRestore = true;
+        verify(store.write("layout", "de"));
+        let finished = 0;
+        store.finish(() => finished++);
+        compare(store.pendingConfirmation, null, "pending batch reverted");
+        verify(risky.busy, "restore still running");
+        compare(store.busyBackends(), ["hyprland"]);
+        wait(80);
+        compare(finished, 0, "does not finish while a backend is busy");
+        tryVerify(() => finished === 1, 2000);
+        compare(store.value("layout"), "us");
+        wait(120);
+        compare(finished, 1, "done runs once");
+    }
+
+    function test_finish_flushes_debounced_writes() {
+        let finished = 0;
+        store.finish(() => finished++);
+        compare(config.flushCount, 1);
+        compare(risky.flushCount, 1);
+        tryVerify(() => finished === 1, 1000);
+    }
+
+    function test_finish_gives_up_after_the_timeout() {
+        risky.busy = true;
+        let finished = 0;
+        store.finish(() => finished++, 250);
+        wait(100);
+        compare(finished, 0);
+        tryVerify(() => finished === 1, 2000);
+    }
+
+    function test_cancel_finish_keeps_the_session() {
+        risky.busy = true;
+        let finished = 0;
+        store.finish(() => finished++, 200);
+        store.cancelFinish();
+        wait(400);
+        compare(finished, 0);
     }
 }

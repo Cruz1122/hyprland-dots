@@ -3,8 +3,9 @@
 #
 # Usage: open-settings.sh [pageId [settingKey]]
 #
-# A running instance receives `settingsApp open/reveal` over Quickshell IPC
-# and its window is focused; otherwise a new instance is started with
+# A running instance receives `settingsApp open/reveal` (or `show` without
+# arguments, which also brings back a window that is closing) over Quickshell
+# IPC and its window is focused; otherwise a new instance is started with
 # II_SETTINGS_PAGE / II_SETTINGS_KEY set.
 #
 # Exit codes: 0 success, 1 IPC call to the running instance failed,
@@ -57,6 +58,11 @@ if [[ -n "$page_id" ]]; then
 fi
 if [[ -n "$setting_key" ]]; then
     qs -p "$settings_qml" ipc call settingsApp reveal "$setting_key" >/dev/null || exit 1
+fi
+if [[ -z "$page_id" && -z "$setting_key" ]]; then
+    # A closing window stays hidden until its pending work ends; `show` brings
+    # it back. Best effort: an older instance without `show` is still focused.
+    qs -p "$settings_qml" ipc call settingsApp show >/dev/null 2>&1 || true
 fi
 
 # Focus by the instance's pid rather than the window title, which the app may

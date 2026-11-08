@@ -439,9 +439,12 @@ class SettingsContractTest(unittest.TestCase):
             'target: "settingsApp"',
             "function open(pageId: string): void",
             "function reveal(key: string): void",
+            "function show(): void",
             "II_SETTINGS_PAGE",
             "II_SETTINGS_KEY",
-            "SettingsStore.revert()",
+            # Closing reverts and waits for the backends (tests/test_settings_close.py).
+            "SettingsStore.finish(() => Qt.quit())",
+            "SettingsStore.cancelFinish()",
             "import qs.modules.settings.core",
             "import qs.modules.settings.components",
         ]:

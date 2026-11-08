@@ -18,6 +18,25 @@ QtObject {
     property int writeCount: 0
     // Called with (entry, value) at the start of preview(), to observe ordering.
     property var previewHook: null
+    // Shutdown support (SettingsStoreImpl.finish). With asyncRestore,
+    // restore() is busy for restoreDelayMs, like a backend running a command.
+    property bool busy: false
+    property bool asyncRestore: false
+    property int restoreDelayMs: 150
+    property int flushCount: 0
+    property var _restoreSnap: null
+
+    function flush() { root.flushCount++; }
+
+    readonly property Timer _restoreTimer: Timer {
+        interval: root.restoreDelayMs
+        onTriggered: {
+            for (const item of root._restoreSnap)
+                root._set(item.key, item.value);
+            root._restoreSnap = null;
+            root.busy = false;
+        }
+    }
 
     signal succeeded(string key)
     signal failed(string key, string message)
@@ -64,9 +83,15 @@ QtObject {
     }
 
     function restore(snap) {
+        root.previewed = ({});
+        if (root.asyncRestore) {
+            root._restoreSnap = snap;
+            root.busy = true;
+            root._restoreTimer.restart();
+            return true;
+        }
         for (const item of snap)
             root._set(item.key, item.value);
-        root.previewed = ({});
         return true;
     }
 }

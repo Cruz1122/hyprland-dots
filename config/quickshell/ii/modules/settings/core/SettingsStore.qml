@@ -39,6 +39,9 @@ Singleton {
     function modifiedCount(pageId) { void impl.revision; return impl.modifiedCount(pageId); }
     function confirm() { impl.confirm(); }
     function revert() { impl.revert(); }
+    // Before quitting: revert, flush and wait for the backends (SettingsStoreImpl.finish).
+    function finish(done) { impl.finish(done); }
+    function cancelFinish() { impl.cancelFinish(); }
 
     ConfigBackend { id: configBackend }
     HyprlandBackend { id: hyprlandBackend }

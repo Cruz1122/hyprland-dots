@@ -10,6 +10,9 @@ var WIDGETS = ["switch", "slider", "spin", "segmented", "select", "text", "texta
 // Backends that never persist anything: their rows render from the page.
 var PASSIVE_BACKENDS = ["action", "readonly"];
 var CONFIRM_SECONDS = 15;
+// Longest wait for backends to finish after the window closes
+// (SettingsStore.finish); the slowest normal path is about 2.5 s.
+var FINISH_TIMEOUT_MS = 10000;
 
 function isArrayLike(value) {
     return value !== null && typeof value === "object" && typeof value.length === "number" && typeof value !== "string";

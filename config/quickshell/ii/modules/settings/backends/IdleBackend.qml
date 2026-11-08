@@ -44,6 +44,9 @@ QtObject {
 
     // Values the next apply renders, and the key to report its outcome on.
     property var _wanted: null
+    // A render (and hypridle restart) is scheduled or running; the app waits
+    // for it before quitting (SettingsStore.finish).
+    readonly property bool busy: root._wanted !== null || root.applyTimer.running || root.generator.running
     property string _wantedKey: ""
     property bool _wantedForce: false
 

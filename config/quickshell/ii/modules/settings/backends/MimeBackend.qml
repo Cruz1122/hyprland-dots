@@ -25,6 +25,8 @@ QtObject {
     // writing a notifying property there would make each binding depend on it.
     readonly property var _load: ({ requested: false })
     property var _pending: null
+    // A change being written; the app waits for it before quitting (SettingsStore.finish).
+    readonly property bool busy: root.setProc.running
 
     signal succeeded(string key)
     signal failed(string key, string message)
