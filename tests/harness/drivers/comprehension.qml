@@ -219,6 +219,8 @@ ShellRoot {
         return null;
     }
 
+    // The target row is looked up on its own page: a key aliased on the Quick
+    // page also has a (hidden) row there with the same objectName.
     function helpSearchStep() {
         const nav = root.findItem(root.win.contentItem, "settingsNavigation");
         const target = nav ? root.helpOnlyWord(nav) : null;
@@ -231,10 +233,10 @@ ShellRoot {
         nav.setQuery(target.word);
         nav.activateResult(nav.results.findIndex(r => r.key === target.key));
         root.waitFor(() => {
-            const row = root.rowFor(target.key);
+            const row = root.rowOn(target.pageId, target.key);
             return root.currentPageId() === target.pageId && row?.visible && row.highlighted && row.helpOpen;
         }, 4000, ok => {
-            const row = root.rowFor(target.key);
+            const row = root.rowOn(target.pageId, target.key);
             const helpText = row ? root.findItem(row, "helpText") : null;
             root.check("help-search: reveal highlights the row and opens its help", ok && helpText?.visible, {
                 word: target.word, key: target.key, page: root.currentPageId(),
