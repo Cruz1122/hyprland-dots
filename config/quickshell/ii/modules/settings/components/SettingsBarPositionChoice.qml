@@ -8,6 +8,7 @@ import qs.modules.settings.core
 RowLayout {
     id: root
 
+    readonly property bool inlineControl: true
     property var row: null
     readonly property bool atBottom: (SettingsStore.revision, SettingsStore.value("bar.bottom") === true)
     readonly property bool isVertical: (SettingsStore.revision, SettingsStore.value("bar.vertical") === true)
@@ -26,9 +27,5 @@ RowLayout {
             SettingsStore.write("bar.bottom", (value & 1) !== 0);
             SettingsStore.write("bar.vertical", (value & 2) !== 0);
         }
-    }
-
-    Item {
-        Layout.fillWidth: true
     }
 }

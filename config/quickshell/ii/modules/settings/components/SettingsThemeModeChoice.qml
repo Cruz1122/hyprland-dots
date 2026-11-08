@@ -10,6 +10,7 @@ import qs.services
 RowLayout {
     id: root
 
+    readonly property bool inlineControl: true
     property var row: null
 
     SettingsChoiceButtons {
@@ -24,9 +25,5 @@ RowLayout {
             if (value !== Appearance.m3colors.darkmode)
                 Quickshell.execDetached([Directories.wallpaperSwitchScriptPath, "--mode", value ? "dark" : "light", "--noswitch"]);
         }
-    }
-
-    Item {
-        Layout.fillWidth: true
     }
 }

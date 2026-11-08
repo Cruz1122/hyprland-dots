@@ -22,5 +22,7 @@ QtObject {
     readonly property real navExpandedWidth: 248
     readonly property real navCollapsedWidth: 60
     readonly property real navAutoCollapseWidth: 900
+    // Height of the fades at the scrolled edges of the page list.
+    readonly property real navEdgeFadeHeight: 28
     readonly property int transitionDuration: 180
 }

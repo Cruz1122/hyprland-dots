@@ -400,7 +400,9 @@ and `windows.centerTitle`, navigation, page host, confirm bar, error toast),
 field with results showing the label and "Page › Section"; Ctrl+F focuses it,
 Up/Down/Enter pick a result, Esc clears; collapses to icons below 900 px with
 a menu button override that resets when the window crosses the threshold;
-collapsed items show their title as a hover tooltip), `SettingsPageHost`
+collapsed items show their title as a hover tooltip; the scrolled list fades
+at its edges, and opening a page scrolls it so the page clears the fade, the
+first page of a group together with its title), `SettingsPageHost`
 (`setSource(pageId, source)`; pages are created once and kept, so switching
 keeps the scroll position and never shows a blank frame; `ready`,
 `currentItem`), `SettingsConfirmBar` ("Keep changes?", countdown,
@@ -446,7 +448,9 @@ items, popups open after load, and any `config.json` write during the run.
 `scripts/settings-harness/run.sh --strict --allow-config-writes --driver
 tests/harness/settings-interact.qml`. It checks that accented and
 unaccented searches return the same results and that activating one reveals
-and highlights its row, then, for every visible and enabled `config` entry of
+and highlights its row, that opening a page scrolls the page list so the page
+clears the edge fade (the first page of a group with its group title), then,
+for every visible and enabled `config` entry of
 type `bool` or `enum`, calls `row.interact()`, checks that `config.json`
 changed only that key, restores the original value (through the row's reset
 when the original is the default) and checks the file again.

@@ -11,6 +11,7 @@ import "../core/SettingsLogic.js" as Logic
 RowLayout {
     id: root
 
+    readonly property bool inlineControl: true
     property var row: null
     readonly property var options: (root.row?.entry?.options ?? []).map(o => ({
         value: o.value,
@@ -20,8 +21,7 @@ RowLayout {
 
     StyledComboBox {
         id: combo
-        Layout.fillWidth: true
-        Layout.maximumWidth: 360
+        Layout.preferredWidth: SettingsMetrics.selectWidth
         enabled: root.row?.rowEnabled ?? false
         model: root.options
         textRole: "label"
@@ -35,10 +35,6 @@ RowLayout {
             else
                 combo.currentIndex = root.currentIndex;
         }
-    }
-
-    Item {
-        Layout.fillWidth: true
     }
 
     Binding {

@@ -9,6 +9,8 @@
 //
 // (a) Search: accented and unaccented queries return the same results, and
 //     activating the first result opens its page and highlights the row.
+// (n) Navigation: opening a page scrolls the page list so the page clears
+//     the edge fade and the first page of a group shows the group title.
 // (b) Every visible, enabled `config` entry of type bool or enum: the row's
 //     primary interaction (row.interact()) writes config.json, changing only
 //     that key; restoring it brings the file back to the original value.
@@ -161,6 +163,48 @@ ShellRoot {
         });
     }
 
+    // ------------------------------------------------------------ navigation
+
+    // Opening a page scrolls the page list so the page sits clear of the
+    // edge fade, and the first page of a group brings the group title along.
+    // The list used to stop right at the page: the title stayed hidden and
+    // the fade covered the selected page.
+    function navStep() {
+        const list = root.findItem(root.win.contentItem, "settingsPageList");
+        if (!list) {
+            root.fail("page list not found");
+            root.next();
+            return;
+        }
+        const topInView = id => {
+            const item = root.findItem(list, "nav:" + id);
+            return item ? item.mapToItem(list, 0, 0).y : -1;
+        };
+        const clearOfFade = id => topInView(id) >= SettingsMetrics.navEdgeFadeHeight - 0.5;
+        // The bottom page scrolls the list down; the others must scroll it back.
+        const checks = [
+            { pageId: "services", ok: () => list.contentY > 0 },
+            { pageId: "quick", ok: () => list.contentY === 0 },
+            { pageId: "services", ok: () => list.contentY > 0 },
+            { pageId: "windows", ok: () => clearOfFade("windows") }
+        ];
+        const run = index => {
+            if (index >= checks.length) {
+                root.next();
+                return;
+            }
+            const check = checks[index];
+            root.openPage(check.pageId);
+            root.waitFor(() => root.win.pageReady && check.ok(), 3000, ok => {
+                root.report({ type: "nav", pageId: check.pageId, ok: ok, contentY: list.contentY, top: topInView(check.pageId) });
+                if (!ok)
+                    root.fail(`opening ${check.pageId} left the page list at contentY ${list.contentY} (page top ${topInView(check.pageId)})`);
+                run(index + 1);
+            });
+        };
+        run(0);
+    }
+
     // ---------------------------------------------------------- interactions
 
     function interactionSteps() {
@@ -238,15 +282,17 @@ ShellRoot {
             return;
         }
         const step = root.steps[root.stepIndex++];
-        root.report({ type: "visit", size: `${root.win.width}x${root.win.height}`, name: step.pageId ?? "search" });
+        root.report({ type: "visit", size: `${root.win.width}x${root.win.height}`, name: step.pageId ?? step.kind });
         if (step.kind === "search")
             root.searchStep();
+        else if (step.kind === "nav")
+            root.navStep();
         else
             root.interactStep(step);
     }
 
     function start() {
-        root.steps = [{ kind: "search" }].concat(root.interactionSteps());
+        root.steps = [{ kind: "search" }, { kind: "nav" }].concat(root.interactionSteps());
         root.report({ type: "start", steps: root.steps.length });
         root.next();
     }

@@ -59,11 +59,17 @@ ColumnLayout {
         const item = find(groupsColumn);
         if (!item)
             return;
+        // Keep the item clear of the edge fades. The first page of a group
+        // brings its group title into view as well.
+        const fade = SettingsMetrics.navEdgeFadeHeight;
+        const group = item.parent;
+        const firstInGroup = Array.from(group?.children ?? []).find(c => String(c.objectName).startsWith("nav:")) === item;
         const y = item.mapToItem(groupsColumn, 0, 0).y;
-        if (y < pagesView.contentY)
-            pagesView.contentY = Math.max(0, y - 8);
+        const top = firstInGroup ? group.mapToItem(groupsColumn, 0, 0).y : y - fade;
+        if (top < pagesView.contentY)
+            pagesView.contentY = Math.max(0, top);
         else if (y + item.height > pagesView.contentY + pagesView.height)
-            pagesView.contentY = Math.min(pagesView.contentHeight - pagesView.height, y + item.height - pagesView.height + 28);
+            pagesView.contentY = Math.min(pagesView.contentHeight - pagesView.height, y + item.height - pagesView.height + fade);
     }
     onResultsChanged: root.resultIndex = 0
 
@@ -121,7 +127,7 @@ ColumnLayout {
         anchors.right: parent.right
         anchors.top: atTop ? parent.top : undefined
         anchors.bottom: atTop ? undefined : parent.bottom
-        implicitHeight: 28
+        implicitHeight: SettingsMetrics.navEdgeFadeHeight
         visible: atTop ? !view.atYBeginning : !view.atYEnd
         gradient: Gradient {
             GradientStop { position: 0; color: atTop ? Appearance.m3colors.m3background : "transparent" }
@@ -290,6 +296,7 @@ ColumnLayout {
     // Page groups
     Flickable {
         id: pagesView
+        objectName: "settingsPageList"
         visible: !resultsView.visible
         Layout.fillWidth: true
         Layout.fillHeight: true
