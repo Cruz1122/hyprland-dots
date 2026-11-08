@@ -50,8 +50,11 @@ SettingsPage {
     Component {
         id: effectsPreview
         SettingsWindowPreview {
+            id: effectsPreviewItem
             objectName: "windowEffectsPreview"
             showMagnifier: false
+            accessibleName: Translation.tr("Effects preview")
+            accessibleDescription: effectsPreviewItem.effectsSummary
             highlightKey: windowsPage.highlightKey
         }
     }

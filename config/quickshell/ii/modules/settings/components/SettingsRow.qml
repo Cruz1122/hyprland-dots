@@ -280,59 +280,86 @@ Item {
                     // wrapped label; only chips may move to the next line.
                     readonly property real besideLabel: (row.modified ? 8 + spacing : 0) + (row.help.length > 0 ? 24 + spacing : 0)
 
-                    // Capped at its natural width so the decorations sit
-                    // right after the text; wraps when the row is narrow.
-                    StyledText {
-                        id: labelText
-                        width: Math.max(0, Math.min(Math.ceil(labelMetrics.advanceWidth) + 1, labelLine.width - labelLine.besideLabel)) // size-ok: wraps inside the Flow
-                        topPadding: (labelLine.lineBox - labelMetrics.height) / 2
-                        bottomPadding: topPadding
-                        text: row.label
-                        wrapMode: Text.Wrap
-                        font.pixelSize: Appearance.font.pixelSize.normal
-                        color: row.rowEnabled ? Appearance.colors.colOnLayer1 : Appearance.colors.colOnLayer1Inactive
-                    }
+                    // The label and its decorations (modified dot, help
+                    // toggle). The text is capped at its natural width and
+                    // always leaves room for the decorations, which follow
+                    // the end of its last line; a wrapped label takes the
+                    // whole line, so the chips move to the next one.
+                    Item {
+                        id: labelBox
+                        implicitWidth: labelText.lineCount > 1 ? labelLine.width : labelText.width + labelLine.besideLabel
+                        implicitHeight: labelText.height
 
-                    // Natural width of the label: a wrapped Text reports its
-                    // wrapped width as implicitWidth, which would feed back.
-                    TextMetrics {
-                        id: labelMetrics
-                        font: labelText.font
-                        text: row.label
-                    }
-
-                    LineItem {
-                        visible: row.modified
-                        lineHeight: labelLine.lineBox
-
-                        Rectangle {
-                            implicitWidth: 8
-                            implicitHeight: 8
-                            radius: 4
-                            color: Appearance.colors.colPrimary
-                            Accessible.name: Translation.tr("Modified")
+                        StyledText {
+                            id: labelText
+                            // End and vertical center of the last laid-out line.
+                            property real lastLineEnd: 0
+                            property real lastLineCenter: labelMetrics.height / 2
+                            width: Math.max(0, Math.min(Math.ceil(labelMetrics.advanceWidth) + 1, labelLine.width - labelLine.besideLabel)) // size-ok: wraps inside the Flow
+                            topPadding: (labelLine.lineBox - labelMetrics.height) / 2
+                            bottomPadding: topPadding
+                            text: row.label
+                            wrapMode: Text.Wrap
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                            color: row.rowEnabled ? Appearance.colors.colOnLayer1 : Appearance.colors.colOnLayer1Inactive
+                            onLineLaidOut: line => {
+                                if (!line.isLast)
+                                    return;
+                                labelText.lastLineEnd = line.x + line.implicitWidth;
+                                labelText.lastLineCenter = line.y + line.height / 2;
+                            }
                         }
-                    }
 
-                    LineItem {
-                        visible: row.help.length > 0
-                        lineHeight: labelLine.lineBox
+                        // Natural width of the label: a wrapped Text reports its
+                        // wrapped width as implicitWidth, which would feed back.
+                        TextMetrics {
+                            id: labelMetrics
+                            font: labelText.font
+                            text: row.label
+                        }
 
-                        SettingsIconButton {
-                            objectName: "helpToggle"
-                            iconName: "help"
-                            tooltip: Translation.tr("Help: %1").arg(row.label)
-                            size: 24
-                            iconSize: 17
-                            toggled: row.helpOpen
-                            colBackgroundToggled: Appearance.colors.colSecondaryContainer
-                            colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
-                            iconColor: row.helpOpen ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colSubtext
-                            Accessible.checkable: true
-                            Accessible.checked: row.helpOpen
-                            onClicked: row.toggleHelp()
-                            Keys.onReturnPressed: row.toggleHelp()
-                            Keys.onEnterPressed: row.toggleHelp()
+                        Row {
+                            id: labelDecorations
+                            objectName: "labelDecorations"
+                            x: Math.ceil(labelText.lastLineEnd) + labelLine.spacing
+                            y: labelText.topPadding + labelText.lastLineCenter - labelLine.lineBox / 2
+                            spacing: labelLine.spacing
+
+                            LineItem {
+                                objectName: "modifiedDot"
+                                visible: row.modified
+                                lineHeight: labelLine.lineBox
+
+                                Rectangle {
+                                    implicitWidth: 8
+                                    implicitHeight: 8
+                                    radius: 4
+                                    color: Appearance.colors.colPrimary
+                                    Accessible.name: Translation.tr("Modified")
+                                }
+                            }
+
+                            LineItem {
+                                visible: row.help.length > 0
+                                lineHeight: labelLine.lineBox
+
+                                SettingsIconButton {
+                                    objectName: "helpToggle"
+                                    iconName: "help"
+                                    tooltip: Translation.tr("Help: %1").arg(row.label)
+                                    size: 24
+                                    iconSize: 17
+                                    toggled: row.helpOpen
+                                    colBackgroundToggled: Appearance.colors.colSecondaryContainer
+                                    colBackgroundToggledHover: Appearance.colors.colSecondaryContainerHover
+                                    iconColor: row.helpOpen ? Appearance.colors.colOnSecondaryContainer : Appearance.colors.colSubtext
+                                    Accessible.checkable: true
+                                    Accessible.checked: row.helpOpen
+                                    onClicked: row.toggleHelp()
+                                    Keys.onReturnPressed: row.toggleHelp()
+                                    Keys.onEnterPressed: row.toggleHelp()
+                                }
+                            }
                         }
                     }
 
@@ -493,7 +520,8 @@ Item {
         default property alias content: holder.data
         property real lineHeight: 24
         implicitWidth: holder.implicitWidth
-        implicitHeight: lineHeight
+        // A two-line chip is taller than the line.
+        implicitHeight: Math.max(lineHeight, holder.implicitHeight)
 
         RowLayout {
             id: holder

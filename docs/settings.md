@@ -650,11 +650,13 @@ appear only on hover (`StyledToolTip` needs `parent.hovered === true` or
 | default children | The control, placed in a `RowLayout` on the right. |
 
 Variants (all take `settingKey`): `SettingsSwitchRow`, `SettingsSliderRow`
-(`uiScale`, `unit`, `decimals`, percentages always without decimals; writes
+(`uiScale`, `unit`, `decimals`, percentages always without decimals; the
+value uses the locale's decimal separator and no group separator; writes
 on release or keyboard step; under the track `minLabel`/`maxLabel` and a tick
 at the default value when it is known),
 `SettingsSpinRow` (integers; typed text commits on Enter/focus loss),
-`SettingsSelectRow`, `SettingsSegmentedRow`, `SettingsTextRow`
+`SettingsSelectRow` (re-applies the selected index when its options are
+rebuilt, which resets the combo box), `SettingsSegmentedRow`, `SettingsTextRow`
 (Enter/focus loss commits, Esc restores), `SettingsTextAreaRow` (commits on
 focus loss), `SettingsPathRow` (folder/file picker), `SettingsFontRow`
 (installed families), `SettingsColorRow` (hex with swatch; empty =
@@ -687,8 +689,15 @@ children, `objectName: "section:" + id`). Rows whose `enabledWhen` or
 `SettingsMetrics.dependentIndent` with a guide line.
 
 `SettingsChip` (`label`, `iconName`, `interactive`, `maximumWidth`, `clicked`)
-is the pill used on label lines; only interactive chips take focus, and a
-chip cut short shows its whole text as a hover tooltip.
+is the pill used on label lines; only interactive chips take focus. A chip
+wider than `maximumWidth` (the label line) wraps to two lines; one still cut
+short shows its whole text as a tooltip on hover or keyboard focus. The
+modified dot and the "?" follow the end of a wrapped label's last line.
+`SettingsWindowPreview` takes `accessibleName` and `accessibleDescription`
+per instance (`layoutSummary` by default; the Windows page's effects preview
+uses `effectsSummary`: blur, shadow, opacity and dimming).
+`tests/test_settings_row_components.py` runs
+`tests/harness/drivers/settings-row-components.qml` for these.
 `SettingsSession` (singleton) keeps session-only UI state: `isHelpOpen(key)`,
 `setHelpOpen(key, open)` and `requestReveal(key)`.
 

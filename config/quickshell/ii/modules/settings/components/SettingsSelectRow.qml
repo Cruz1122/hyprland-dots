@@ -43,6 +43,12 @@ SettingsRow {
         textRole: "label"
         Accessible.name: row.label
         onActivated: index => row.commit(row.options[index].value)
+        // A new model (device rows rebuild their options on every store
+        // revision; labels change when the translations load) resets the
+        // combo to its first item while row.currentIndex keeps its value,
+        // so the Binding below would not write it again.
+        onModelChanged: control.currentIndex = row.currentIndex
+        onCountChanged: control.currentIndex = row.currentIndex
     }
 
     Binding {

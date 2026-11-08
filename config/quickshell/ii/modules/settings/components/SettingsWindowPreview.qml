@@ -22,6 +22,10 @@ ColumnLayout {
 
     property bool showMagnifier: true
     property string highlightKey: ""
+    // What screen readers hear for the drawing: each instance names the
+    // part it is about (layoutSummary or effectsSummary).
+    property string accessibleName: Translation.tr("Preview")
+    property string accessibleDescription: preview.layoutSummary
     readonly property string highlightPart: PreviewLogic.partForKey(preview.highlightKey)
 
     readonly property var raw: {
@@ -30,6 +34,22 @@ ColumnLayout {
         for (const name in PreviewLogic.VALUE_KEYS)
             out[name] = SettingsStore.value(PreviewLogic.VALUE_KEYS[name]);
         return out;
+    }
+    readonly property string layoutSummary: Translation.tr("Gaps %1 px and %2 px at the edges, border %3 px, corner radius %4 px")
+        .arg(preview.model.values.gapsIn).arg(preview.model.values.gapsOut)
+        .arg(preview.model.values.border).arg(preview.model.values.rounding)
+    readonly property string effectsSummary: {
+        const v = preview.model.values;
+        return [
+            v.blur ? Translation.tr("Blur behind the bar and panels: %1 px, %2 passes").arg(Math.round(v.blurSize)).arg(v.blurPasses)
+                : Translation.tr("No blur behind the bar and panels"),
+            v.shadow ? Translation.tr("Shadow of floating windows: %1 px").arg(Math.round(v.shadowRange))
+                : Translation.tr("No shadow on floating windows"),
+            Translation.tr("Opacity: %1 % for the active window, %2 % for the others")
+                .arg(Math.round(v.activeOpacity * 100)).arg(Math.round(v.inactiveOpacity * 100)),
+            v.dim ? Translation.tr("Inactive windows dimmed by %1 %").arg(Math.round(v.dimStrength * 100))
+                : Translation.tr("Inactive windows are not dimmed")
+        ].join(". ");
     }
     readonly property bool wide: preview.width >= 540
     readonly property real desktopWidth: Math.max(160, desktopBox.width)
@@ -351,10 +371,8 @@ ColumnLayout {
                 onPaint: preview.paintDesktop(desktopCanvas.getContext("2d"))
                 onWidthChanged: desktopCanvas.requestPaint()
                 Accessible.role: Accessible.Graphic
-                Accessible.name: Translation.tr("Preview")
-                Accessible.description: Translation.tr("Gaps %1 px and %2 px at the edges, border %3 px, corner radius %4 px")
-                    .arg(preview.model.values.gapsIn).arg(preview.model.values.gapsOut)
-                    .arg(preview.model.values.border).arg(preview.model.values.rounding)
+                Accessible.name: preview.accessibleName
+                Accessible.description: preview.accessibleDescription
             }
         }
 

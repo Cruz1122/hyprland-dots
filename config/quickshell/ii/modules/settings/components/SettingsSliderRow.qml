@@ -34,8 +34,12 @@ SettingsRow {
     interactHandler: () => false
     needsValue: true
 
+    // The locale's decimal separator, like the window preview's magnifier
+    // ("2,0" in Spanish); no group separator, so 6500 stays "6500".
     function format(displayed) {
-        return `${Number(displayed).toFixed(row.decimals)}${row.unit}`;
+        const locale = Qt.locale();
+        const number = Number(displayed).toLocaleString(locale, "f", row.decimals);
+        return `${locale.groupSeparator.length > 0 ? number.split(locale.groupSeparator).join("") : number}${row.unit}`;
     }
 
     function commitControl() {
@@ -114,6 +118,7 @@ SettingsRow {
     }
 
     StyledText {
+        objectName: "sliderValue"
         Layout.preferredWidth: valueMetrics.width + 4
         Layout.alignment: Qt.AlignTop
         Layout.topMargin: (control.implicitHeight - implicitHeight) / 2
