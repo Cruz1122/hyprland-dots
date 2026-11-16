@@ -1,0 +1,7 @@
+[terminal]
+# The VT greetd takes over; the user session starts on the same one.
+vt = 1
+
+[default_session]
+command = "start-hyprland -- --config /etc/greetd/hyprland.lua"
+user = "greeter"

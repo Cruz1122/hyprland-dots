@@ -1,0 +1,16 @@
+#%PAM-1.0
+# greetd login with the same keyring unlock SDDM had (/etc/pam.d/sddm): the
+# login password opens login.keyring, so apps do not ask for it again.
+
+auth        required    pam_securetty.so
+auth        requisite   pam_nologin.so
+auth        include     system-local-login
+-auth       optional    pam_gnome_keyring.so
+
+account     include     system-local-login
+
+password    include     system-local-login
+-password   optional    pam_gnome_keyring.so    use_authtok
+
+session     include     system-local-login
+-session    optional    pam_gnome_keyring.so    auto_start
