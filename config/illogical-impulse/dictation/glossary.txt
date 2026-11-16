@@ -1,0 +1,57 @@
+# Terms the dictation model should recognise, one per line. They are sent to
+# Whisper as a hint with every dictation. Keep it short: only about the first
+# 150 words fit, so list what it actually gets wrong.
+Hyprland
+Quickshell
+QML
+kitty
+CachyOS
+Wayland
+PipeWire
+Claude Code
+Codex
+Cursor
+Grok
+Kognia
+MCP
+A2A
+LLM
+RAG
+prompt
+tokens
+embeddings
+harness
+subagent
+context window
+tool call
+API
+endpoint
+backend
+frontend
+commit
+pull request
+merge
+rebase
+branch
+deploy
+Docker
+PostgreSQL
+Python
+TypeScript
+JavaScript
+React
+Next.js
+FastAPI
+JSON
+YAML
+regex
+bash
+systemd
+GitHub
+CI
+debug
+refactor
+benchmark
+GPU
+CUDA
+Whisper
