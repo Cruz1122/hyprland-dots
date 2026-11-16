@@ -110,7 +110,8 @@ Singleton {
         }
 
         Behavior on multipliedBrightness {
-            enabled: monitor.animateChanges
+            // Not while the current level is being read in, see below.
+            enabled: monitor.animateChanges && monitor.ready
             NumberAnimation {
                 duration: 200 // motion-ok: drives real monitor brightness writes
                 easing.type: Easing.BezierSpline
@@ -118,6 +119,11 @@ Singleton {
             }
         }
         onMultipliedBrightnessChanged: {
+            // Reading the current level must not write it back. A screen that
+            // has just appeared starts at 0; animating from there to the level
+            // read from the hardware dimmed the backlight, and a second screen
+            // initializing meanwhile read that dimmed level and kept it.
+            if (!monitor.ready) return;
             if (monitor.animationEnabled) syncBrightness();
             else setTimer.restart();
         }
