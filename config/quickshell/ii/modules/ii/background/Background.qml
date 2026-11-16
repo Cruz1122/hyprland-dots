@@ -17,6 +17,7 @@ import Quickshell.Hyprland
 import qs.modules.ii.background.widgets
 import qs.modules.ii.background.widgets.clock
 import qs.modules.ii.background.widgets.weather
+import qs.modules.ii.background.poster
 
 Variants {
     id: root
@@ -39,6 +40,10 @@ Variants {
         property int lastWorkspaceId: relevantWindows[relevantWindows.length - 1]?.workspace.id || 10
         property int workspaceChunkSize: Config?.options.bar.workspaces.shown ?? 10
         property int totalWorkspaces: Math.ceil(lastWorkspaceId / workspaceChunkSize) * workspaceChunkSize
+        // Empty-workspace poster; it stands in for the desktop clock while shown.
+        readonly property int activeWorkspaceId: monitor?.activeWorkspace?.id ?? 1
+        readonly property bool activeWorkspaceEmpty: !HyprlandData.windowList.some(win => win.workspace?.id === activeWorkspaceId)
+        readonly property bool posterShown: Config.options.background.widgets.deskPoster.enable && activeWorkspaceEmpty && !GlobalStates.screenLocked
         // Wallpaper
         property bool wallpaperIsVideo: Config.options.background.wallpaperPath.endsWith(".mp4") || Config.options.background.wallpaperPath.endsWith(".webm") || Config.options.background.wallpaperPath.endsWith(".mkv") || Config.options.background.wallpaperPath.endsWith(".avi") || Config.options.background.wallpaperPath.endsWith(".mov")
         property string wallpaperPath: wallpaperIsVideo ? Config.options.background.thumbnailPath : Config.options.background.wallpaperPath
@@ -266,7 +271,7 @@ Variants {
                 }
 
                 FadeLoader {
-                    shown: Config.options.background.widgets.clock.enable
+                    shown: Config.options.background.widgets.clock.enable && !bgRoot.posterShown
                     sourceComponent: ClockWidget {
                         screenWidth: bgRoot.screen.width
                         screenHeight: bgRoot.screen.height
@@ -276,6 +281,14 @@ Variants {
                         wallpaperSafetyTriggered: bgRoot.wallpaperSafetyTriggered
                     }
                 }
+            }
+
+            DeskPoster {
+                anchors.fill: parent
+                workspaceId: bgRoot.activeWorkspaceId
+                // Anything but the laptop's own panel is a screen to present on.
+                presenting: Config.options.background.widgets.deskPoster.presentationOnExternalScreens && !bgRoot.modelData.name.startsWith("eDP")
+                shown: Config.options.background.widgets.deskPoster.enable && !GlobalStates.screenLocked
             }
         }
     }

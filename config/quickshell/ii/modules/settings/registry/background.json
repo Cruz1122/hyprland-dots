@@ -250,6 +250,18 @@
       ]
     },
     {
+      "key": "background.widgets.deskPoster.enable",
+      "section": "clock",
+      "label": "Empty workspace poster",
+      "description": "On workspaces without windows, show the date, a large symbol and a topic with a one-line description. Each workspace gets a different topic.",
+      "icon": "wall_art",
+      "backend": "config",
+      "type": "bool",
+      "consumers": [
+        "modules/ii/background/Background.qml"
+      ]
+    },
+    {
       "key": "background.widgets.clock.enable",
       "section": "clock",
       "label": "Desktop clock",
