@@ -1,28 +1,38 @@
 import QtQuick
 import QtQuick.Layouts
-import Qt5Compat.GraphicalEffects
-import Quickshell.Services.UPower
+import Quickshell
+import Quickshell.Io
+import Quickshell.Widgets
 import qs
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
 import qs.modules.common.panels.lock
-import qs.modules.ii.bar as Bar
-import Quickshell
-import Quickshell.Services.SystemTray
+import "../../common/functions/TimeFormat.js" as TimeFormat
 
+// Lock screen drawn like the greetd login (system/greeter/quickshell): date
+// and clock over the avatar, name and password pill, centered as one block,
+// with the keyboard and battery bottom left and power actions bottom right.
+// Keep the two layouts in sync.
 MouseArea {
     id: root
     required property LockContext context
     property bool active: false
-    property bool showInputField: active || context.currentText.length > 0
     readonly property bool requirePasswordToPower: Config.options.lock.security.requirePasswordToPower
 
-    // Force focus on entry
+    // The login screen's identity snapshot (scripts/install-greeter.sh) names
+    // the user and holds the avatar, so both screens show the same person.
+    readonly property string greeterTheme: "/etc/greetd/quickshell/theme"
+    property string displayName: SystemInfo.username
+
     function forceFieldFocus() {
         passwordBox.forceActiveFocus();
     }
+    function capitalized(text) {
+        return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
     Connections {
         target: context
         function onShouldReFocus() {
@@ -31,346 +41,315 @@ MouseArea {
     }
     hoverEnabled: true
     acceptedButtons: Qt.LeftButton
-    onPressed: mouse => {
-        forceFieldFocus();
-    }
-    onPositionChanged: mouse => {
-        forceFieldFocus();
-    }
+    onPressed: mouse => forceFieldFocus()
+    onPositionChanged: mouse => forceFieldFocus()
 
-    // Toolbar appearing animation
-    property real toolbarScale: 0.9
-    property real toolbarOpacity: 0
-    Behavior on toolbarScale {
-        NumberAnimation {
-            duration: Appearance.animation.elementMove.duration
-            easing.type: Appearance.animation.elementMove.type
-            easing.bezierCurve: Appearance.animationCurves.expressiveFastSpatial
-        }
+    // Entrance: the block rises into place.
+    property real reveal: 0
+    Behavior on reveal {
+        animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
     }
-    Behavior on toolbarOpacity {
-        animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-    }
-
-    // Init
     Component.onCompleted: {
         forceFieldFocus();
-        toolbarScale = 1;
-        toolbarOpacity = 1;
+        reveal = 1;
     }
 
-    // Key presses
     property bool ctrlHeld: false
     Keys.onPressed: event => {
         root.context.resetClearTimer();
-        if (event.key === Qt.Key_Control) {
+        if (event.key === Qt.Key_Control)
             root.ctrlHeld = true;
-        }
-        if (event.key === Qt.Key_Escape) { // Esc to clear
+        if (event.key === Qt.Key_Escape)
             root.context.currentText = "";
-        } 
         forceFieldFocus();
     }
     Keys.onReleased: event => {
-        if (event.key === Qt.Key_Control) {
+        if (event.key === Qt.Key_Control)
             root.ctrlHeld = false;
-        }
         forceFieldFocus();
     }
 
-    // RippleButton {
-    //     anchors {
-    //         top: parent.top
-    //         left: parent.left
-    //         leftMargin: 10
-    //         topMargin: 10
-    //     }
-    //     implicitHeight: 40
-    //     colBackground: Appearance.colors.colLayer2
-    //     onClicked: {
-    //         context.unlocked(LockContext.ActionEnum.Unlock);
-    //         GlobalStates.screenLocked = false;
-    //     }
-    //     contentItem: StyledText {
-    //         text: "[[ DEBUG BYPASS ]]"
-    //     }
-    // }
-
-    // Main toolbar: password box
-    Toolbar {
-        id: mainIsland
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            bottom: parent.bottom
-            bottomMargin: 20
+    FileView {
+        path: `${root.greeterTheme}/user.json`
+        onLoaded: {
+            try {
+                const user = JSON.parse(text());
+                if (user.displayName)
+                    root.displayName = user.displayName;
+            } catch (e) {
+                console.warn(`[LockSurface] ${path} is not valid JSON: ${e}`);
+            }
         }
-        Behavior on anchors.bottomMargin {
-            animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
-        }
+        // No greeter installed: keep the account name.
+        onLoadFailed: error => {}
+    }
 
-        scale: root.toolbarScale
-        opacity: root.toolbarOpacity
+    Rectangle { // Opaque, like the login screen
+        anchors.fill: parent
+        color: Appearance.colors.colLayer0
+    }
 
-        // Fingerprint
-        Loader {
-            Layout.leftMargin: 10
-            Layout.rightMargin: 6
-            Layout.alignment: Qt.AlignVCenter
-            active: root.context.fingerprintsConfigured
-            visible: active
+    ColumnLayout { // Date and clock over the card, centered as one block
+        anchors.centerIn: parent
+        anchors.verticalCenterOffset: (1 - root.reveal) * 50
+        opacity: root.reveal
+        spacing: 56
 
-            sourceComponent: MaterialSymbol {
-                id: fingerprintIcon
-                fill: 1
-                text: "fingerprint"
-                iconSize: Appearance.font.pixelSize.hugeass
+        ColumnLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 4
+
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                // Letter spacing is also added after the last glyph; shift it back.
+                Layout.leftMargin: font.letterSpacing
+                readonly property bool spanish: Qt.locale().name.startsWith("es")
+                text: `${root.capitalized(Qt.locale().toString(DateTime.clock.date, "dddd"))}, ${Qt.locale().toString(DateTime.clock.date, spanish ? "d 'de' MMMM" : "d MMMM")}`.toUpperCase()
                 color: Appearance.colors.colOnSurfaceVariant
+                font.family: Appearance.font.family.title
+                font.pixelSize: 22
+                font.weight: Font.Bold
+                font.letterSpacing: 8
+            }
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                // Formatted like the login screen: DateTime.time adds seconds
+                // to "h:mm" while locked, a rule of the old lock clock.
+                text: TimeFormat.formatTime(DateTime.clock.date, Config.options?.time.format ?? "hh:mm",
+                    Config.options?.time.secondPrecision === true, false, (date, format) => Qt.locale().toString(date, format))
+                color: Appearance.colors.colOnLayer0
+                font.family: Appearance.font.family.title
+                font.pixelSize: 200
+                font.weight: Font.Bold
+                renderType: Text.NativeRendering
             }
         }
 
-        ToolbarTextField {
-            id: passwordBox
-            Layout.rightMargin: -Layout.leftMargin
-            placeholderText: GlobalStates.screenUnlockFailed ? Translation.tr("Incorrect password") : Translation.tr("Enter password")
+        ColumnLayout { // Avatar, name, password
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 18
 
-            // Style
-            clip: true
-            font.pixelSize: Appearance.font.pixelSize.small
-            selectedTextColor: materialShapeChars ? "transparent" : Appearance.colors.colOnSecondaryContainer
-            selectionColor: materialShapeChars ? "transparent" : Appearance.colors.colSecondaryContainer
+            ClippingRectangle {
+                Layout.alignment: Qt.AlignHCenter
+                implicitWidth: 104
+                implicitHeight: 104
+                radius: width / 2
+                color: Appearance.colors.colLayer2
 
-            // Password
-            enabled: !root.context.unlockInProgress
-            echoMode: TextInput.Password
-            inputMethodHints: Qt.ImhSensitiveData
-
-            // Synchronizing (across monitors) and unlocking
-            onTextChanged: root.context.currentText = this.text
-            onAccepted: {
-                root.context.tryUnlock(ctrlHeld);
-            }
-            Connections {
-                target: root.context
-                function onCurrentTextChanged() {
-                    passwordBox.text = root.context.currentText;
+                StyledText {
+                    anchors.centerIn: parent
+                    visible: avatar.status !== Image.Ready
+                    text: root.displayName.charAt(0).toUpperCase()
+                    font.family: Appearance.font.family.title
+                    font.pixelSize: 44
+                    font.weight: Font.DemiBold
+                }
+                Image {
+                    id: avatar
+                    // Greeter snapshot first, then ~/.face, then the picture SDDM used.
+                    property list<string> candidates: [`file://${root.greeterTheme}/avatar`, `${Directories.home}/.face`, `file:///usr/share/sddm/faces/${SystemInfo.username}.face.icon`]
+                    property int candidate: 0
+                    anchors.fill: parent
+                    source: candidates[candidate]
+                    fillMode: Image.PreserveAspectCrop
+                    sourceSize: Qt.size(208, 208)
+                    asynchronous: true
+                    onStatusChanged: {
+                        if (status === Image.Error && candidate + 1 < candidates.length)
+                            candidate++;
+                    }
                 }
             }
 
-            Keys.onPressed: event => {
-                root.context.resetClearTimer();
+            StyledText {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.leftMargin: font.letterSpacing
+                text: root.displayName.toUpperCase()
+                font.family: Appearance.font.family.title
+                font.pixelSize: 17
+                font.weight: Font.DemiBold
+                font.letterSpacing: 5
             }
-            
-            layer.enabled: true
-            layer.effect: OpacityMask {
-                maskSource: Rectangle {
-                    width: passwordBox.width - 8
-                    height: passwordBox.height
+
+            RowLayout { // Holds the pill so ErrorShakeAnimation can move its margin
+                Layout.alignment: Qt.AlignHCenter
+
+                Rectangle {
+                    id: pill
+                    implicitWidth: 380
+                    implicitHeight: 56
                     radius: height / 2
-                }
-            }
+                    color: Appearance.colors.colLayer1
+                    border.width: 1
+                    border.color: Appearance.colors.colOutlineVariant
 
-            // Shake when wrong password
-            ErrorShakeAnimation {
-                id: wrongPasswordShakeAnim
-                target: passwordBox
-            }
-            Connections {
-                target: GlobalStates
-                function onScreenUnlockFailedChanged() {
-                    if (GlobalStates.screenUnlockFailed) wrongPasswordShakeAnim.restart();
-                }
-            }
+                    ErrorShakeAnimation {
+                        id: wrongPasswordShakeAnim
+                        target: pill
+                        distance: 14
+                    }
+                    Connections {
+                        target: GlobalStates
+                        function onScreenUnlockFailedChanged() {
+                            if (GlobalStates.screenUnlockFailed)
+                                wrongPasswordShakeAnim.restart();
+                        }
+                    }
 
-            // We're drawing dots manually
-            property bool materialShapeChars: Config.options.lock.materialShapeChars
-            color: ColorUtils.transparentize(Appearance.colors.colOnLayer1, materialShapeChars ? 1 : 0)
-            Loader {
-                active: passwordBox.materialShapeChars
-                anchors {
-                    fill: parent
-                    leftMargin: passwordBox.padding
-                    rightMargin: passwordBox.padding
-                }
-                sourceComponent: PasswordChars {
-                    length: root.context.currentText.length
-                    selectionStart: passwordBox.selectionStart
-                    selectionEnd: passwordBox.selectionEnd
-                    cursorPosition: passwordBox.cursorPosition
-                }
-            }
-        }
+                    MaterialSymbol {
+                        id: leadIcon
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.context.fingerprintsConfigured ? "fingerprint" : "lock"
+                        iconSize: Appearance.font.pixelSize.huge
+                        color: Appearance.colors.colSubtext
+                    }
 
-        ToolbarButton {
-            id: confirmButton
-            implicitWidth: height
-            toggled: true
-            enabled: !root.context.unlockInProgress
-            colBackgroundToggled: Appearance.colors.colPrimary
+                    TextInput {
+                        id: passwordBox
+                        anchors.left: leadIcon.right
+                        anchors.leftMargin: 14
+                        anchors.right: confirm.left
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height
+                        clip: true
+                        verticalAlignment: TextInput.AlignVCenter
+                        echoMode: TextInput.Password
+                        inputMethodHints: Qt.ImhSensitiveData
+                        enabled: !root.context.unlockInProgress
+                        // Drawn by PasswordChars; the real glyphs and cursor stay hidden.
+                        color: "transparent"
+                        selectionColor: "transparent"
+                        selectedTextColor: "transparent"
+                        cursorDelegate: Item {}
+                        font.pixelSize: Appearance.font.pixelSize.normal
 
-            onClicked: root.context.tryUnlock()
+                        // Synchronized across monitors through the context.
+                        onTextChanged: root.context.currentText = text
+                        onAccepted: root.context.tryUnlock(root.ctrlHeld)
+                        Connections {
+                            target: root.context
+                            function onCurrentTextChanged() {
+                                passwordBox.text = root.context.currentText;
+                            }
+                        }
+                        Keys.onPressed: event => root.context.resetClearTimer()
 
-            contentItem: MaterialSymbol {
-                anchors.centerIn: parent
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                iconSize: 24
-                text: {
-                    if (root.context.targetAction === LockContext.ActionEnum.Unlock) {
-                        return root.ctrlHeld ? "coffee" : "arrow_right_alt";
-                    } else if (root.context.targetAction === LockContext.ActionEnum.Poweroff) {
-                        return "power_settings_new";
-                    } else if (root.context.targetAction === LockContext.ActionEnum.Reboot) {
-                        return "restart_alt";
+                        StyledText {
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: passwordBox.text.length === 0
+                            text: GlobalStates.screenUnlockFailed ? Translation.tr("Incorrect password") : Translation.tr("Enter password")
+                            color: GlobalStates.screenUnlockFailed ? Appearance.colors.colError : Appearance.colors.colSubtext
+                            font.family: Appearance.font.family.title
+                            font.pixelSize: Appearance.font.pixelSize.normal
+                        }
+                        PasswordChars {
+                            anchors.fill: parent
+                            // Its cursor would sit on the placeholder.
+                            visible: Config.options.lock.materialShapeChars && root.context.currentText.length > 0
+                            length: root.context.currentText.length
+                            selectionStart: passwordBox.selectionStart
+                            selectionEnd: passwordBox.selectionEnd
+                            cursorPosition: passwordBox.cursorPosition
+                            color: Appearance.colors.colOnLayer0
+                        }
+                        StyledText { // Plain dots when shaped characters are off
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: !Config.options.lock.materialShapeChars
+                            text: "●".repeat(root.context.currentText.length)
+                        }
+                    }
+
+                    Rectangle {
+                        id: confirm
+                        anchors.right: parent.right
+                        anchors.rightMargin: 8
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 42
+                        height: 42
+                        radius: height / 2
+                        color: Appearance.colors.colOnLayer0
+                        opacity: confirmArea.pressed ? 0.8 : 1
+                        scale: confirmArea.pressed ? 0.92 : 1
+                        Behavior on scale {
+                            animation: Appearance.animation.clickBounce.numberAnimation.createObject(this)
+                        }
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            iconSize: 24
+                            color: Appearance.colors.colLayer0
+                            text: {
+                                if (root.context.unlockInProgress)
+                                    return "hourglass_top";
+                                if (root.context.targetAction === LockContext.ActionEnum.Poweroff)
+                                    return "power_settings_new";
+                                if (root.context.targetAction === LockContext.ActionEnum.Reboot)
+                                    return "restart_alt";
+                                return root.ctrlHeld ? "coffee" : "arrow_forward";
+                            }
+                        }
+                        MouseArea {
+                            id: confirmArea
+                            anchors.fill: parent
+                            enabled: !root.context.unlockInProgress
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.context.tryUnlock(root.ctrlHeld)
+                        }
                     }
                 }
-                color: confirmButton.enabled ? Appearance.colors.colOnPrimary : Appearance.colors.colSubtext
             }
         }
     }
 
-    // Left toolbar
-    Toolbar {
-        id: leftIsland
-        anchors {
-            right: mainIsland.left
-            top: mainIsland.top
-            bottom: mainIsland.bottom
-            rightMargin: 10
-        }
-        scale: root.toolbarScale
-        opacity: root.toolbarOpacity
+    LockCornerPill { // Keyboard layout and battery, bottom left
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        anchors.margins: 28
+        opacity: root.reveal
 
-        // Username
-        IconAndTextPair {
-            Layout.leftMargin: 8
-            icon: "account_circle"
-            text: SystemInfo.username
-        }
-
-        // Keyboard layout (Xkb)
-        Loader {
-            Layout.rightMargin: 8
-            Layout.fillHeight: true
-
-            active: true
-            visible: active
-
-            sourceComponent: Row {
-                spacing: 8
-
-                MaterialSymbol {
-                    id: keyboardIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    fill: 1
-                    text: "keyboard_alt"
-                    iconSize: Appearance.font.pixelSize.huge
-                    color: Appearance.colors.colOnSurfaceVariant
-                }
-                Loader {
-                    anchors.verticalCenter: parent.verticalCenter
-                    sourceComponent: StyledText {
-                        text: HyprlandXkb.currentLayoutCode
-                        color: Appearance.colors.colOnSurfaceVariant
-                        animateChange: true
-                    }
-                }
-            }
-        }
-
-        // Keyboard layout (Fcitx)
-        Bar.SysTray {
+        RowLayout {
+            spacing: 14
+            Layout.leftMargin: 10
             Layout.rightMargin: 10
-            Layout.alignment: Qt.AlignVCenter
-            showSeparator: false
-            showOverflowMenu: false
-            pinnedItems: SystemTray.items.values.filter(i => i.id == "Fcitx")
-            visible: pinnedItems.length > 0
+            LockIconText {
+                icon: "keyboard_alt"
+                text: HyprlandXkb.currentLayoutCode
+            }
+            LockIconText {
+                visible: Battery.available
+                icon: Battery.isCharging ? "bolt" : "battery_android_full"
+                text: `${Math.round(Battery.percentage * 100)}%`
+                color: (Battery.isLow && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colSubtext
+            }
         }
     }
 
-    // Right toolbar
-    Toolbar {
-        id: rightIsland
-        anchors {
-            left: mainIsland.right
-            top: mainIsland.top
-            bottom: mainIsland.bottom
-            leftMargin: 10
-        }
+    LockCornerPill { // Power actions, bottom right
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.margins: 28
+        opacity: root.reveal
 
-        scale: root.toolbarScale
-        opacity: root.toolbarOpacity
-
-        IconAndTextPair {
-            visible: Battery.available
-            icon: Battery.isCharging ? "bolt" : "battery_android_full"
-            text: Math.round(Battery.percentage * 100)
-            color: (Battery.isLow && !Battery.isCharging) ? Appearance.colors.colError : Appearance.colors.colOnSurfaceVariant
-        }
-
-        IconToolbarButton {
-            id: sleepButton
+        LockCornerButton {
+            context: root.context
+            requirePassword: root.requirePasswordToPower
+            symbol: "dark_mode"
             onClicked: Session.suspend()
-            text: "dark_mode"
         }
-
-        PasswordGuardedIconToolbarButton {
-            id: powerButton
-            text: "power_settings_new"
+        LockCornerButton {
+            context: root.context
+            requirePassword: root.requirePasswordToPower
+            symbol: "power_settings_new"
             targetAction: LockContext.ActionEnum.Poweroff
         }
-
-        PasswordGuardedIconToolbarButton {
-            id: rebootButton
-            text: "restart_alt"
+        LockCornerButton {
+            context: root.context
+            requirePassword: root.requirePasswordToPower
+            symbol: "restart_alt"
             targetAction: LockContext.ActionEnum.Reboot
-        }
-    }
-
-    component PasswordGuardedIconToolbarButton: IconToolbarButton {
-        id: guardedBtn
-        required property var targetAction
-
-        toggled: root.context.targetAction === guardedBtn.targetAction
-
-        onClicked: {
-            if (!root.requirePasswordToPower) {
-                root.context.unlocked(guardedBtn.targetAction);
-                return;
-            }
-            if (root.context.targetAction === guardedBtn.targetAction) {
-                root.context.resetTargetAction();
-            } else {
-                root.context.targetAction = guardedBtn.targetAction;
-                root.context.shouldReFocus();
-            }
-        }
-    }
-
-    component IconAndTextPair: Row {
-        id: pair
-        required property string icon
-        required property string text
-        property color color: Appearance.colors.colOnSurfaceVariant
-
-        spacing: 4
-        Layout.fillHeight: true
-        Layout.leftMargin: 10
-        Layout.rightMargin: 10
-        
-
-        MaterialSymbol {
-            anchors.verticalCenter: parent.verticalCenter
-            fill: 1
-            text: pair.icon
-            iconSize: Appearance.font.pixelSize.huge
-            animateChange: true
-            color: pair.color
-        }
-        StyledText {
-            anchors.verticalCenter: parent.verticalCenter
-            text: pair.text
-            color: pair.color
         }
     }
 }
