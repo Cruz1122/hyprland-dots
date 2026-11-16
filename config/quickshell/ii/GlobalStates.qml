@@ -4,12 +4,19 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.UPower
 pragma Singleton
 pragma ComponentBehavior: Bound
 
 Singleton {
     id: root
     property bool barOpen: true
+    // Bar pills and panel edge lights trade their base color for the
+    // iridescent palette while media plays or the performance profile is on.
+    readonly property bool iridescent: MprisController.isPlaying || PowerProfiles.profile === PowerProfile.Performance
+    // Width of the bar's centered cluster (resources | workspaces | clock),
+    // published by BarContent so the launcher panel can align with it.
+    property real barMiddleSectionWidth: 0
     property bool authenticatorOpen: false
     property bool authenticatorPresented: false
     property string authenticatorScreenName: ""

@@ -4,23 +4,40 @@ const HOST = "org.illogical_impulse.ai_quotas";
 const URLS = { cursor: "https://cursor.com/dashboard", zed: "https://dashboard.zed.dev/account" };
 const MATCHES = { cursor: ["https://cursor.com/*"], zed: ["https://dashboard.zed.dev/*", "https://zed.dev/*"] };
 let running = false;
+const owned = new Set();
+let ownedLoaded = false;
+
+async function rememberOwned() {
+  await chrome.storage.session.set({ quotaOwnedTabs: [...owned] });
+}
 
 export async function sync() {
   if (running) return;
   running = true;
   let retry = false;
   try {
+    if (!ownedLoaded) {
+      const saved = await chrome.storage.session.get("quotaOwnedTabs");
+      for (const id of saved.quotaOwnedTabs ?? []) if (Number.isInteger(id)) owned.add(id);
+      ownedLoaded = true;
+    }
+    let pruned = false;
+    for (const id of [...owned]) {
+      if (await chrome.tabs.get(id).catch(() => null)) continue;
+      owned.delete(id);
+      pruned = true;
+    }
+    if (pruned) await rememberOwned();
     const state = await chrome.runtime.sendNativeMessage(HOST, { action: "state" });
     retry = (state.requests ?? []).some(task => task.login === true);
     for (const task of (state.requests ?? []).slice(0, 2)) {
       if (!Object.hasOwn(URLS, task.provider) || !/^[a-f0-9]{64}$/.test(task.nonce)) continue;
       const tabs = await chrome.tabs.query({ url: MATCHES[task.provider] });
-      let tab = tabs.find(candidate => candidate.status === "complete") ?? tabs[0];
+      let tab = tabs.find(candidate => owned.has(candidate.id)) ?? tabs.find(candidate => candidate.status === "complete") ?? tabs[0];
       if (!tab) {
-        // Background refresh never opens provider pages. Only an explicit login
-        // requested from the panel may create a tab.
-        if (task.login !== true) continue;
-        await chrome.tabs.create({ url: URLS[task.provider], active: true });
+        // Keep one inactive pinned tab per provider; reopening on every poll caused visible churn.
+        tab = await chrome.tabs.create({ url: URLS[task.provider], active: task.login === true, pinned: task.login !== true });
+        if (!task.login) { owned.add(tab.id); await rememberOwned(); }
         continue; // Read when its load event arrives; never inject into a login page.
       }
       if (tab.status !== "complete") continue;

@@ -36,6 +36,10 @@
         "tool": "functions"
     },
     "appearance": {
+        "animations": {
+            "durationScale": 1,
+            "reduceMotion": false
+        },
         "extraBackgroundTint": true,
         "fakeScreenRounding": 2,
         "fonts": {
@@ -97,8 +101,8 @@
             "widgetsFactor": 1.2,
             "workspaceZoom": 1
         },
-        "thumbnailPath": "",
-        "wallpaperPath": "@CONFIG@/hypr/wallpaper.png",
+        "thumbnailPath": "@CONFIG@/hypr/custom/scripts/mpvpaper_thumbnails/133143-755982926_medium.mp4.jpg",
+        "wallpaperPath": "@HOME@/Imágenes/Wallpapers/random_wallpaper.",
         "widgets": {
             "clock": {
                 "cookie": {
@@ -139,6 +143,9 @@
                 "styleLocked": "digital",
                 "x": 899.640625,
                 "y": 203.77734375
+            },
+            "deskPoster": {
+                "enable": true
             },
             "weather": {
                 "enable": false,
@@ -241,8 +248,17 @@
     "crosshair": {
         "code": "0;P;d;1;0l;10;0o;2;1b;0"
     },
-    "dock": {
+    "dictation": {
         "enable": true,
+        "height": 52,
+        "hoverToReveal": true,
+        "keepLoadedMinutes": 10,
+        "language": "auto",
+        "model": "large-v3-turbo-q5_0",
+        "silenceSeconds": 2.5
+    },
+    "dock": {
+        "enable": false,
         "height": 60,
         "hoverRegionHeight": 2,
         "hoverToReveal": true,
@@ -251,8 +267,7 @@
         "monochromeIcons": false,
         "pinnedApps": [
             "steam",
-            "org.kde.dolphin",
-            "cursor"
+            "org.kde.dolphin"
         ],
         "pinnedOnStartup": false
     },
@@ -468,10 +483,6 @@
                     {
                         "size": 1,
                         "type": "bluetooth"
-                    },
-                    {
-                        "size": 1,
-                        "type": "colorPicker"
                     },
                     {
                         "size": 1,

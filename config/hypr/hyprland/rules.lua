@@ -135,7 +135,8 @@ hl.layer_rule({ match = { namespace = "quickshell:.*" }, ignore_alpha = 0.79})
 hl.layer_rule({ match = { namespace = "quickshell:bar" }, animation = "slide"})
 hl.layer_rule({ match = { namespace = "quickshell:actionCenter" }, no_anim = true})
 hl.layer_rule({ match = { namespace = "quickshell:cheatsheet" }, animation = "slide bottom"})
-hl.layer_rule({ match = { namespace = "quickshell:dock" }, animation = "slide bottom"})
+hl.layer_rule({ match = { namespace = "quickshell:dock" }, no_anim = true}) -- the shell animates the dock itself
+hl.layer_rule({ match = { namespace = "quickshell:dictation" }, no_anim = true}) -- same for the dictation bar
 hl.layer_rule({ match = { namespace = "quickshell:screenCorners" }, animation = "popin 120%"})
 hl.layer_rule({ match = { namespace = "quickshell:lockWindowPusher" }, no_anim = true})
 hl.layer_rule({ match = { namespace = "quickshell:notificationPopup" }, animation = "fade"})
@@ -153,8 +154,8 @@ hl.layer_rule({ match = { namespace = "quickshell:screenshot" }, no_anim = true}
 hl.layer_rule({ match = { namespace = "quickshell:session" }, blur = true})
 hl.layer_rule({ match = { namespace = "quickshell:session" }, no_anim = true})
 hl.layer_rule({ match = { namespace = "quickshell:session" }, ignore_alpha = 0})
-hl.layer_rule({ match = { namespace = "quickshell:sidebarRight" }, animation = "slide right"})
-hl.layer_rule({ match = { namespace = "quickshell:sidebarLeft" }, animation = "slide left"})
+hl.layer_rule({ match = { namespace = "quickshell:sidebarRight" }, no_anim = true}) -- the shell animates the rail itself
+hl.layer_rule({ match = { namespace = "quickshell:sidebarLeft" }, no_anim = true}) -- the shell animates the rail itself
 hl.layer_rule({ match = { namespace = "quickshell:verticalBar" }, animation = "slide"})
 hl.layer_rule({ match = { namespace = "quickshell:osk" }, order = -1})
 -- Quickshell: waffles
