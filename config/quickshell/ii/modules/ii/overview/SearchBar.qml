@@ -7,11 +7,16 @@ import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.modules.common.functions
+import qs.modules.ii.bar
 
-RowLayout {
+// Launcher search field: a single pill with a leading icon that reflects the
+// active search prefix and a trailing clear button.
+Item {
     id: root
-    spacing: 6
     property bool animateWidth: false
+    // When true the input stretches to the available width instead of using
+    // the collapsed/expanded fixed widths.
+    property bool fillWidth: false
     property alias searchInput: searchInput
     property string searchingText
 
@@ -31,128 +36,128 @@ RowLayout {
         if (root.searchingText.startsWith(Config.options.search.prefix.webSearch)) return SearchBar.SearchPrefixType.WebSearch;
         return SearchBar.SearchPrefixType.DefaultSearch;
     }
-    
-    MaterialShapeWrappedMaterialSymbol {
-        id: searchIcon
-        Layout.alignment: Qt.AlignVCenter
-        iconSize: Appearance.font.pixelSize.huge
-        shape: switch(root.searchPrefixType) {
-            case SearchBar.SearchPrefixType.Action: return MaterialShape.Shape.Pill;
-            case SearchBar.SearchPrefixType.App: return MaterialShape.Shape.Clover4Leaf;
-            case SearchBar.SearchPrefixType.Clipboard: return MaterialShape.Shape.Gem;
-            case SearchBar.SearchPrefixType.Emojis: return MaterialShape.Shape.Sunny;
-            case SearchBar.SearchPrefixType.Math: return MaterialShape.Shape.PuffyDiamond;
-            case SearchBar.SearchPrefixType.ShellCommand: return MaterialShape.Shape.PixelCircle;
-            case SearchBar.SearchPrefixType.WebSearch: return MaterialShape.Shape.SoftBurst;
-            default: return MaterialShape.Shape.Cookie7Sided;
-        }
-        text: switch (root.searchPrefixType) {
-            case SearchBar.SearchPrefixType.Action: return "settings_suggest";
-            case SearchBar.SearchPrefixType.App: return "apps";
-            case SearchBar.SearchPrefixType.Clipboard: return "content_paste_search";
-            case SearchBar.SearchPrefixType.Emojis: return "add_reaction";
-            case SearchBar.SearchPrefixType.Math: return "calculate";
-            case SearchBar.SearchPrefixType.ShellCommand: return "terminal";
-            case SearchBar.SearchPrefixType.WebSearch: return "travel_explore";
-            case SearchBar.SearchPrefixType.DefaultSearch: return "search";
-            default: return "search";
-        }
+    readonly property string prefixIcon: switch (root.searchPrefixType) {
+        case SearchBar.SearchPrefixType.Action: return "settings_suggest";
+        case SearchBar.SearchPrefixType.App: return "apps";
+        case SearchBar.SearchPrefixType.Clipboard: return "content_paste_search";
+        case SearchBar.SearchPrefixType.Emojis: return "add_reaction";
+        case SearchBar.SearchPrefixType.Math: return "calculate";
+        case SearchBar.SearchPrefixType.ShellCommand: return "terminal";
+        case SearchBar.SearchPrefixType.WebSearch: return "travel_explore";
+        default: return "search";
     }
-    ToolbarTextField { // Search box
-        id: searchInput
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        implicitHeight: 40
-        focus: GlobalStates.overviewOpen
-        font.pixelSize: Appearance.font.pixelSize.small
-        placeholderText: Translation.tr("Search, calculate or run")
-        implicitWidth: root.searchingText == "" ? Appearance.sizes.searchWidthCollapsed : Appearance.sizes.searchWidth
+    readonly property bool hasText: root.searchingText.length > 0
 
-        Behavior on implicitWidth {
-            id: searchWidthBehavior
-            enabled: root.animateWidth
-            NumberAnimation {
-                duration: 300
-                easing.type: Appearance.animation.elementMove.type
-                easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
-            }
-        }
+    implicitWidth: row.implicitWidth + row.anchors.leftMargin + row.anchors.rightMargin
+    implicitHeight: 50
 
-        onTextChanged: LauncherSearch.query = text
+    // Rim that lights up while typing: the launcher's edge light, on the field.
+    IridescentFill {
+        active: root.hasText
+    }
 
-        onAccepted: {
-            if (appResults.count > 0) {
-                // Get the first visible delegate and trigger its click
-                let firstItem = appResults.itemAtIndex(0);
-                if (firstItem && firstItem.clicked) {
-                    firstItem.clicked();
-                }
-            }
-        }
-
-        Keys.onPressed: event => {
-            if (event.key === Qt.Key_Tab) {
-                if (LauncherSearch.results.length === 0) return;
-                const tabbedText = LauncherSearch.results[0].name;
-                LauncherSearch.query = tabbedText;
-                searchInput.text = tabbedText;
-                event.accepted = true;
-            }
+    Rectangle { // Field surface
+        anchors.fill: parent
+        anchors.margins: root.hasText ? 1.5 : 0
+        radius: height / 2
+        // Opaque, so the rim behind it only shows as a ring.
+        color: Appearance.m3colors.m3surfaceContainerHigh
+        Behavior on anchors.margins {
+            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
         }
     }
 
-    IconToolbarButton {
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        onClicked: {
-            GlobalStates.overviewOpen = false;
-            Quickshell.execDetached(["qs", "-p", Quickshell.shellPath(""), "ipc", "call", "region", "search"]);
+    RowLayout {
+        id: row
+        anchors {
+            fill: parent
+            leftMargin: 18
+            rightMargin: 9
         }
-        text: "image_search"
-        StyledToolTip {
-            text: Translation.tr("Google Lens")
-        }
-    }
+        spacing: 4
 
-    IconToolbarButton {
-        id: songRecButton
-        Layout.topMargin: 4
-        Layout.bottomMargin: 4
-        Layout.rightMargin: 4
-        toggled: SongRec.running
-        onClicked: SongRec.toggleRunning()
-        text: "music_cast"
-
-        StyledToolTip {
-            text: Translation.tr("Recognize music")
-        }
-
-        colText: toggled ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurfaceVariant
-        background: MaterialShape {
-            RotationAnimation on rotation {
-                running: songRecButton.toggled
-                duration: 12000 // motion-ok: endless rotation while recognizing a song
-                easing.type: Easing.Linear
-                loops: Animation.Infinite
-                from: 0
-                to: 360
-            }
-            shape: {
-                if (songRecButton.down) {
-                    return songRecButton.toggled ? MaterialShape.Shape.Circle : MaterialShape.Shape.Square
-                } else {
-                    return songRecButton.toggled ? MaterialShape.Shape.SoftBurst : MaterialShape.Shape.Circle
-                }
-            }
-            color: {
-                if (songRecButton.toggled) {
-                    return songRecButton.hovered ? Appearance.colors.colPrimaryHover : Appearance.colors.colPrimary
-                } else {
-                    return songRecButton.hovered ? Appearance.colors.colSurfaceContainerHigh : ColorUtils.transparentize(Appearance.colors.colSurfaceContainerHigh)
-                }
-            }
+        MaterialSymbol {
+            Layout.alignment: Qt.AlignVCenter
+            text: root.prefixIcon
+            animateChange: true
+            iconSize: Appearance.font.pixelSize.huge
+            color: root.hasText ? Appearance.colors.colPrimary : Appearance.colors.colSubtext
             Behavior on color {
                 animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            }
+        }
+
+        ToolbarTextField { // Search box
+            id: searchInput
+            Layout.fillWidth: root.fillWidth
+            Layout.fillHeight: true
+            colBackground: "transparent"
+            padding: 8
+            focus: GlobalStates.overviewOpen
+            font.pixelSize: Appearance.font.pixelSize.large
+            placeholderText: Translation.tr("Search, calculate or run")
+            implicitWidth: root.searchingText == "" ? Appearance.sizes.searchWidthCollapsed : Appearance.sizes.searchWidth
+
+            Behavior on implicitWidth {
+                id: searchWidthBehavior
+                enabled: root.animateWidth
+                NumberAnimation {
+                    duration: Appearance.animation.elementMove.duration
+                    easing.type: Appearance.animation.elementMove.type
+                    easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
+                }
+            }
+
+            onTextChanged: LauncherSearch.query = text
+
+            onAccepted: {
+                if (appResults.count > 0) {
+                    // Get the first visible delegate and trigger its click
+                    let firstItem = appResults.itemAtIndex(0);
+                    if (firstItem && firstItem.clicked) {
+                        firstItem.clicked();
+                    }
+                }
+            }
+
+            Keys.onPressed: event => {
+                if (event.key === Qt.Key_Tab) {
+                    if (LauncherSearch.results.length === 0) return;
+                    const tabbedText = LauncherSearch.results[0].name;
+                    LauncherSearch.query = tabbedText;
+                    searchInput.text = tabbedText;
+                    event.accepted = true;
+                }
+            }
+        }
+
+        Rectangle { // Clear button
+            id: clearButton
+            Layout.alignment: Qt.AlignVCenter
+            implicitWidth: 32
+            implicitHeight: 32
+            radius: width / 2
+            color: clearArea.containsMouse ? Appearance.colors.colLayer1Hover : "transparent"
+            opacity: root.hasText ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+            }
+            MaterialSymbol {
+                anchors.centerIn: parent
+                text: "close"
+                iconSize: Appearance.font.pixelSize.larger
+                color: Appearance.colors.colSubtext
+            }
+            MouseArea {
+                id: clearArea
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                    searchInput.text = "";
+                    root.forceFocus();
+                }
             }
         }
     }

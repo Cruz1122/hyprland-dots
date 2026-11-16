@@ -2,73 +2,55 @@ pragma ComponentBehavior: Bound
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
+// Loaded by URL below; without these imports their sibling types do not resolve.
 import qs.modules.ii.sidebarRight.calendar
 import qs.modules.ii.sidebarRight.todo
 import qs.modules.ii.sidebarRight.pomodoro
 import QtQuick
-import QtQuick.Layouts
 
-Rectangle {
+// Tools of the right rail as an accordion: three equal chips (calendar, to-do,
+// timer) that open a single card underneath. Clicking the open chip closes it.
+Item {
     id: root
-    radius: Appearance.rounding.normal
-    color: Appearance.colors.colLayer1
-    clip: true
-    implicitHeight: collapsed ? collapsedBottomWidgetGroupRow.implicitHeight : 350
     property int selectedTab: Persistent.states.sidebar.bottomGroup.tab
-    property int previousIndex: -1
     property bool collapsed: Persistent.states.sidebar.bottomGroup.collapsed
-    // Half of the scaled elementMove, shared by the two row fades and the
-    // timer that waits for them; never 0, which would finish synchronously.
-    readonly property int halfMoveDuration: Math.max(1, Math.round(Appearance.animation.elementMove.duration / 2))
+    readonly property int pendingTasks: Todo.list.filter(task => !task.done).length
+    readonly property real chipHeight: 40
+    readonly property real gap: 8
+    readonly property real contentHeight: 318
+    // 0 = closed, 1 = open.
+    property real openness: collapsed ? 0 : 1
+    Behavior on openness {
+        animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
+    }
     property var tabs: [
         {
-            "type": "calendar",
             "name": Translation.tr("Calendar"),
             "icon": "calendar_month",
             "widget": "calendar/CalendarWidget.qml"
         },
         {
-            "type": "todo",
             "name": Translation.tr("To Do"),
             "icon": "done_outline",
             "widget": "todo/TodoWidget.qml"
         },
         {
-            "type": "timer",
             "name": Translation.tr("Timer"),
             "icon": "schedule",
             "widget": "pomodoro/PomodoroWidget.qml"
         },
     ]
 
-    Behavior on implicitHeight {
-        NumberAnimation {
-            duration: Appearance.animation.elementMove.duration
-            easing.type: Appearance.animation.elementMove.type
-            easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
-        }
-    }
+    implicitHeight: chipHeight + (gap + contentHeight) * openness
 
-    function setCollapsed(state) {
-        Persistent.states.sidebar.bottomGroup.collapsed = state;
-        if (collapsed) {
-            bottomWidgetGroupRow.opacity = 0;
-        } else {
-            collapsedBottomWidgetGroupRow.opacity = 0;
+    function select(index) {
+        if (!root.collapsed && root.selectedTab === index) {
+            Persistent.states.sidebar.bottomGroup.collapsed = true;
+            return;
         }
-        collapseCleanFadeTimer.start();
-    }
-
-    Timer {
-        id: collapseCleanFadeTimer
-        interval: root.halfMoveDuration
-        repeat: false
-        onTriggered: {
-            if (collapsed)
-                collapsedBottomWidgetGroupRow.opacity = 1;
-            else
-                bottomWidgetGroupRow.opacity = 1;
-        }
+        root.selectedTab = index;
+        Persistent.states.sidebar.bottomGroup.tab = index;
+        Persistent.states.sidebar.bottomGroup.collapsed = false;
     }
 
     Keys.onPressed: event => {
@@ -82,201 +64,67 @@ Rectangle {
         }
     }
 
-    // The thing when collapsed
-    RowLayout {
-        id: collapsedBottomWidgetGroupRow
-        opacity: collapsed ? 1 : 0
-        visible: opacity > 0
-        Behavior on opacity {
-            NumberAnimation {
-                id: collapsedBottomWidgetGroupRowFade
-                duration: root.halfMoveDuration
-                easing.type: Appearance.animation.elementMove.type
-                easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
-            }
-        }
+    Row {
+        id: chips
+        width: parent.width
+        height: root.chipHeight
+        spacing: root.gap
 
-        spacing: 15
+        Repeater {
+            model: root.tabs
+            RippleButton {
+                id: chip
+                required property int index
+                required property var modelData
+                readonly property bool current: !root.collapsed && root.selectedTab === index
+                readonly property color ink: current ? Appearance.colors.colOnPrimary : Appearance.colors.colOnLayer1
+                width: (chips.width - root.gap * (root.tabs.length - 1)) / root.tabs.length
+                height: root.chipHeight
+                buttonRadius: height / 2
+                toggled: current
+                colBackground: Appearance.colors.colLayer1
+                onClicked: root.select(index)
 
-        CalendarHeaderButton {
-            Layout.margins: 10
-            Layout.rightMargin: 0
-            forceCircle: true
-            downAction: () => {
-                root.setCollapsed(false);
-            }
-            contentItem: MaterialSymbol {
-                text: "keyboard_arrow_up"
-                iconSize: Appearance.font.pixelSize.larger
-                horizontalAlignment: Text.AlignHCenter
-                color: Appearance.colors.colOnLayer1
-            }
-        }
-
-        StyledText {
-            property int remainingTasks: Todo.list.filter(task => !task.done).length
-            Layout.margins: 10
-            Layout.leftMargin: 0
-            // text: `${DateTime.collapsedCalendarFormat}   •   ${remainingTasks} task${remainingTasks > 1 ? "s" : ""}`
-            text: Translation.tr("%1   •   %2 tasks").arg(DateTime.collapsedCalendarFormat).arg(remainingTasks)
-            font.pixelSize: Appearance.font.pixelSize.large
-            color: Appearance.colors.colOnLayer1
-        }
-    }
-
-    // The thing when expanded
-    RowLayout {
-        id: bottomWidgetGroupRow
-
-        opacity: collapsed ? 0 : 1
-        visible: opacity > 0
-        Behavior on opacity {
-            NumberAnimation {
-                id: bottomWidgetGroupRowFade
-                duration: root.halfMoveDuration
-                easing.type: Appearance.animation.elementMove.type
-                easing.bezierCurve: Appearance.animation.elementMove.bezierCurve
-            }
-        }
-
-        anchors.fill: parent
-        // implicitHeight: tabStack.implicitHeight
-        spacing: 20
-
-        // Navigation rail
-        Item {
-            Layout.fillHeight: true
-            Layout.fillWidth: false
-            Layout.leftMargin: 10
-            Layout.topMargin: 10
-            implicitWidth: tabBar.implicitWidth
-            // Navigation rail buttons
-            NavigationRailTabArray {
-                id: tabBar
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 5
-                currentIndex: root.selectedTab
-                expanded: false
-                Repeater {
-                    model: root.tabs
-                    NavigationRailButton {
-                        required property int index
-                        required property var modelData
-                        showToggledHighlight: false
-                        toggled: root.selectedTab == index
-                        buttonText: modelData.name
-                        buttonIcon: modelData.icon
-                        onPressed: {
-                            root.selectedTab = index;
-                            Persistent.states.sidebar.bottomGroup.tab = index;
+                contentItem: Item {
+                    Row {
+                        anchors.centerIn: parent
+                        spacing: 6
+                        MaterialSymbol {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: chip.modelData.icon
+                            iconSize: 18
+                            fill: chip.current ? 1 : 0
+                            color: chip.ink
+                        }
+                        StyledText {
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: chip.index === 1 && root.pendingTasks > 0
+                                ? `${chip.modelData.name} · ${root.pendingTasks}` : chip.modelData.name
+                            font.pixelSize: Appearance.font.pixelSize.smallie
+                            color: chip.ink
                         }
                     }
                 }
             }
-            // Collapse button
-            CalendarHeaderButton {
-                anchors.left: parent.left
-                anchors.top: parent.top
-                forceCircle: true
-                downAction: () => {
-                    root.setCollapsed(true);
-                }
-                contentItem: MaterialSymbol {
-                    text: "keyboard_arrow_down"
-                    iconSize: Appearance.font.pixelSize.larger
-                    horizontalAlignment: Text.AlignHCenter
-                    color: Appearance.colors.colOnLayer1
-                }
-            }
-        }
-
-        // Content area
-        Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            // implicitHeight: tabStack.implicitHeight
-
-            Loader {
-                id: tabStack
-                anchors.fill: parent
-                anchors.bottomMargin: -anchors.topMargin
-
-                Component.onCompleted: {
-                    tabStack.source = root.tabs[root.selectedTab].widget;
-                }
-
-                Connections {
-                    target: root
-                    function onSelectedTabChanged() {
-                        if (root.currentTab > root.previousIndex)
-                            tabSwitchBehavior.animation.down = true;
-                        else if (root.currentTab < root.previousIndex)
-                            tabSwitchBehavior.animation.down = false;
-                        tabStack.source = root.tabs[root.selectedTab].widget;
-                    }
-                }
-
-                Behavior on source {
-                    id: tabSwitchBehavior
-                    animation: TabSwitchAnim {
-                        id: upAnim
-                        down: true
-                    }
-                }
-            }
         }
     }
 
-    component TabSwitchAnim: SequentialAnimation {
-        id: switchAnim
-        property bool down: false
-        ParallelAnimation {
-            PropertyAnimation {
-                target: tabStack
-                properties: "opacity"
-                to: 0
-                duration: Appearance.animation.elementMoveFast.duration
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
-            }
-            PropertyAnimation {
-                target: tabStack.anchors
-                properties: "topMargin"
-                to: 10 * (switchAnim.down ? -1 : 1)
-                duration: Appearance.animation.elementMoveFast.duration
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animation.elementMoveFast.bezierCurve
-            }
-        }
-        PropertyAction {
-            target: tabStack
-            property: "source"
-            value: root.tabs[root.selectedTab].widget
-        } // The source change happens here
-        ParallelAnimation {
-            PropertyAnimation {
-                target: tabStack.anchors
-                properties: "topMargin"
-                from: 10 * -(switchAnim.down ? -1 : 1)
-                to: 0
-                duration: Appearance.animation.elementMoveFast.duration
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve
-            }
-            PropertyAnimation {
-                target: tabStack
-                properties: "opacity"
-                to: 1
-                duration: Appearance.animation.elementMoveFast.duration
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animation.elementMoveEnter.bezierCurve
-            }
-        }
-        ScriptAction {
-            script: {
-                root.previousIndex = root.selectedTab;
-            }
+    Rectangle {
+        y: root.chipHeight + root.gap * root.openness
+        width: parent.width
+        height: root.contentHeight * root.openness
+        visible: root.openness > 0
+        opacity: root.openness
+        radius: Appearance.rounding.normal
+        color: Appearance.colors.colLayer1
+        clip: true
+
+        Loader {
+            // Fixed size: the card reveals it instead of squeezing it.
+            width: parent.width
+            height: root.contentHeight
+            active: root.openness > 0
+            source: root.tabs[root.selectedTab].widget
         }
     }
 }

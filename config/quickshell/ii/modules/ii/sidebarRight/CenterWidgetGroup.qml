@@ -14,6 +14,7 @@ Rectangle {
 
     NotificationList {
         anchors.fill: parent
-        anchors.margins: 5
+        // No inset when drawn straight on the rail (transparent).
+        anchors.margins: root.color.a > 0 ? 5 : 0
     }
 }

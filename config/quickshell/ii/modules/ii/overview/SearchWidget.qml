@@ -21,8 +21,13 @@ Item { // Wrapper
 
     property string searchingText: LauncherSearch.query
     property bool showResults: searchingText != ""
-    implicitWidth: searchWidgetContent.implicitWidth + Appearance.sizes.elevationMargin * 2
-    implicitHeight: searchWidgetContent.implicitHeight + searchBar.verticalPadding * 2 + Appearance.sizes.elevationMargin * 2
+    // Embedded mode: no own surface/shadow, fixed width; the host panel draws
+    // the background.
+    property bool embedded: false
+    property real embeddedWidth: 0
+    implicitWidth: embedded ? embeddedWidth : searchWidgetContent.implicitWidth + Appearance.sizes.elevationMargin * 2
+    implicitHeight: embedded ? searchWidgetContent.implicitHeight
+        : searchWidgetContent.implicitHeight + searchBar.verticalPadding * 2 + Appearance.sizes.elevationMargin * 2
 
     function focusFirstItem() {
         appResults.currentIndex = 0;
@@ -99,23 +104,26 @@ Item { // Wrapper
 
     StyledRectangularShadow {
         target: searchWidgetContent
+        visible: !root.embedded
     }
     Rectangle { // Background
         id: searchWidgetContent
         anchors {
             top: parent.top
             horizontalCenter: parent.horizontalCenter
-            topMargin: Appearance.sizes.elevationMargin
+            topMargin: root.embedded ? 0 : Appearance.sizes.elevationMargin
         }
         clip: true
-        implicitWidth: columnLayout.implicitWidth
+        implicitWidth: root.embedded ? root.embeddedWidth : columnLayout.implicitWidth
         implicitHeight: columnLayout.implicitHeight
-        radius: searchBar.height / 2 + searchBar.verticalPadding
-        color: Appearance.colors.colBackgroundSurfaceContainer
+        radius: root.embedded ? 0 : searchBar.height / 2 + searchBar.verticalPadding
+        color: root.embedded ? "transparent" : Appearance.colors.colBackgroundSurfaceContainer
 
         Behavior on implicitHeight {
             id: searchHeightBehavior
-            enabled: GlobalStates.overviewOpen && root.showResults
+            // Embedded, the host panel animates its own height; animating
+            // here too made both chase each other.
+            enabled: !root.embedded && GlobalStates.overviewOpen && root.showResults
             animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
         }
 
@@ -126,6 +134,7 @@ Item { // Wrapper
                 horizontalCenter: parent.horizontalCenter
             }
             spacing: 0
+            width: root.embedded ? root.embeddedWidth : implicitWidth
 
             // clip: true
             layer.enabled: true
@@ -140,11 +149,12 @@ Item { // Wrapper
             SearchBar {
                 id: searchBar
                 property real verticalPadding: 4
+                fillWidth: root.embedded
                 Layout.fillWidth: true
-                Layout.leftMargin: 10
-                Layout.rightMargin: 4
-                Layout.topMargin: verticalPadding
-                Layout.bottomMargin: verticalPadding
+                Layout.leftMargin: root.embedded ? 12 : 10
+                Layout.rightMargin: root.embedded ? 12 : 4
+                Layout.topMargin: root.embedded ? 12 : verticalPadding
+                Layout.bottomMargin: root.embedded ? 10 : verticalPadding
                 Synchronizer on searchingText {
                     property alias source: root.searchingText
                 }

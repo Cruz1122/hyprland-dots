@@ -1,3 +1,4 @@
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
@@ -38,6 +39,10 @@ Item {
                 duration: 1000
                 easing.type: Easing.InOutCubic
             }
+        }
+
+        IridescentFill {
+            active: root.isDay && GlobalStates.iridescent
         }
 
         Item {

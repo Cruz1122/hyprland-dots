@@ -1,118 +1,58 @@
 import qs.modules.common
-import qs.modules.common.functions
 import qs.modules.common.widgets
+import qs.modules.ii.sidebarRight.controls
 import qs.services
 import QtQuick
-import QtQuick.Layouts
+import Quickshell.Bluetooth
 
-DialogListItem {
+// A Bluetooth device with its actions in the row: connect / disconnect, and
+// forget for paired ones.
+RailRow {
     id: root
     required property var device
-    property bool expanded: false
-    pointingHandCursor: !expanded
+    readonly property bool connected: device?.connected ?? false
+    readonly property bool paired: device?.paired ?? false
+    readonly property bool pairing: device?.pairing ?? false
+    readonly property bool connecting: device?.state === BluetoothDeviceState.Connecting
+    readonly property bool working: pairing || connecting
 
-    onClicked: expanded = !expanded
-    altAction: () => expanded = !expanded
-    
-    component ActionButton: DialogButton {
-        colBackground: Appearance.colors.colPrimary
-        colBackgroundHover: Appearance.colors.colPrimaryHover
-        colRipple: Appearance.colors.colPrimaryActive
-        colText: Appearance.colors.colOnPrimary
+    highlighted: connected
+    icon: Icons.getBluetoothDeviceMaterialSymbol(device?.icon || "")
+    title: device?.name || Translation.tr("Unknown device")
+    subtitle: {
+        if (root.pairing)
+            return Translation.tr("Pairing…");
+        if (root.connecting)
+            return Translation.tr("Connecting…");
+        if (!root.paired && !root.connected)
+            return "";
+        let status = root.connected ? Translation.tr("Connected") : Translation.tr("Paired");
+        if (root.device?.batteryAvailable)
+            status += `  ·  ${Math.round(root.device.battery * 100)}%`;
+        return status;
     }
 
-    contentItem: ColumnLayout {
-        anchors {
-            fill: parent
-            topMargin: root.verticalPadding
-            leftMargin: root.horizontalPadding
-            rightMargin: root.horizontalPadding
+    RailButton {
+        anchors.verticalCenter: parent.verticalCenter
+        visible: root.paired && root.hovered
+        symbol: "delete"
+        onClicked: root.device.forget()
+        StyledToolTip {
+            text: Translation.tr("Forget")
         }
-        spacing: 0
-
-        RowLayout {
-            // Name
-            spacing: 10
-
-            MaterialSymbol {
-                iconSize: Appearance.font.pixelSize.larger
-                text: Icons.getBluetoothDeviceMaterialSymbol(root.device?.icon || "")
-                color: Appearance.colors.colOnSurfaceVariant
-            }
-
-            ColumnLayout {
-                spacing: 2
-                Layout.fillWidth: true
-                StyledText {
-                    Layout.fillWidth: true
-                    color: Appearance.colors.colOnSurfaceVariant
-                    elide: Text.ElideRight
-                    text: root.device?.name || Translation.tr("Unknown device")
-                    textFormat: Text.PlainText
-                }
-                StyledText {
-                    visible: (root.device?.connected || root.device?.paired) ?? false
-                    Layout.fillWidth: true
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    color: Appearance.colors.colSubtext
-                    elide: Text.ElideRight
-                    text: {
-                        if (!root.device?.paired) return "";
-                        let statusText = root.device?.connected ? Translation.tr("Connected") : Translation.tr("Paired");
-                        if (!root.device?.batteryAvailable) return statusText;
-                        statusText += ` • ${Math.round(root.device?.battery * 100)}%`;
-                        return statusText;
-                    }
-                }
-            }
-
-            MaterialSymbol {
-                text: "keyboard_arrow_down"
-                iconSize: Appearance.font.pixelSize.larger
-                color: Appearance.colors.colOnLayer3
-                rotation: root.expanded ? 180 : 0
-                Behavior on rotation {
-                    animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                }
-            }
-        }
-
-        RowLayout {
-            visible: root.expanded
-            Layout.topMargin: 8
-            Item {
-                Layout.fillWidth: true
-            }
-            ActionButton {
-                readonly property bool p: root.device?.paired ?? false
-                colBackground: p ? Appearance.colors.colError : ColorUtils.transparentize(Appearance.colors.colLayer3, 1)
-                colBackgroundHover: p ? Appearance.colors.colErrorHover : ColorUtils.transparentize(Appearance.colors.colLayer3, 1)
-                colRipple: p ? Appearance.colors.colErrorActive : Appearance.colors.colLayer3Hover
-                colText: p ? Appearance.colors.colOnError : Appearance.colors.colPrimary
-
-                buttonText: p ? Translation.tr("Forget") : Translation.tr("Always connect")
-                onClicked: {
-                    if (root.device?.paired) {
-                        root.device?.forget();
-                    } else {
-                        root.device?.pair();
-                    }
-                }
-            }
-            ActionButton {
-                buttonText: root.device?.connected ? Translation.tr("Disconnect") : Translation.tr("Connect")
-
-                onClicked: {
-                    if (root.device?.connected) {
-                        root.device.disconnect();
-                    } else {
-                        root.device.connect();
-                    }
-                }
-            }
-        }
-        Item {
-            Layout.fillHeight: true
+    }
+    RailButton {
+        anchors.verticalCenter: parent.verticalCenter
+        // Filled only under the pointer: a column of filled buttons would
+        // outweigh the device names.
+        primary: !root.connected && root.hovered
+        enabled: !root.working
+        label: root.connected ? Translation.tr("Disconnect") : Translation.tr("Connect")
+        onClicked: {
+            if (root.connected)
+                root.device.disconnect();
+            else
+                root.device.connect();
         }
     }
 }

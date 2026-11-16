@@ -9,8 +9,8 @@ import Quickshell
 import Quickshell.Bluetooth
 import Quickshell.Hyprland
 
+import qs.modules.ii.sidebarRight.controls
 import qs.modules.ii.sidebarRight.quickToggles
-import qs.modules.ii.sidebarRight.quickToggles.classicStyle
 
 import qs.modules.ii.sidebarRight.bluetoothDevices
 import qs.modules.ii.sidebarRight.nightLight
@@ -19,8 +19,9 @@ import qs.modules.ii.sidebarRight.wifiNetworks
 
 Item {
     id: root
-    property int sidebarWidth: Appearance.sizes.sidebarWidth
-    property int sidebarPadding: 10
+    // SideRail hosting this content; drives the staggered entrance.
+    property var rail: null
+    property int sidebarPadding: 16
     property string settingsQmlPath: Quickshell.shellPath("settings.qml")
     property bool showAudioOutputDialog: false
     property bool showAudioInputDialog: false
@@ -41,73 +42,70 @@ Item {
         }
     }
 
-    implicitHeight: sidebarRightBackground.implicitHeight
-    implicitWidth: sidebarRightBackground.implicitWidth
-
-    StyledRectangularShadow {
-        target: sidebarRightBackground
+    function stage(index) {
+        return root.rail ? root.rail.stage(index) : 1;
     }
-    Rectangle {
-        id: sidebarRightBackground
+    function stageOffset(index) {
+        return root.rail ? root.rail.stageOffset(index) : 0;
+    }
 
+    // Top to bottom: system actions, control (tiles, bars), tools (accordion) and
+    // inbox (notifications). Everything stacks from the top, so spare height
+    // ends up below the notifications instead of between blocks.
+    ColumnLayout {
         anchors.fill: parent
-        implicitHeight: parent.height - Appearance.sizes.hyprlandGapsOut * 2
-        implicitWidth: sidebarWidth - Appearance.sizes.hyprlandGapsOut * 2
-        color: Appearance.colors.colLayer0
-        border.width: 1
-        border.color: Appearance.colors.colLayer0Border
-        radius: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1
+        anchors.margins: root.sidebarPadding
+        spacing: 8
 
-        ColumnLayout {
-            anchors.fill: parent
-            anchors.margins: sidebarPadding
-            spacing: sidebarPadding
+        SystemButtonRow {
+            Layout.fillWidth: true
+            opacity: root.stage(0)
+            transform: Translate { x: root.stageOffset(0) }
+        }
 
-            SystemButtonRow {
-                Layout.fillHeight: false
-                Layout.fillWidth: true
-                // Layout.margins: 10
-                Layout.topMargin: 5
-                Layout.bottomMargin: 0
+        ControlGrid {
+            id: controlGrid
+            Layout.fillWidth: true
+            visible: !root.editMode
+            opacity: root.stage(1)
+            transform: Translate { x: root.stageOffset(1) }
+            onOpenAudioOutputDialog: root.showAudioOutputDialog = true
+            onOpenAudioInputDialog: root.showAudioInputDialog = true
+            onOpenBluetoothDialog: root.showBluetoothDialog = true
+            onOpenNightLightDialog: root.showNightLightDialog = true
+            onOpenWifiDialog: root.showWifiDialog = true
+        }
+
+        Loader { // The stock panel, only as the editor for the toggle list
+            Layout.fillWidth: true
+            visible: active
+            active: root.editMode
+            sourceComponent: AndroidQuickPanel {
+                editMode: true
             }
+        }
 
-            Loader {
-                id: slidersLoader
-                Layout.fillWidth: true
-                visible: active
-                active: {
-                    const configQuickSliders = Config.options.sidebar.quickSliders
-                    if (!configQuickSliders.enable) return false
-                    if (!configQuickSliders.showMic && !configQuickSliders.showVolume && !configQuickSliders.showBrightness) return false;
-                    return true;
-                }
-                sourceComponent: QuickSliders {}
-            }
+        ControlSliders {
+            Layout.fillWidth: true
+            opacity: root.stage(2)
+            transform: Translate { x: root.stageOffset(2) }
+        }
 
-            LoaderedQuickPanelImplementation {
-                styleName: "classic"
-                sourceComponent: ClassicQuickPanel {}
-            }
+        BottomWidgetGroup {
+            Layout.fillWidth: true
+            Layout.topMargin: 8
+            Layout.preferredHeight: implicitHeight
+            opacity: root.stage(3)
+            transform: Translate { x: root.stageOffset(3) }
+        }
 
-            LoaderedQuickPanelImplementation {
-                styleName: "android"
-                sourceComponent: AndroidQuickPanel {
-                    editMode: root.editMode
-                }
-            }
-
-            CenterWidgetGroup {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-            }
-
-            BottomWidgetGroup {
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillHeight: false
-                Layout.fillWidth: true
-                Layout.preferredHeight: implicitHeight
-            }
+        CenterWidgetGroup {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            Layout.topMargin: 10
+            color: "transparent"
+            opacity: root.stage(4)
+            transform: Translate { x: root.stageOffset(4) }
         }
     }
 
@@ -129,12 +127,11 @@ Item {
         shownPropertyString: "showBluetoothDialog"
         dialog: BluetoothDialog {}
         onShownChanged: {
-            if (!shown) {
-                Bluetooth.defaultAdapter.discovering = false;
-            } else {
-                Bluetooth.defaultAdapter.enabled = true;
-                Bluetooth.defaultAdapter.discovering = true;
-            }
+            const adapter = Bluetooth.defaultAdapter;
+            if (!adapter)
+                return;
+            // Opening the page looks for devices but never turns the radio on.
+            adapter.discovering = shown && adapter.enabled;
         }
     }
 
@@ -147,9 +144,9 @@ Item {
         shownPropertyString: "showWifiDialog"
         dialog: WifiDialog {}
         onShownChanged: {
-            if (!shown) return;
-            Network.enableWifi();
-            Network.rescanWifi();
+            // Opening the page rescans but never turns the radio on.
+            if (shown && Network.wifiEnabled)
+                Network.rescanWifi();
         }
     }
 
@@ -180,122 +177,44 @@ Item {
         }
     }
 
-    component LoaderedQuickPanelImplementation: Loader {
-        id: quickPanelImplLoader
-        required property string styleName
-        Layout.alignment: item?.Layout.alignment ?? Qt.AlignHCenter
-        Layout.fillWidth: item?.Layout.fillWidth ?? false
-        visible: active
-        active: Config.options.sidebar.quickToggles.style === styleName
-        Connections {
-            target: quickPanelImplLoader.item
-            function onOpenAudioOutputDialog() {
-                root.showAudioOutputDialog = true;
-            }
-            function onOpenAudioInputDialog() {
-                root.showAudioInputDialog = true;
-            }
-            function onOpenBluetoothDialog() {
-                root.showBluetoothDialog = true;
-            }
-            function onOpenNightLightDialog() {
-                root.showNightLightDialog = true;
-            }
-            function onOpenWifiDialog() {
-                root.showWifiDialog = true;
-            }
-        }
-    }
-
     component SystemButtonRow: Item {
-        implicitHeight: Math.max(uptimeContainer.implicitHeight, systemButtonsRow.implicitHeight)
+        implicitHeight: systemButtonsRow.implicitHeight
 
-        Rectangle {
-            id: uptimeContainer
-            anchors {
-                top: parent.top
-                bottom: parent.bottom
-                left: parent.left
-            }
-            color: Appearance.colors.colLayer1
-            radius: height / 2
-            implicitWidth: uptimeRow.implicitWidth + 24
-            implicitHeight: uptimeRow.implicitHeight + 8
-            
-            Row {
-                id: uptimeRow
-                anchors.centerIn: parent
-                spacing: 8
-                CustomIcon {
-                    id: distroIcon
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 25
-                    height: 25
-                    source: SystemInfo.distroIcon
-                    colorize: true
-                    color: Appearance.colors.colOnLayer0
-                }
-                StyledText {
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.pixelSize: Appearance.font.pixelSize.normal
-                    color: Appearance.colors.colOnLayer0
-                    text: Translation.tr("Up %1").arg(DateTime.uptime)
-                    textFormat: Text.MarkdownText
-                }
-            }
-        }
-
-        ButtonGroup {
+        Row {
             id: systemButtonsRow
             anchors {
-                top: parent.top
-                bottom: parent.bottom
+                verticalCenter: parent.verticalCenter
                 right: parent.right
             }
-            color: Appearance.colors.colLayer1
-            padding: 4
+            spacing: 2
 
-            QuickToggleButton {
+            HeaderButton {
                 toggled: root.editMode
-                visible: Config.options.sidebar.quickToggles.style === "android"
                 buttonIcon: "edit"
+                tooltip: Translation.tr("Edit quick toggles") + (root.editMode ? Translation.tr("\nLMB to enable/disable\nRMB to toggle size\nScroll to swap position") : "")
                 onClicked: root.editMode = !root.editMode
-                StyledToolTip {
-                    text: Translation.tr("Edit quick toggles") + (root.editMode ? Translation.tr("\nLMB to enable/disable\nRMB to toggle size\nScroll to swap position") : "")
-                }
             }
-            QuickToggleButton {
-                toggled: false
+            HeaderButton {
                 buttonIcon: "restart_alt"
+                tooltip: Translation.tr("Reload Hyprland & Quickshell")
                 onClicked: {
                     Quickshell.execDetached(["hyprctl", "reload"])
                     Quickshell.reload(true);
                 }
-                StyledToolTip {
-                    text: Translation.tr("Reload Hyprland & Quickshell")
-                }
             }
-            QuickToggleButton {
-                toggled: false
+            HeaderButton {
                 buttonIcon: "settings"
+                tooltip: Translation.tr("Settings")
                 onClicked: {
                     GlobalStates.sidebarRightOpen = false;
                     // The launcher focuses an open settings window instead of starting a second one.
                     Quickshell.execDetached(["env", `II_SETTINGS_QML=${root.settingsQmlPath}`, Quickshell.shellPath("scripts/settings/open-settings.sh")]);
                 }
-                StyledToolTip {
-                    text: Translation.tr("Settings")
-                }
             }
-            QuickToggleButton {
-                toggled: false
+            HeaderButton {
                 buttonIcon: "power_settings_new"
-                onClicked: {
-                    GlobalStates.sessionOpen = true;
-                }
-                StyledToolTip {
-                    text: Translation.tr("Session")
-                }
+                tooltip: Translation.tr("Session")
+                onClicked: GlobalStates.sessionOpen = true
             }
         }
     }

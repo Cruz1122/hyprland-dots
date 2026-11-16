@@ -1,11 +1,16 @@
 import qs.modules.common
 import QtQuick
-import QtQuick.Layouts
 
-Rectangle {
-    Layout.topMargin: Appearance.sizes.elevationMargin + dockRow.padding + Appearance.rounding.normal
-    Layout.bottomMargin: Appearance.sizes.hyprlandGapsOut + dockRow.padding + Appearance.rounding.normal
-    Layout.fillHeight: true
-    implicitWidth: 1
-    color: Appearance.colors.colOutlineVariant
+// Divider between pinned and running apps.
+Item {
+    id: root
+    property real lineHeight: 24
+    implicitWidth: 9
+    Rectangle {
+        anchors.centerIn: parent
+        width: 1
+        height: root.lineHeight
+        radius: 0.5
+        color: Appearance.colors.colOutlineVariant
+    }
 }

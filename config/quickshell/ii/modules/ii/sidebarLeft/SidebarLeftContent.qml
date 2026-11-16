@@ -2,16 +2,17 @@ import qs
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
-import qs.modules.ii.mediaControls
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.UPower
 
 Item {
     id: root
-    required property var scopeRoot
-    property int sidebarPadding: 10
+    // SideRail hosting this content; drives the staggered entrance.
+    property var rail: null
+    property int sidebarPadding: 12
     anchors.fill: parent
 
     Timer {
@@ -28,38 +29,52 @@ Item {
         actionTimer.restart();
     }
 
-    component ActionButton: GroupButton {
-        id: actionButton
-        required property string iconName
-        required property string title
-        property string status: ""
-        property var triggerAction: null
-        baseWidth: 40
-        baseHeight: 40
-        clickedWidth: 60
-        buttonRadius: Math.min(baseWidth, baseHeight) / 2
-        buttonRadiusPressed: Appearance.rounding.small
+    // Root filesystem usage in GB.
+    property real diskUsed: 0
+    property real diskTotal: 0
+    property bool recording: false
+    readonly property bool live: GlobalStates.sidebarLeftOpen
 
-        onClicked: {
-            if (actionButton.triggerAction)
-                actionButton.triggerAction();
+    Process {
+        id: diskProc
+        environment: ({ LANG: "C", LC_ALL: "C" })
+        command: ["df", "-k", "--output=used,size", "/"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const fields = text.trim().split("\n").pop().trim().split(/\s+/).map(Number);
+                if (fields.length >= 2 && fields.every(Number.isFinite)) {
+                    root.diskUsed = fields[0] / (1024 * 1024);
+                    root.diskTotal = fields[1] / (1024 * 1024);
+                }
+            }
         }
+    }
+    Process {
+        id: recordingProc
+        command: ["pidof", "wf-recorder"]
+        onExited: exitCode => root.recording = exitCode === 0
+    }
+    Timer {
+        interval: 2000
+        running: root.live
+        repeat: true
+        triggeredOnStart: true
+        property int ticks: 0
+        onTriggered: {
+            if (!recordingProc.running)
+                recordingProc.running = true;
+            // Disk usage moves slowly: every 30 s is plenty.
+            if (ticks % 15 === 0 && !diskProc.running)
+                diskProc.running = true;
+            ticks += 1;
+        }
+    }
 
-        contentItem: MaterialSymbol {
-            anchors.centerIn: parent
-            text: actionButton.iconName
-            iconSize: 22
-            fill: actionButton.down ? 1 : 0
-            color: Appearance.colors.colOnLayer1
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
-
-        StyledToolTip {
-            text: actionButton.status.length > 0
-                ? `${actionButton.title}\n${actionButton.status}`
-                : actionButton.title
-        }
+    function stage(index) {
+        return root.rail ? root.rail.stage(index) : 1;
+    }
+    function stageOffset(index) {
+        return root.rail ? root.rail.stageOffset(index) : 0;
     }
 
     function screenshot() {
@@ -116,95 +131,87 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: root.sidebarPadding
-        spacing: root.sidebarPadding
+        anchors.bottomMargin: 14
+        spacing: 10
 
         RowLayout {
             Layout.fillWidth: true
-            spacing: root.sidebarPadding
+            spacing: 8
+            opacity: root.stage(0)
+            transform: Translate { x: root.stageOffset(0) }
 
-            Item { Layout.fillWidth: true }
-
-            ActionButton {
+            ActionTile {
                 iconName: "delete_forever"
-                title: Translation.tr("Task killer")
+                label: Translation.tr("End task")
+                tooltip: Translation.tr("Task killer")
                 triggerAction: () => root.delayedAction(() => Quickshell.execDetached(["qs", "-p", Quickshell.shellPath("taskKiller.qml")]))
             }
-            ActionButton {
+            ActionTile {
                 iconName: "screenshot_region"
-                title: Translation.tr("Screenshot")
+                label: Translation.tr("Capture")
+                tooltip: Translation.tr("Screenshot")
                 triggerAction: root.screenshot
             }
-            ActionButton {
-                iconName: "videocam"
-                title: Translation.tr("Screen record")
+            ActionTile {
+                iconName: root.recording ? "stop_circle" : "videocam"
+                label: root.recording ? Translation.tr("Recording") : Translation.tr("Record")
+                tooltip: Translation.tr("Screen record")
+                alert: root.recording
                 triggerAction: () => root.delayedAction(root.startRecording)
             }
-            ActionButton {
+            ActionTile {
                 iconName: "colorize"
-                title: Translation.tr("Color picker")
+                label: Translation.tr("Color")
+                tooltip: Translation.tr("Color picker")
                 triggerAction: () => root.delayedAction(() => Quickshell.execDetached(["hyprpicker", "-a"]))
             }
-            ActionButton {
+            ActionTile {
                 iconName: PowerProfiles.profile === PowerProfile.PowerSaver ? "energy_savings_leaf"
                     : PowerProfiles.profile === PowerProfile.Performance ? "local_fire_department" : "airwave"
-                title: Translation.tr("Power mode")
-                status: root.powerProfileName()
+                // Short names: the full ones do not fit a tile.
+                label: PowerProfiles.profile === PowerProfile.PowerSaver ? Translation.tr("Saver")
+                    : PowerProfiles.profile === PowerProfile.Performance ? Translation.tr("Boost") : Translation.tr("Balance")
+                tooltip: `${Translation.tr("Power mode")}\n${root.powerProfileName()}`
+                active: PowerProfiles.profile === PowerProfile.PowerSaver
+                iridescent: PowerProfiles.profile === PowerProfile.Performance
                 triggerAction: root.cyclePowerProfile
             }
-
-            Item { Layout.fillWidth: true }
         }
 
-        Rectangle {
+        SystemCard {
+            Layout.fillWidth: true
+            opacity: root.stage(1)
+            transform: Translate { x: root.stageOffset(1) }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            opacity: root.stage(2)
+            transform: Translate { x: root.stageOffset(2) }
+
+            UsageChip {
+                visible: ResourceUsage.swapTotal > 1
+                icon: "swap_horiz"
+                title: Translation.tr("Swap")
+                used: ResourceUsage.swapUsed / (1024 * 1024)
+                total: ResourceUsage.swapTotal / (1024 * 1024)
+            }
+            UsageChip {
+                icon: "hard_drive"
+                title: Translation.tr("Disk")
+                used: root.diskUsed
+                total: root.diskTotal
+            }
+        }
+
+        ProcessList {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.minimumHeight: 240
-            color: Appearance.colors.colLayer1
-            radius: Appearance.rounding.normal
-            clip: true
-
-            NotesPage {
-                anchors.fill: parent
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: 240
-            Layout.maximumHeight: 240
-            color: Appearance.colors.colLayer1
-            radius: Appearance.rounding.normal
-            clip: true
-
-            Loader {
-                anchors.fill: parent
-                anchors.margins: 4
-                active: !!MprisController.activePlayer
-                sourceComponent: PlayerControl {
-                    player: MprisController.activePlayer
-                    visualizerPoints: []
-                    radius: Appearance.rounding.normal
-                    width: parent.width
-                    height: parent.height
-                }
-            }
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                visible: !MprisController.activePlayer
-                spacing: 4
-                MaterialSymbol {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: "music_off"
-                    iconSize: Appearance.font.pixelSize.huge
-                    color: Appearance.colors.colSubtext
-                }
-                StyledText {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: Translation.tr("No active player")
-                    color: Appearance.colors.colSubtext
-                }
-            }
+            Layout.minimumHeight: 120
+            active: root.live
+            opacity: root.stage(3)
+            transform: Translate { x: root.stageOffset(3) }
         }
     }
 }

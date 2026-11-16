@@ -1,5 +1,7 @@
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.services
 import QtQuick
 import QtQuick.Layouts
 import "ResourcePresentation.js" as Presentation
@@ -22,6 +24,12 @@ Rectangle {
 
     Behavior on color {
         ColorAnimation { duration: 300; easing.type: Easing.InOutQuad }
+    }
+
+    IridescentFill {
+        active: root.resource !== null && GlobalStates.iridescent
+        tint: Appearance.m3colors.m3error
+        tintAmount: Presentation.severity(root.resource?.value ?? 0)
     }
 
     RowLayout {

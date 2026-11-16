@@ -80,6 +80,11 @@ Singleton {
         if (active) disconnectProc.exec(["nmcli", "connection", "down", active.ssid]);
     }
 
+    // Deletes the saved profile (and with it the stored password).
+    function forgetWifiNetwork(ssid: string): void {
+        forgetProc.exec(["nmcli", "connection", "delete", "id", ssid]);
+    }
+
     function openPublicWifiPortal() {
         Quickshell.execDetached(["xdg-open", "https://nmcheck.gnome.org/"]) // From some StackExchange thread, seems to work
     }
@@ -134,6 +139,11 @@ Singleton {
     }
 
     Process {
+        id: forgetProc
+        onExited: getNetworks.running = true
+    }
+
+    Process {
         id: changePasswordProc
         onExited: { // Re-attempt connection after changing password
             connectProc.running = false
@@ -149,6 +159,12 @@ Singleton {
                 wifiScanning = false;
                 getNetworks.running = true;
             }
+        }
+        // A scan that fails prints nothing: without this the scanning state
+        // (and the rescan button) would stay stuck.
+        onExited: {
+            wifiScanning = false;
+            getNetworks.running = true;
         }
     }
 

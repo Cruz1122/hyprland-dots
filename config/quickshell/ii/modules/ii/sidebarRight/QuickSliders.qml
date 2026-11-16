@@ -19,7 +19,7 @@ Rectangle {
     implicitHeight: contentItem.implicitHeight + root.verticalPadding * 2
     radius: Appearance.rounding.normal
     color: Appearance.colors.colLayer1
-    property real verticalPadding: 4
+    property real verticalPadding: 2
     property real horizontalPadding: 12
 
     Column {
@@ -96,51 +96,60 @@ Rectangle {
         }
     }
 
-    component QuickSlider: StyledSlider { 
+    // Slim track with its icon on the left and the value on the right.
+    component QuickSlider: Item {
         id: quickSlider
         required property string materialSymbol
         property string secondaryMaterialSymbol
-        configuration: StyledSlider.Configuration.M
-        stopIndicatorValues: []
-        dividerValues: secondaryMaterialSymbol.length > 0 ? [secondaryIcon.iconLocation] : []
-        
+        // Below this fraction the slider drives `secondaryMaterialSymbol`'s setting.
+        readonly property real secondaryThreshold: 0.3
+        property alias value: slider.value
+        property alias stopIndicatorValues: slider.stopIndicatorValues
+        property string tooltipContent: `${Math.round(slider.value * 100)}%`
+        signal moved()
+        implicitHeight: 38
+
         MaterialSymbol {
             id: icon
-            property bool nearFull: quickSlider.value >= 0.9
             anchors {
-                verticalCenter: quickSlider.verticalCenter
-                right: nearFull ? quickSlider.handle.right : quickSlider.right
-                rightMargin: nearFull ? 14 : 8
+                left: parent.left
+                leftMargin: 4
+                verticalCenter: parent.verticalCenter
             }
             iconSize: 20
-            color: nearFull ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
-            text: quickSlider.materialSymbol
-
-            Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
-            }
-            Behavior on anchors.rightMargin {
-                animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-            }
+            color: Appearance.colors.colOnLayer1
+            text: quickSlider.secondaryMaterialSymbol.length > 0 && slider.value < quickSlider.secondaryThreshold
+                ? quickSlider.secondaryMaterialSymbol : quickSlider.materialSymbol
         }
-
-        MaterialSymbol {
-            id: secondaryIcon
-            visible: secondaryMaterialSymbol.length > 0
-            property real iconLocation: 0.3
-            property bool nearIcon: iconLocation - quickSlider.value <= 0.1 && iconLocation - quickSlider.value > (quickSlider.handleWidth + 8 - 14) / quickSlider.effectiveDraggingWidth
+        StyledSlider {
+            id: slider
             anchors {
-                verticalCenter: quickSlider.verticalCenter
-                right: nearIcon ? quickSlider.handle.right : quickSlider.right
-                rightMargin: nearIcon ? 14 : (1 - iconLocation) * quickSlider.effectiveDraggingWidth + quickSlider.rightPadding + 8
+                left: icon.right
+                leftMargin: 8
+                right: valueText.left
+                rightMargin: 6
+                verticalCenter: parent.verticalCenter
             }
-            iconSize: 20
-            color: quickSlider.value >= iconLocation - 0.1 ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSecondaryContainer
-            text: secondaryMaterialSymbol
-
-            Behavior on color {
-                animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
+            configuration: StyledSlider.Configuration.XS
+            stopIndicatorValues: []
+            dividerValues: quickSlider.secondaryMaterialSymbol.length > 0 ? [quickSlider.secondaryThreshold] : []
+            tooltipContent: quickSlider.tooltipContent
+            onMoved: quickSlider.moved()
+        }
+        StyledText {
+            id: valueText
+            anchors {
+                right: parent.right
+                rightMargin: 2
+                verticalCenter: parent.verticalCenter
             }
+            width: 44
+            horizontalAlignment: Text.AlignRight
+            text: quickSlider.tooltipContent
+            elide: Text.ElideLeft
+            font.family: Appearance.font.family.numbers
+            font.pixelSize: Appearance.font.pixelSize.smaller
+            color: Appearance.colors.colSubtext
         }
     }
 }

@@ -16,6 +16,11 @@ Item { // Window
     property var windowData
     property var monitorData
     property var scale
+    // captureEnabled keeps the capture source attached; liveCapture turns the
+    // feed on. With the source attached and the feed off, the view keeps
+    // showing its last frame, which acts as a thumbnail cache between opens.
+    property bool captureEnabled: true
+    property bool liveCapture: true
     property bool restrictToWorkspace: true
     property real widthRatio: {
         const widgetWidth = widgetMonitor.transform & 1 ? widgetMonitor.height : widgetMonitor.width;
@@ -49,7 +54,6 @@ Item { // Window
     property real iconToWindowRatio: centerIcons ? 0.35 : 0.15
     property real xwaylandIndicatorToIconRatio: 0.35
     property real iconToWindowRatioCompact: 0.6
-    property string iconPath: Quickshell.iconPath(AppSearch.guessIcon(windowData?.class), "image-missing")
     property bool compactMode: Appearance.font.pixelSize.smaller * 4 > targetWindowHeight || Appearance.font.pixelSize.smaller * 4 > targetWindowWidth
 
     property bool indicateXWayland: windowData?.xwayland ?? false
@@ -93,8 +97,10 @@ Item { // Window
     ScreencopyView {
         id: windowPreview
         anchors.fill: parent
-        captureSource: GlobalStates.overviewOpen ? root.toplevel : null
-        live: true
+        captureSource: root.captureEnabled ? root.toplevel : null
+        // Starting many live feeds at once blocks the shell for ~200 ms, so the
+        // host holds this back until its open animation has finished.
+        live: GlobalStates.overviewOpen && root.liveCapture
 
         // Color overlay for interactions
         Rectangle {
@@ -110,8 +116,10 @@ Item { // Window
             border.width : 1
         }
 
-        StyledImage {
+        WindowAppIcon {
             id: windowIcon
+            windowClass: root.windowData?.class ?? ""
+            title: root.windowData?.title ?? ""
             property real baseSize: Math.min(root.targetWindowWidth, root.targetWindowHeight)
             anchors {
                 top: root.centerIcons ? undefined : parent.top
@@ -127,9 +135,6 @@ Item { // Window
                 // console.log("Final:", Math.min(targetWindowWidth, targetWindowHeight) * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio) / root.monitorData.scale)
                 return baseSize * (root.compactMode ? root.iconToWindowRatioCompact : root.iconToWindowRatio);
             }
-            mipmap: true
-            Layout.alignment: Qt.AlignHCenter
-            source: root.iconPath
             width: iconSize
             height: iconSize
 

@@ -1,3 +1,4 @@
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
@@ -13,6 +14,8 @@ MouseArea {
     readonly property bool isPluggedIn: Battery.isPluggedIn
     readonly property real percentage: Battery.percentage
     readonly property bool isLow: percentage <= Config.options.battery.low / 100
+    readonly property color pillContentColor: chargingIndicator ? "#4A3900"
+        : isLow ? Appearance.m3colors.m3onError : Appearance.colors.colOnSecondaryContainer
 
     implicitWidth: batteryPill.implicitWidth
     implicitHeight: Appearance.sizes.barHeight
@@ -37,6 +40,10 @@ MouseArea {
             }
         }
 
+        IridescentFill {
+            active: root.chargingIndicator && GlobalStates.iridescent
+        }
+
         RowLayout {
             id: batteryContent
             anchors.centerIn: parent
@@ -51,7 +58,7 @@ MouseArea {
                 fill: 1
                 text: "bolt"
                 iconSize: Appearance.font.pixelSize.smaller
-                color: chargingIndicator ? "#4A3900" : Appearance.colors.colOnSecondaryContainer
+                color: root.pillContentColor
                 visible: chargingIndicator
             }
             MaterialSymbol {
@@ -62,7 +69,7 @@ MouseArea {
                 fill: 1
                 text: Icons.getBatteryIcon(Math.round(percentage * 100))
                 iconSize: Appearance.font.pixelSize.smaller
-                color: Appearance.colors.colOnSecondaryContainer
+                color: root.pillContentColor
                 visible: !chargingIndicator
             }
             StyledText {
@@ -70,7 +77,7 @@ MouseArea {
                 font.pixelSize: 13
                 font.weight: Font.Medium
                 verticalAlignment: Text.AlignVCenter
-                color: chargingIndicator ? "#4A3900" : Appearance.colors.colOnSecondaryContainer
+                color: root.pillContentColor
                 text: Math.round(percentage * 100)
             }
         }

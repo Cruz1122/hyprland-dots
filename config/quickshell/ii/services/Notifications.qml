@@ -140,6 +140,47 @@ Singleton {
                 bot: null,
             };
         }
+        // Programs running inside a terminal notify through it, so they all
+        // arrive as the terminal. Give each its own group and icon, with the
+        // terminal's icon as a badge.
+        const terminalApp = NotificationUtils.terminalAppFor(notif);
+        if (terminalApp) {
+            return {
+                groupKey: `tui:${terminalApp.id}`,
+                displayName: terminalApp.name,
+                appName: terminalApp.name,
+                appIcon: Qt.resolvedUrl(`${Directories.assetsPath}/icons/ai/${terminalApp.icon}.svg`),
+                appIconIsMask: true,
+                badgeIcon: notif.appIcon,
+                isGrokBot: false,
+                isOpenCode: false,
+                bot: null,
+            };
+        }
+        if (NotificationUtils.cameFromTerminal(notif)) {
+            // Unknown program: if the title is an installed application's
+            // name (btop, Neovim, ...), group under it with its themed icon.
+            const title = String(notif.summary ?? "").trim();
+            // Exact icon names only: AppSearch.guessIcon falls back to fuzzy
+            // matching, which would file arbitrary titles under random apps.
+            const lowered = title.toLowerCase();
+            const themedIcon = title.length > 0 && title.length <= 24
+                ? ([lowered, lowered.replace(/\s+/g, "-"), lowered.replace(/\s+/g, "")].find(name => AppSearch.iconExists(name)) ?? "")
+                : "";
+            if (themedIcon.length > 0) {
+                return {
+                    groupKey: `tui:${title.toLowerCase()}`,
+                    displayName: title,
+                    appName: title,
+                    appIcon: themedIcon,
+                    appIconIsMask: false,
+                    badgeIcon: notif.appIcon,
+                    isGrokBot: false,
+                    isOpenCode: false,
+                    bot: null,
+                };
+            }
+        }
         return {
             groupKey: `app:${notif.appName}`,
             displayName: notif.appName,
@@ -161,6 +202,8 @@ Singleton {
                     displayName: metadata.displayName,
                     appName: metadata.appName,
                     appIcon: metadata.appIcon,
+                    appIconIsMask: metadata.appIconIsMask ?? false,
+                    badgeIcon: metadata.badgeIcon ?? "",
                     isGrokBot: metadata.isGrokBot,
                     isOpenCode: metadata.isOpenCode,
                     bot: metadata.bot,

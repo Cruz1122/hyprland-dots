@@ -99,7 +99,7 @@ RippleButton {
                 anchors.centerIn: parent
                 active: root.menuEntry.icon.length > 0
                 sourceComponent: IconImage {
-                    asynchronous: true
+                    // Not asynchronous: KIconLoader is not thread-safe, see NotificationAppIcon.
                     source: root.menuEntry.icon
                     implicitSize: 20
                     mipmap: true

@@ -100,6 +100,12 @@ Item { // Bar content region
         }
     }
 
+    Binding {
+        target: GlobalStates
+        property: "barMiddleSectionWidth"
+        value: middleSection.width
+    }
+
     Row { // Middle section
         id: middleSection
         anchors {

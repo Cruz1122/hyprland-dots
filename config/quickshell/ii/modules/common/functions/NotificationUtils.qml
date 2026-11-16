@@ -20,6 +20,39 @@ Singleton {
         return String(value ?? "").trim().toLowerCase();
     }
 
+    // Terminal emulators that relay notifications (OSC 9 / 99 / 777) on behalf
+    // of the programs running inside them.
+    readonly property list<string> terminalNames: ["kitty", "foot", "footclient", "alacritty", "wezterm", "ghostty", "konsole"]
+
+    // TUI programs recognised behind a terminal's notification, matched on the
+    // notification's summary and body. `icon` names a monochrome mask in
+    // assets/icons/ai.
+    readonly property var terminalApps: [
+        { id: "claude-code", name: "Claude Code", icon: "claude", pattern: /\bclaude\b/ },
+        { id: "codex", name: "Codex", icon: "openai", pattern: /\bcodex\b/ },
+        { id: "cursor-agent", name: "Cursor Agent", icon: "cursor", pattern: /\bcursor\b/ },
+    ]
+
+    function cameFromTerminal(notification) {
+        if (!notification) return false;
+        const appName = root.normalizedNotificationText(notification.appName);
+        const appIcon = root.normalizedNotificationText(notification.appIcon);
+        return root.terminalNames.includes(appName)
+            || root.terminalNames.includes(appIcon)
+            || appIcon.endsWith("/kitty.png")
+            || appIcon.includes("/kitty/");
+    }
+
+    // The known TUI program that sent `notification` through a terminal, or null.
+    function terminalAppFor(notification) {
+        if (!root.cameFromTerminal(notification)) return null;
+        const summary = root.normalizedNotificationText(notification.summary);
+        const body = root.normalizedNotificationText(notification.body);
+        return root.terminalApps.find(app => app.pattern.test(summary))
+            ?? root.terminalApps.find(app => app.pattern.test(body))
+            ?? null;
+    }
+
     function isOpenCodeNotification(notification) {
         if (!notification) return false;
 

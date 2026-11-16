@@ -18,14 +18,36 @@ Item {
     readonly property var toplevels: ToplevelManager.toplevels
     // Clamp to avoid lock-screen temp workspace (2147483647 - N) leaking into UI
     readonly property int effectiveActiveWorkspaceId: Math.max(1, Math.min(100, monitor?.activeWorkspace?.id ?? 1))
-    readonly property int workspacesShown: Config.options.overview.rows * Config.options.overview.columns
+    // Grid shape. A 1x1 grid shows just the active workspace.
+    property int rows: Config.options.overview.rows
+    property int columns: Config.options.overview.columns
+    // Space between the grid and the widget's own surface.
+    property real padding: 10
+    readonly property int workspacesShown: root.rows * root.columns
     readonly property int workspaceGroup: Math.floor((effectiveActiveWorkspaceId - 1) / workspacesShown)
     property bool monitorIsFocused: (Hyprland.focusedMonitor?.name == monitor.name)
     property var windows: HyprlandData.windowList
     property var windowByAddress: HyprlandData.windowByAddress
     property var windowAddresses: HyprlandData.addresses
     property var monitorData: HyprlandData.monitors.find(m => m.id === root.monitor?.id)
-    property real scale: Config.options.overview.scale
+    // Embedded mode: no own surface/shadow; the grid is scaled so the widget
+    // is exactly targetWidth wide instead of using the configured scale.
+    property bool embedded: false
+    property real targetWidth: 0
+    // Thumbnail capture control, forwarded to every OverviewWindow.
+    property bool captureEnabled: true
+    property bool liveCapture: true
+    readonly property real outerMargin: embedded ? 0 : Appearance.sizes.elevationMargin
+    readonly property real availableMonitorWidth: ((monitorData?.transform % 2 === 1) ? monitor.height : monitor.width)
+        - (monitorData?.reserved[0] ?? 0) - (monitorData?.reserved[2] ?? 0)
+    property real scale: {
+        if (!(targetWidth > 0) || !(availableMonitorWidth > 0))
+            return Config.options.overview.scale;
+        const columns = root.columns;
+        const cellWidth = (targetWidth - outerMargin * 2 - overviewBackground.padding * 2
+            - workspaceSpacing * (columns - 1)) / columns;
+        return cellWidth * monitor.scale / availableMonitorWidth;
+    }
     property color activeBorderColor: Appearance.colors.colSecondary
 
     property real workspaceImplicitWidth: (monitorData?.transform % 2 === 1) ? 
@@ -47,40 +69,41 @@ Item {
     property int draggingFromWorkspace: -1
     property int draggingTargetWorkspace: -1
 
-    implicitWidth: overviewBackground.implicitWidth + Appearance.sizes.elevationMargin * 2
-    implicitHeight: overviewBackground.implicitHeight + Appearance.sizes.elevationMargin * 2
+    implicitWidth: overviewBackground.implicitWidth + outerMargin * 2
+    implicitHeight: overviewBackground.implicitHeight + outerMargin * 2
 
     property Component windowComponent: OverviewWindow {}
     property list<OverviewWindow> windowWidgets: []
     
     function getWsRow(ws) {
         // 1-indexed workspace, 0-indexed row
-        var normalRow = Math.floor((ws - 1) / Config.options.overview.columns) % Config.options.overview.rows;
-        return (Config.options.overview.orderBottomUp ? Config.options.overview.rows - normalRow - 1 : normalRow);
+        var normalRow = Math.floor((ws - 1) / root.columns) % root.rows;
+        return (Config.options.overview.orderBottomUp ? root.rows - normalRow - 1 : normalRow);
     }
     function getWsColumn(ws) {
         // 1-indexed workspace, 0-indexed column
-        var normalCol = (ws - 1) % Config.options.overview.columns;
-        return (Config.options.overview.orderRightLeft ? Config.options.overview.columns - normalCol - 1 : normalCol);
+        var normalCol = (ws - 1) % root.columns;
+        return (Config.options.overview.orderRightLeft ? root.columns - normalCol - 1 : normalCol);
     }
     function getWsInCell(ri, ci) {
         // 1-indexed workspace, 0-indexed row and column index
-        return (Config.options.overview.orderBottomUp ? Config.options.overview.rows - ri - 1 : ri) * Config.options.overview.columns + (Config.options.overview.orderRightLeft ? Config.options.overview.columns - ci - 1 : ci) + 1
+        return (Config.options.overview.orderBottomUp ? root.rows - ri - 1 : ri) * root.columns + (Config.options.overview.orderRightLeft ? root.columns - ci - 1 : ci) + 1
     }
 
     StyledRectangularShadow {
         target: overviewBackground
+        visible: !root.embedded
     }
     Rectangle { // Background
         id: overviewBackground
-        property real padding: 10
+        property real padding: root.padding
         anchors.fill: parent
-        anchors.margins: Appearance.sizes.elevationMargin
+        anchors.margins: root.outerMargin
 
         implicitWidth: workspaceColumnLayout.implicitWidth + padding * 2
         implicitHeight: workspaceColumnLayout.implicitHeight + padding * 2
         radius: root.largeWorkspaceRadius + padding
-        color: Appearance.colors.colBackgroundSurfaceContainer
+        color: root.embedded ? "transparent" : Appearance.colors.colBackgroundSurfaceContainer
 
         Column { // Workspaces
             id: workspaceColumnLayout
@@ -90,14 +113,14 @@ Item {
             spacing: workspaceSpacing
             
             Repeater {
-                model: Config.options.overview.rows
+                model: root.rows
                 delegate: Row {
                     id: row
                     required property int index
                     spacing: workspaceSpacing
 
                     Repeater { // Workspace repeater
-                        model: Config.options.overview.columns
+                        model: root.columns
                         Rectangle { // Workspace
                             id: workspace
                             required property int index
@@ -112,9 +135,9 @@ Item {
                             implicitHeight: root.workspaceImplicitHeight
                             color: hoveredWhileDragging ? hoveredWorkspaceColor : defaultWorkspaceColor
                             property bool workspaceAtLeft: colIndex === 0
-                            property bool workspaceAtRight: colIndex === Config.options.overview.columns - 1
+                            property bool workspaceAtRight: colIndex === root.columns - 1
                             property bool workspaceAtTop: row.index === 0
-                            property bool workspaceAtBottom: row.index === Config.options.overview.rows - 1
+                            property bool workspaceAtBottom: row.index === root.rows - 1
                             topLeftRadius: (workspaceAtLeft && workspaceAtTop) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius
                             topRightRadius: (workspaceAtRight && workspaceAtTop) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius
                             bottomLeftRadius: (workspaceAtLeft && workspaceAtBottom) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius
@@ -193,6 +216,8 @@ Item {
                     toplevel: modelData
                     monitorData: this.monitor
                     scale: root.scale
+                    captureEnabled: root.captureEnabled
+                    liveCapture: root.liveCapture
                     widgetMonitor: HyprlandData.monitors.find(m => m.id == root.monitor.id)
                     windowData: windowByAddress[address]
 
@@ -209,9 +234,9 @@ Item {
                     // Radius
                     property real minRadius: Appearance.rounding.small
                     property bool workspaceAtLeft: workspaceColIndex === 0
-                    property bool workspaceAtRight: workspaceColIndex === Config.options.overview.columns - 1
+                    property bool workspaceAtRight: workspaceColIndex === root.columns - 1
                     property bool workspaceAtTop: workspaceRowIndex === 0
-                    property bool workspaceAtBottom: workspaceRowIndex === Config.options.overview.rows - 1
+                    property bool workspaceAtBottom: workspaceRowIndex === root.rows - 1
                     property bool workspaceAtTopLeft: (workspaceAtLeft && workspaceAtTop) 
                     property bool workspaceAtTopRight: (workspaceAtRight && workspaceAtTop) 
                     property bool workspaceAtBottomLeft: (workspaceAtLeft && workspaceAtBottom) 
@@ -303,6 +328,8 @@ Item {
 
             Rectangle { // Focused workspace indicator
                 id: focusedWorkspaceIndicator
+                // Pointless when the only cell shown is the active workspace.
+                visible: root.workspacesShown > 1
                 property int rowIndex: getWsRow(root.effectiveActiveWorkspaceId)
                 property int colIndex: getWsColumn(root.effectiveActiveWorkspaceId)
                 x: (root.workspaceImplicitWidth + workspaceSpacing) * colIndex
@@ -312,9 +339,9 @@ Item {
                 height: root.workspaceImplicitHeight
                 color: "transparent"
                 property bool workspaceAtLeft: colIndex === 0
-                property bool workspaceAtRight: colIndex === Config.options.overview.columns - 1
+                property bool workspaceAtRight: colIndex === root.columns - 1
                 property bool workspaceAtTop: rowIndex === 0
-                property bool workspaceAtBottom: rowIndex === Config.options.overview.rows - 1
+                property bool workspaceAtBottom: rowIndex === root.rows - 1
                 topLeftRadius: (workspaceAtLeft && workspaceAtTop) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius
                 topRightRadius: (workspaceAtRight && workspaceAtTop) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius
                 bottomLeftRadius: (workspaceAtLeft && workspaceAtBottom) ? root.largeWorkspaceRadius : root.smallWorkspaceRadius

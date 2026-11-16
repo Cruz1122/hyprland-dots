@@ -135,6 +135,10 @@ JsonAdapter {
                     property string text: ""
                 }
             }
+            property JsonObject deskPoster: JsonObject {
+                property bool enable: true
+                property bool presentationOnExternalScreens: true // External screens (TV, projector) show an "about to present" message instead of a topic
+            }
             property JsonObject weather: JsonObject {
                 property bool enable: false
                 property string placementStrategy: "free" // "free", "leastBusy", "mostBusy"
@@ -267,6 +271,16 @@ JsonAdapter {
         property list<string> pinnedApps: [ // IDs of pinned entries
             "org.kde.dolphin", "kitty",]
         property list<string> ignoredAppRegexes: []
+    }
+
+    property JsonObject dictation: JsonObject {
+        property bool enable: true
+        property string language: "auto" // "auto" writes each dictation in the language spoken. A fixed Whisper code ("es") is twice as fast, but renders other languages into it
+        property real silenceSeconds: 2.5 // Pause that ends a dictation; 0 = only a second press ends it
+        property int keepLoadedMinutes: 10 // Unload the model after this long without dictating
+        property string model: "large-v3-turbo-q5_0" // ggml model name in ~/.local/share/ii-dictation/whisper.cpp/models
+        property real height: 52
+        property bool hoverToReveal: true // Show the bar when the pointer touches the bottom screen edge
     }
 
     property JsonObject idle: JsonObject {

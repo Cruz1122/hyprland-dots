@@ -11,8 +11,9 @@ RippleButton {
 
     Layout.fillWidth: false
     Layout.fillHeight: false
-    implicitWidth: 38; 
-    implicitHeight: 38;
+    // Wide, short cells: the grid spans the sidebar card instead of floating in it.
+    implicitWidth: 50
+    implicitHeight: 34
 
     toggled: (isToday == 1)
     buttonRadius: Appearance.rounding.small

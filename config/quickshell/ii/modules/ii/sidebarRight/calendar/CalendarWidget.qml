@@ -39,7 +39,7 @@ Item {
     ColumnLayout {
         id: calendarColumn
         anchors.centerIn: parent
-        spacing: 5
+        spacing: 3
 
         // Calendar header
         RowLayout {

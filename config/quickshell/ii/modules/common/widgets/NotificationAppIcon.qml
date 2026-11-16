@@ -6,6 +6,10 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Notifications
 
+// Themed icons load on the GUI thread (not `asynchronous`): with the KDE
+// platform theme they come from KIconLoader, which is not thread-safe. Loaded
+// from the image-loader thread it has crashed the shell and left the running
+// shell unable to resolve icons that exist.
 MaterialShape { // App icon
     id: root
     property var appIcon: ""
@@ -19,12 +23,23 @@ MaterialShape { // App icon
     property real materialIconSize: implicitSize * materialIconScale
     property real appIconSize: implicitSize * appIconScale
     property real smallAppIconSize: implicitSize * smallAppIconScale
-    readonly property string appIconSource: {
-        const source = String(root.appIcon ?? "");
-        return source.startsWith("/") || source.startsWith("file:")
-            ? source
-            : Quickshell.iconPath(source, "image-missing");
+    // `appIcon` is a monochrome mask to tint with the shape's ink color.
+    property bool appIconIsMask: false
+    // Icon of the app that relayed the notification (a terminal hosting a
+    // TUI program), drawn as a small corner badge.
+    property var badgeIcon: ""
+    readonly property color inkColor: isUrgent ? Appearance.colors.colOnPrimaryContainer : Appearance.colors.colOnSecondaryContainer
+    // Icon name, absolute path or URL -> image source. Bare absolute paths
+    // need the scheme, or they are looked up inside the application's qrc.
+    function iconSource(icon) {
+        const source = String(icon ?? "");
+        if (source.startsWith("/"))
+            return `file://${source}`;
+        if (source.includes(":/"))
+            return source;
+        return Quickshell.iconPath(source, "image-missing");
     }
+    readonly property string appIconSource: iconSource(root.appIcon)
 
     implicitSize: 38 * scale
     property list<var> urgentShapes: [
@@ -53,13 +68,56 @@ MaterialShape { // App icon
         }
     }
     Loader {
+        id: maskIconLoader
+        active: root.image == "" && root.appIcon != "" && root.appIconIsMask
+        anchors.centerIn: parent
+        sourceComponent: Item {
+            implicitWidth: root.materialIconSize
+            implicitHeight: root.materialIconSize
+            Image {
+                id: maskImage
+                anchors.fill: parent
+                visible: false
+                asynchronous: true
+                fillMode: Image.PreserveAspectFit
+                sourceSize: Qt.size(width * 2, height * 2)
+                source: root.appIconSource
+            }
+            ColorOverlay {
+                anchors.fill: maskImage
+                source: maskImage
+                color: root.inkColor
+            }
+        }
+    }
+    Loader { // Relaying app, as a badge on the corner
+        active: root.image == "" && root.badgeIcon != ""
+        anchors {
+            right: parent.right
+            bottom: parent.bottom
+            rightMargin: -3
+            bottomMargin: -3
+        }
+        z: 1
+        sourceComponent: Rectangle {
+            implicitWidth: root.smallAppIconSize + 4
+            implicitHeight: root.smallAppIconSize + 4
+            radius: width / 2
+            color: Appearance.colors.colLayer1
+            IconImage {
+                anchors.centerIn: parent
+                implicitSize: root.smallAppIconSize
+                    source: root.iconSource(root.badgeIcon)
+            }
+        }
+    }
+    Loader {
         id: appIconLoader
-        active: root.image == "" && root.appIcon != ""
+        active: root.image == "" && root.appIcon != "" && !root.appIconIsMask
         anchors.centerIn: parent
         sourceComponent: IconImage {
             id: appIconImage
             implicitSize: root.appIconSize
-            asynchronous: true
             source: root.appIconSource
         }
     }
@@ -96,8 +154,7 @@ MaterialShape { // App icon
                 anchors.right: parent.right
                 sourceComponent: IconImage {
                     implicitSize: root.smallAppIconSize
-                    asynchronous: true
-                    source: root.appIconSource
+                            source: root.appIconSource
                 }
             }
         }
